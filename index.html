@@ -100,18 +100,20 @@
     color: var(--text);
     padding: 64px 0 0; overflow: hidden;
   }
-  /* 오른쪽 이름 블록의 마지막 줄을 GWANG 글자 바닥선에 맞춤 */
+  /* 오른쪽 직무 문구의 마지막 줄을 이름 글자 바닥선에 맞춤 */
   .hero-top { display: flex; justify-content: space-between; align-items: flex-end; align-items: last baseline; gap: 24px; }
   .eyebrow { font-family: var(--display); font-stretch: 112%; font-size: 12px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; color: #dadad6; }
-  .sconce { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; font-size: 14px; color: #dadad6; text-align: right; }
-  .sconce b { font-size: clamp(28px, 3.4vw, 36px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; color: var(--text); }
-  .sconce b .hanja { font-size: .58em; font-weight: 600; color: #dadad6; margin-left: .25em; }
-  .wordmark {
-    font-family: var(--display); font-stretch: 125%; font-weight: 900;
-    font-size: clamp(40px, 6.5vw, 72px); line-height: 1; letter-spacing: -0.01em;
+  .hero .eyebrow { display: flex; align-items: center; gap: 8px; }
+  .hero .eyebrow i { font-style: normal; color: #9a9a96; }
+  .hero .eyebrow b { font-stretch: 125%; font-weight: 900; letter-spacing: .08em; font-size: 16px; color: var(--text); }
+  .sconce { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; font-size: 14px; line-height: 1.7; color: #dadad6; text-align: right; }
+  .sconce .sep { display: none; font-style: normal; }
+  .hero-name {
     margin-top: 14px; color: var(--text);
+    font-size: clamp(36px, 5vw, 52px); font-weight: 800; line-height: 1.1; letter-spacing: .2em;
     text-shadow: 0 2px 0 rgba(0,0,0,.28);
   }
+  .hero-name span { font-family: var(--display); font-stretch: 112%; font-size: .42em; font-weight: 600; letter-spacing: .02em; color: #dadad6; margin-left: .15em; text-shadow: none; }
   .hero-bottom {
     display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: start;
     margin-top: 48px; padding: 36px 0 56px; border-top: 1px solid rgba(255,255,255,.22);
@@ -278,9 +280,11 @@
     .to-top { right: 16px; bottom: 16px; width: 54px; height: 54px; }
     .to-card { left: 16px; bottom: 16px; width: 54px; height: 54px; }
     .hero { padding-top: 44px; }
-    /* 모바일: 이름 블록을 GWANG 아래로 */
-    .hero-top { flex-direction: column; align-items: flex-start; gap: 14px; }
+    /* 모바일: 직무 문구를 이름 아래로 */
+    .hero-top { flex-direction: column; align-items: flex-start; gap: 8px; }
     .sconce { align-items: flex-start; text-align: left; }
+    .sconce br { display: none; }
+    .sconce .sep { display: inline; }
     .hero-bottom { grid-template-columns: 1fr; gap: 24px; margin-top: 32px; }
     .photo { width: 124px; height: 164px; order: -1; }
     .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -408,10 +412,10 @@
   <div class="wrap">
     <div class="hero-top">
       <div>
-        <p class="eyebrow">Portfolio — Gwang Sik Kim</p>
-        <div class="wordmark">GWANG</div>
+        <p class="eyebrow">Portfolio<i>—</i><b>GWANG</b></p>
+        <div class="hero-name">김광식<span>Gwang Sik Kim</span></div>
       </div>
-      <div class="sconce"><b>김광식<span class="hanja">金光植</span></b><span>운영 · 관리 · 프로세스 개선</span></div>
+      <div class="sconce"><span>운영 · 관리<i class="sep"> · </i><br>프로세스 개선</span></div>
     </div>
     <div class="hero-bottom">
       <div>
