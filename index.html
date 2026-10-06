@@ -156,9 +156,9 @@
   .glass b { white-space: nowrap; }
   /* 단위도 숫자와 같은 크기 → 가장 긴 "1시간→10분"이 칸에 들어가도록 카드 줄 폭에 맞춰 크기 조절 */
   .glass b { font-size: clamp(18px, 2.9cqi, 28px); }
-  .glass b .arr { font-family: "Noto Sans KR", sans-serif; font-weight: 500; margin: 0 .06em; }
-  .glass b small { font-size: .5em; font-weight: 700; letter-spacing: 0; margin-left: .12em; }
-  .glass .k { display: block; margin-bottom: 12px; font-style: normal; font-size: 12.5px; font-weight: 600; color: #a9a9a5; letter-spacing: -0.01em; }
+  .glass b .arr { font-family: "Noto Sans KR", sans-serif; font-weight: 500; font-size: .7em; margin: 0 .1em; }
+  .glass b small { font-family: "Noto Sans KR", sans-serif; font-size: .5em; font-weight: 500; letter-spacing: 0; margin-left: .12em; color: #d6d6d2; }
+  .glass .k { display: block; margin-bottom: 12px; font-style: normal; font-size: 16px; font-weight: 600; color: #a9a9a5; letter-spacing: -0.01em; }
   .glass > span { display: block; margin-top: 12px; font-size: 13.5px; color: #d0d0cc; line-height: 1.55; text-wrap: pretty; }
 
   /* sections */
@@ -301,7 +301,7 @@
     .links { flex-direction: column; }
     .edu .list li, .list.vol li { flex-direction: column; gap: 4px; }    .links .btn { width: 100%; text-align: center; }
     .glass b { font-size: clamp(14px, 5.6cqi, 24px); } /* 좁은 폰에서 1시간→10분이 칸을 넘지 않게 */
-    .glass .k { margin-bottom: 8px; font-size: 12px; }
+    .glass .k { margin-bottom: 8px; font-size: 14px; }
     .glass span br { display: none; } /* 모바일: 직접 넣은 줄바꿈 무시하고 자연스럽게 흐르게 */
     section.block { padding: 64px 0; }
     #experience { padding-bottom: 44px; }
@@ -364,6 +364,7 @@
     .reveal { opacity: 1; transform: none; }
     .hero, .stats, .contact, section.block, section.block.alt, footer { background: #fff !important; color: #111; }
     .hero *, .contact *, h2, h3, .glass b, .list li { color: #111 !important; text-shadow: none !important; }
+    .glass b small { color: #444 !important; }
     .glass, .value, .star, .thesis, .chip, .tag { background: #fff; border-color: #bbb; color: #111; box-shadow: none; }
     .glass span, .body p, .tl ul.pts, .star dd, .thesis, .case .kpi, .value p, .list li span:last-child { color: #333 !important; }
     section.block { padding: 32px 0; }
@@ -444,10 +445,10 @@
 
 <div class="stats">
   <div class="wrap stats-grid">
-    <div class="glass reveal"><em class="k">예산 집행 체계 개선</em><b>0건</b><span>지침에 어긋난 지출이 보이던 <br>집행 절차를 바꾼 뒤 <br>집행 누락과 감사 지적</span></div>
-    <div class="glass reveal"><em class="k">증빙 검증 기준표</em><b>2배</b><span>직접 만든 검증 기준표를 <br>팀이 함께 쓰며 <br>빨라진 회계평가 속도</span></div>
-    <div class="glass reveal"><em class="k">택배 관리 프로세스 개선</em><b>1시간<span class="arr">→</span>10분</b><span>따로 놀던 두 시트를 연결하고 <br>창고를 엑셀 도면으로 옮겨 <br>줄인 자료 찾는 시간</span></div>
-    <div class="glass reveal"><em class="k">재산등재 정상화</em><b>100건+</b><span>4년간 누락된 군 자산을 <br>추적해 정상 등재하고 <br>절차를 문서로 인계</span></div>
+    <div class="glass reveal"><em class="k">예산 집행 체계 개선</em><b>0<small>건</small></b><span>지침에 어긋난 지출이 보이던 <br>집행 절차를 바꾼 뒤 <br>집행 누락과 감사 지적</span></div>
+    <div class="glass reveal"><em class="k">증빙 검증 기준표</em><b>2<small>배</small></b><span>직접 만든 검증 기준표를 <br>팀이 함께 쓰며 <br>빨라진 회계평가 속도</span></div>
+    <div class="glass reveal"><em class="k">택배 관리 프로세스 개선</em><b>1<small>시간</small><span class="arr">→</span>10<small>분</small></b><span>따로 놀던 두 시트를 연결하고 <br>창고를 엑셀 도면으로 옮겨 <br>줄인 자료 찾는 시간</span></div>
+    <div class="glass reveal"><em class="k">재산등재 정상화</em><b>100<small>건</small></b><span>4년간 누락된 군 자산을 <br>추적해 정상 등재하고 <br>절차를 문서로 인계</span></div>
   </div>
 </div>
 
