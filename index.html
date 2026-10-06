@@ -141,7 +141,7 @@
     background-blend-mode: multiply, normal;
     border-bottom: 1px solid #000;
   }
-  .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; container-type: inline-size; }
   .glass {
     position: relative; padding: 26px 22px 24px; min-height: 172px;
     background:
@@ -154,12 +154,19 @@
   .glass::after { content: ""; position: absolute; inset: 10px; border: 1px solid rgba(255,255,255,.06); pointer-events: none; }
   .glass b { display: block; font-family: var(--display); font-stretch: 118%; font-size: 32px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; }
   .glass b { white-space: nowrap; }
+  /* 단위도 숫자와 같은 크기 → 가장 긴 "1시간→10분"이 칸에 들어가도록 카드 줄 폭에 맞춰 크기 조절 */
+  .glass b { font-size: clamp(18px, 2.9cqi, 28px); }
+  .glass b .arr { font-family: "Noto Sans KR", sans-serif; font-weight: 500; margin: 0 .06em; }
   .glass b small { font-size: .5em; font-weight: 700; letter-spacing: 0; margin-left: .12em; }
+  .glass .k { display: block; margin-bottom: 12px; font-style: normal; font-size: 12.5px; font-weight: 600; color: #a9a9a5; letter-spacing: -0.01em; }
   .glass > span { display: block; margin-top: 12px; font-size: 13.5px; color: #d0d0cc; line-height: 1.55; text-wrap: pretty; }
 
   /* sections */
   section.block { padding: 96px 0; border-bottom: 1px solid var(--line); }
   section.block.alt { background: var(--char-2); }
+  /* 경력 → 핵심 경험 사이 공백 줄이기 */
+  #experience { padding-bottom: 64px; }
+  #cases { padding-top: 64px; }
   .sec-head { display: grid; grid-template-columns: 190px 1fr; gap: 36px; }
   .sec-label { font-family: var(--display); font-stretch: 118%; font-size: 13px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; padding-top: 6px; color: var(--text); }
   .sec-label small { display: block; font-family: "Pretendard", sans-serif; font-weight: 500; color: var(--mute); letter-spacing: 0; text-transform: none; font-size: 13px; margin-top: 6px; line-height: 1.5; }
@@ -171,7 +178,7 @@
   .values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 40px; }
   .value { padding: 22px 20px; background: var(--panel); border: 1px solid var(--line-hi); }
   .value .n { font-family: var(--display); font-stretch: 125%; font-size: 12px; color: var(--mute); font-weight: 800; letter-spacing: .1em; }
-  .value h3 { font-size: 17px; margin: 8px 0 6px; color: #fff; }
+  .value h3 { font-size: 20px; letter-spacing: -0.02em; line-height: 1.4; margin: 8px 0 8px; color: #fff; }
   .value p { font-size: 14px; color: #d0d0cc; line-height: 1.6; }
 
   /* timeline */
@@ -267,6 +274,7 @@
   @media (max-width: 940px) {
     /* 태블릿 이하: 숫자 카드 4개가 한 줄에 들어가기엔 좁아서 2개씩 */
     .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .glass b { font-size: clamp(18px, 5.4cqi, 28px); }
   }
   @media (min-width: 761px) and (max-width: 900px) {
     /* 태블릿: 왼쪽 라벨 칸을 줄여 필터 버튼이 한 줄에 들어가게 */
@@ -289,12 +297,15 @@
     .photo { width: 124px; height: 164px; order: -1; }
     .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .glass { min-height: 150px; padding: 18px 12px; }
-    .glass span { font-size: 12.5px; }
+    .glass > span { font-size: 12.5px; }
     .links { flex-direction: column; }
     .edu .list li, .list.vol li { flex-direction: column; gap: 4px; }    .links .btn { width: 100%; text-align: center; }
-    .glass b { font-size: clamp(18px, 6.2vw, 24px); } /* 좁은 폰에서 +3,000만 원이 칸을 넘지 않게 */
+    .glass b { font-size: clamp(14px, 5.6cqi, 24px); } /* 좁은 폰에서 1시간→10분이 칸을 넘지 않게 */
+    .glass .k { margin-bottom: 8px; font-size: 12px; }
     .glass span br { display: none; } /* 모바일: 직접 넣은 줄바꿈 무시하고 자연스럽게 흐르게 */
     section.block { padding: 64px 0; }
+    #experience { padding-bottom: 44px; }
+    #cases { padding-top: 44px; }
     .sec-head { grid-template-columns: 1fr; gap: 16px; }
     .values { grid-template-columns: 1fr; }
     .tl > li { grid-template-columns: 1fr; gap: 4px; }
@@ -420,11 +431,11 @@
     <div class="hero-bottom">
       <div>
         <h1>관행을 구조로 바꿔<br>일의 낭비를 줄이는 사람</h1>
-        <p class="lead">예산·자산·증빙처럼 숫자와 근거가 중요한 일을 해왔습니다. 반복되는 비효율을 발견하면 혼자 버티기보다 프로세스와 도구를 새로 설계해, 제가 떠난 뒤에도 남는 체계를 만듭니다.</p>
+        <p class="lead">예산·자산·증빙처럼 숫자와 근거가 중요한 일을 해왔습니다. 반복되는 비효율을 발견하면 익숙해지기보다 프로세스와 도구를 새로 설계해, 제가 떠난 뒤에도 남는 체계를 만듭니다.</p>
         <div class="hero-meta">
           <span class="tag">육군 보급장교 (중위 전역)</span>
           <span class="tag">삼정회계법인 Intern</span>
-          <span class="tag">ADsP · 식품안전기사 등</span>
+          <span class="tag">ADsP · 컴활 2급</span>
         </div>
       </div>
     </div>
@@ -433,10 +444,10 @@
 
 <div class="stats">
   <div class="wrap stats-grid">
-    <div class="glass reveal"><b>100%</b><span>증식비 3억 원 예산 <br>목표 집행률 · 감사 지적 0건</span></div>
-    <div class="glass reveal"><b>2<small>배</small></b><span>검증 기준표 도입 후 <br>회계평가 처리 속도 <br><span class="nw">(주 2~3건 → 5~6건)</span></span></div>
-    <div class="glass reveal"><b>+100<small>건</small></b><span>4년간 누락된 군 자산을 <br>추적해 정상 등재</span></div>
-    <div class="glass reveal"><b>+3,000<small>만 원</small></b><span>근거 기반 보고로 확보한 <br>병영식당 추가 예산</span></div>
+    <div class="glass reveal"><em class="k">예산 집행 체계 개선</em><b>0건</b><span>지침에 어긋난 지출이 보이던 <br>집행 절차를 바꾼 뒤 <br>집행 누락과 감사 지적</span></div>
+    <div class="glass reveal"><em class="k">증빙 검증 기준표</em><b>2배</b><span>직접 만든 검증 기준표를 <br>팀이 함께 쓰며 <br>빨라진 회계평가 속도</span></div>
+    <div class="glass reveal"><em class="k">택배 관리 프로세스 개선</em><b>1시간<span class="arr">→</span>10분</b><span>따로 놀던 두 시트를 연결하고 <br>창고를 엑셀 도면으로 옮겨 <br>줄인 자료 찾는 시간</span></div>
+    <div class="glass reveal"><em class="k">재산등재 정상화</em><b>100건+</b><span>4년간 누락된 군 자산을 <br>추적해 정상 등재하고 <br>절차를 문서로 인계</span></div>
   </div>
 </div>
 
@@ -446,12 +457,12 @@
       <div class="sec-label">About<small>저는 이런 사람입니다</small></div>
       <div class="body reveal">
         <h2>“효율적인 방식을 잘 구상하고,<br>책임감이 높다”는 말을 자주 듣습니다.</h2>
-        <p>보급장교로 근무하며 3억 원 규모의 예산 집행, 전군 재물조사, 병영식당 리모델링 사업을 맡았습니다. 이전 담당자에게서 그대로 이어져 온 방식이 비효율적이라고 느끼면, 타 부대 사례를 조사하고 관계자와 논의해 프로세스를 다시 설계했습니다.</p>
-        <p>전역 후 삼정회계법인 인턴으로 사회복지공동모금회 배분금 수혜기관 약 400곳의 회계평가를 맡았습니다. 반복되는 지적사항은 기준표로, 흩어진 택배·접수 데이터는 AI(Copilot)를 활용한 엑셀 도구로 정리해 팀 전체가 함께 쓰도록 공유했습니다.</p>
+        <p>보급장교로 근무하며 약 10억 원 규모의 부대 예산 집행과 전군 재물조사, 병영식당 리모델링 사업을 맡았습니다. 이전 담당자에게서 그대로 이어져 온 예산 집행 방식이 비효율적이라고 느껴서 타 부대 사례를 조사하고 관계자와 논의해 절차를 다시 설계했고, 이 절차는 부대 표준으로 자리 잡았습니다.</p>
+        <p>전역 후 삼정회계법인 인턴으로 사회복지공동모금회 배분금 수혜기관 약 400곳의 회계평가를 맡았습니다. 반복되는 보완사항은 기준표로 정리하고, 흩어져 있던 택배와 접수 데이터는 Copilot을 활용한 엑셀 도구로 묶어 팀 전체가 함께 쓰도록 공유했습니다.</p>
         <div class="values">
-          <div class="value"><div class="n">01</div><h3>구조적 개선</h3><p>개인의 노력이 아니라 프로세스와 도구로 문제를 해결합니다.</p></div>
-          <div class="value"><div class="n">02</div><h3>근거와 원칙</h3><p>주장보다 데이터와 증빙으로 설득하고, 규정을 지키며 결과를 냅니다.</p></div>
-          <div class="value"><div class="n">03</div><h3>책임감</h3><p>남들이 어렵다고 넘긴 문제도 방법을 찾아 마무리하고, 인수인계까지 남깁니다.</p></div>
+          <div class="value"><div class="n">01</div><h3>일하는 방식 개선</h3><p>같은 문제가 반복되면 절차와 도구를 바꿔 다 같이 편해지는 방법을 찾습니다.</p></div>
+          <div class="value"><div class="n">02</div><h3>근거와 원칙</h3><p>주장보다 자료와 증빙으로 설득하고, 규정을 지키며 결과를 냅니다.</p></div>
+          <div class="value"><div class="n">03</div><h3>책임감</h3><p>남들이 어렵다고 넘긴 문제도 방법을 찾아 마무리하고, 다음 사람이 이어받을 수 있게 절차를 정리해 남깁니다.</p></div>
         </div>
       </div>
     </div>
@@ -467,22 +478,23 @@
             <h3>삼정회계법인</h3>
             <div class="role">인턴 · 사회복지공동모금회 배분금 회계평가 및 정산 검증</div>
             <ul class="pts">
-              <li>수혜기관 약 400곳의 지출 전표·영수증 전수 검토, 증빙 누락·규정 위반 리스크 식별 및 보완 절차 수행</li>
-              <li>규정·지침 기반 증빙 검증 기준표 제작 → 팀 표준으로 채택, 처리 속도 약 2배</li>
-              <li>실물 증빙 창고 구역 재배치 및 Copilot 활용 엑셀 창고 도면·위치 검색 시스템 구축 (택배 약 500건)</li>
+              <li>배분금을 받은 기관 약 400곳의 지출 증빙을 검토해 원천징수영수증 누락, 비교견적 누락, 배분금 인건비 편법 지출 등 규정 위반 식별</li>
+              <li>규정과 지침 기반 증빙 검증 기준표 제작 → 팀 표준으로 채택, 처리 속도 약 2배</li>
+              <li>증빙 택배 약 1,000건 창고를 담당 구역별로 재배치해 1주 예상 작업을 2일에 완료</li>
+              <li>Copilot으로 접수 시트와 택배 시트를 연결하고 엑셀 창고 도면을 만들어 택배 찾는 시간을 1시간에서 10분 안팎으로 단축</li>
             </ul>
           </div>
         </li>
         <li>
-          <div class="when">2023.03 – 2025.06</div>
+          <div class="when">2023.06 – 2025.06</div>
           <div>
             <h3>육군 국제평화지원단</h3>
             <div class="role">병참 · 보급장교 · 중위 전역</div>
             <ul class="pts">
-              <li>증식비 3억 원·4개 부대(약 600명) 예산 집행 체계 개편, 집행률 100%·감사 지적 0건 → 부대 표준 프로세스로 정착, 표창</li>
-              <li>4년간 누락된 군 자산을 계약서·공문 추적으로 식별해 국방군수통합관리체계(DELIS)에 약 100건 등재</li>
-              <li>병영식당 리모델링 8천만 원 사업 우선순위 수립·심의 진행, 추가 예산 3천만 원 확보</li>
-              <li>약 3천만 원 규모 전투식량 조달청 입찰 전환, 업체 압박에도 계약 조건대로 납품</li>
+              <li>증식비 3억 원, 4개 부대 약 600명의 예산 집행 절차를 개편해 집행 누락과 감사 지적 0건 → 부대 표준 프로세스로 정착, 표창</li>
+              <li>4년간 누락된 군 자산을 계약서와 공문으로 추적해 국방군수통합정보체계에 약 100건 등재하고 절차를 문서로 인계</li>
+              <li>병영식당 리모델링 8천만 원 사업을 준공 일정 내 완료하고, 심의 결과를 근거로 추가 예산 3천만 원 확보</li>
+              <li>약 3천만 원 규모 전투식량 구매를 조달청 입찰로 전환하고, 낙찰업체의 수량 축소 요구에 기존 거래 자료로 대응해 계약 조건대로 납품</li>
             </ul>
           </div>
         </li>
@@ -492,8 +504,8 @@
             <h3>경북대학교 농업생명과학대학 학생회</h3>
             <div class="role">사무국장</div>
             <ul class="pts">
-              <li>단과대 학생회 운영·행정 총괄 및 예산 관리</li>
-              <li>책 중고장터, 달빛걷기·농대 가요제, 간식 마차 등 행사 기획·운영</li>
+              <li>사업별 예산 편성과 집행, 정산 담당</li>
+              <li>예산이 거의 소진된 상황에서 행정실과 협의해 추가 예산을 확보하고 타 단과대 협업 행사 개최</li>
             </ul>
           </div>
         </li>
@@ -503,15 +515,15 @@
 
   <section class="block" id="cases">
     <div class="wrap sec-head">
-      <div class="sec-label">Key Cases<small>핵심 경험 6선<br>클릭하면 펼쳐집니다</small></div>
+      <div class="sec-label">Key Cases<small>핵심 경험 7선<br>클릭하면 펼쳐집니다</small></div>
       <div class="reveal">
         <div class="filters" role="group" aria-label="역량 필터">
           <button class="on" data-f="all">전체</button>
           <button data-f="프로세스 개선">프로세스 개선</button>
-          <button data-f="문제해결">문제해결</button>
           <button data-f="데이터·디지털">데이터·디지털</button>
           <button data-f="협업·조율">협업·조율</button>
           <button data-f="원칙·협상">원칙·협상</button>
+          <button data-f="리더십">리더십</button>
         </div>
         <div id="case-list"></div>
       </div>
@@ -666,7 +678,7 @@ const CASES = [
     title: "개인에게 몰린 예산 집행 업무를 부대 단위 분산 체계로 개편",
     ctx: "육군 보급장교 · 증식비 3억 원 · 4개 부대 약 600명",
     kpi: "집행률 100% · 감사 지적 0건 · 부대 표준 프로세스 정착 및 표창",
-    tags: ["프로세스 개선", "문제해결", "데이터·디지털"],
+    tags: ["프로세스 개선", "데이터·디지털"],
     S: "하위 부대가 카드 영수증만 내면 본부에서 제가 약 400건의 전표를 혼자 일괄 처리하는 관행이었습니다. 부대별 사용 현황을 실시간으로 알 수 없었고, 사전 승인 없는 집행으로 감사 리스크도 있었습니다.",
     T: "행정 비효율 제거, 감사 리스크 최소화, 집행 투명성 확보, 부대별 예산 현황 관리.",
     A: ["타 부대 벤치마킹 후 상급부대·선임·과장과 원인 분석",
@@ -678,11 +690,11 @@ const CASES = [
     L: "업무를 단순히 수행하는 데서 그치지 않고, 구조를 바꾸면 사람이 바뀌어도 성과가 유지된다는 것을 배웠습니다."
   },
   {
-    title: "반복되는 지적사항을 검증 기준표로 표준화",
+    title: "반복되는 보완사항을 검증 기준표로 표준화",
     ctx: "삼정회계법인 인턴 · 사회복지공동모금회 배분금 회계평가",
-    kpi: "평가 속도 약 2배 (주 2~3건 → 5~6건) · 인턴 5명 공동 활용",
-    tags: ["프로세스 개선", "문제해결", "협업·조율"],
-    S: "전자세금계산서 누락, 강사비 원천징수영수증 누락, 200만 원 초과 지출의 비교견적 누락 같은 지적사항이 반복됐지만, 매번 지침서를 찾아야 했고 담당자마다 판단 기준도 달랐습니다.",
+    kpi: "평가 속도 약 2배 (주 2~3건 → 5~6건) · 팀원 공동 활용",
+    tags: ["프로세스 개선", "협업·조율"],
+    S: "전자세금계산서 누락, 강사비 원천징수영수증 누락, 200만 원 초과 지출의 비교견적 누락 같은 보완사항이 반복됐지만, 매번 지침서를 찾아야 했고 담당자마다 판단 기준도 달랐습니다.",
     T: "개별 판단 대신 표준화된 기준표로 검증 속도와 정확도를 함께 높이기.",
     A: ["관련 규정집·지침서를 정리해 엑셀 기준표 제작 (결의서, 적격증빙, 자산 실사, 비교견적, 2천만 원 이상 입찰 및 사회적기업 예외 등)",
         "평가를 진행하며 실제 사례를 기준표에 계속 축적",
@@ -691,15 +703,29 @@ const CASES = [
     L: "혼자 아는 것보다 같이 쓰는 기준을 만드는 게 팀 전체 속도를 바꾼다는 걸 느꼈습니다."
   },
   {
-    title: "AI로 분리된 택배 데이터를 연결하고 창고를 ‘지도’로 만들다",
-    ctx: "삼정회계법인 인턴 · 실물 증빙 택배 약 500건",
+    title: "1,000건이 쌓인 증빙 창고, 의견을 모아 2일 만에 정리",
+    ctx: "삼정회계법인 인턴 · 실물 증빙 약 1,000건",
+    kpi: "1주 예상 작업 → 2일 완료 · 담당 구역별 정리 기준 팀 전체 적용",
+    tags: ["리더십", "협업·조율"],
+    S: "인턴 2개월 차에 택배로 들어온 실물 증빙이 약 1,000건까지 쌓여 창고가 수용 한계를 넘었습니다. 들어온 순서대로 기준 없이 쌓여 있어 평가할 자료를 찾을 수 없었고, 업무 자체가 멈출 상황이었습니다.",
+    T: "정리할 시간을 확보하고, 갈린 의견을 조율해 회계평가에 맞는 정리 기준을 세워 실행하기.",
+    A: ["상급자에게 상황을 보고해 창고를 정리할 시간을 확보",
+        "번호대별·박스 크기별로 의견이 갈리자, 정리의 목적이 회계평가라는 점을 짚어 담당 구역별 정리를 제안",
+        "시간이 오래 걸린다는 반대에는 지금 들인 시간이 이후 각자의 평가를 빠르게 한다는 논리로 설득",
+        "누적 입고 데이터와 인원별 구역 조건을 AI에 넣어 적재 배치를 시뮬레이션",
+        "기관을 찾는 식별팀과 구역별로 쌓는 적재팀으로 나눠 동시에 진행"],
+    R: "1주일 걸릴 것으로 예상한 작업을 2일 만에 끝냈고, 서류 찾는 시간이 줄어 회계평가 속도가 빨라졌습니다. 담당 구역별 정리 기준은 팀 전체에 적용됐습니다.",
+    L: "아무도 먼저 말하지 않던 문제를 꺼내고 방법까지 정리하면, 인턴이어도 팀을 움직일 수 있다는 걸 배웠습니다."
+  },
+  {
+    title: "AI로 분리된 택배 데이터를 연결하고 창고를 ‘지도’로 만들다",    ctx: "삼정회계법인 인턴 · 실물 증빙 택배 약 1,000건",
     kpi: "택배 찾는 시간 길게는 1시간 → 10분 안팎 · 보관 현황·평가 여부 실시간 관리",
-    tags: ["데이터·디지털", "문제해결", "프로세스 개선"],
+    tags: ["데이터·디지털", "프로세스 개선"],
     S: "기관들로부터 받은 실물 증빙의 이메일 접수 정보와 택배 정보가 따로 관리되었고, 창고 내 위치도 정해져 있지 않아 평가 1건을 위해 택배를 찾는 데 길게는 1시간까지 걸렸습니다.",
     T: "접수·택배 데이터를 연결하고, 위치를 체계적으로 관리해 검색 시간을 최소화하기.",
     A: ["사내 Copilot 교육을 듣고 결과 정의·데이터 구조 설명·역질문 활용으로 프롬프트를 구체화",
         "동료 인턴과 함께 두 시트의 사업명·기관명이 일치하면 택배번호(B-00)가 자동으로 들어가도록 INDEX와 MATCH 함수로 연결",
-        "담당자별 창고 구역을 100번대, 200번대처럼 번호대별로 고정하고, 약 500건의 위치를 혼자 전수조사해 데이터화",
+        "담당자별 창고 구역을 100번대, 200번대처럼 번호대별로 고정하고, 남은 택배의 위치를 혼자 전수조사해 데이터화",
         "엑셀에 창고 도면을 구현해 추가·삭제·위치 변경이 자동 반영되고, 번호를 입력하면 해당 행과 열이 표시되고 구역 색이 바뀌도록 설계",
         "선임 회계사 동의를 받아 팀 공유 파일에 반영"],
     R: "택배 찾는 시간이 길게는 1시간에서 10분 안팎으로 줄어 평가 업무에 집중할 수 있게 되었고, 프롬프트 활용법을 동료 인턴들에게 공유했습니다.",
@@ -708,15 +734,15 @@ const CASES = [
   {
     title: "4년간 누락된 군 자산, 끝까지 추적해 정상 등재",
     ctx: "육군 보급장교 · 전군 재물조사",
-    kpi: "약 100건 자산 DELIS 등재 · 감사 리스크 제거 · 절차 문서화",
-    tags: ["문제해결", "협업·조율"],
-    S: "부대에 실재하는 컨테이너·에어컨·생활관 시설물이 국방군수통합관리체계(DELIS)에 없어 수리·폐기·관리가 불가능했습니다. 수년간 누적되어 주변에서는 해결이 어렵다고 여겼습니다.",
-    T: "누락 현황과 원인 파악, 근거자료 확보, DELIS 정상 등록.",
+    kpi: "약 100건 자산 국방군수통합정보체계 등재 · 감사 리스크 제거 · 절차 문서화",
+    tags: ["협업·조율"],
+    S: "부대에 실재하는 컨테이너·에어컨·생활관 시설물이 국방군수통합정보체계에 없어 수리·폐기·관리가 불가능했습니다. 수년간 누적되어 주변에서는 해결이 어렵다고 여겼습니다.",
+    T: "누락 현황과 원인 파악, 근거자료 확보, 국방군수통합정보체계 정상 등록.",
     A: ["과거 공문·계약자료로 누락 시점을 추적해 약 4년간 누적된 문제임을 확인",
         "상급부대 자산 담당자에게 직접 해결 절차를 문의",
         "계약서·납품 공문·공사 자료를 대조해 자산을 하나씩 식별 (재정담당관·군수과 실무자와 협업)",
         "근거가 없는 자산은 재물조사 결과·실물 사진·사유서로 보완 근거를 마련 (상급부대와 합의)",
-        "DELIS 입력 후 상급부대 승인으로 등재 완료"],
+        "국방군수통합정보체계 입력 후 상급부대 승인으로 등재 완료"],
     R: "약 100건의 자산을 정상 등재해 자산관리 체계를 바로잡았고, 절차를 문서화해 후임자에게 인계했습니다. 상급자에게 “보통 끈기로 할 수 있는 일이 아니다”라는 평가를 받았습니다.",
     L: "해결할 수 없는 문제라고 여겨졌지만, 실은 해결 방법을 몰라 방치된 문제였습니다."
   },
@@ -724,7 +750,7 @@ const CASES = [
     title: "8천만 원 예산 안에서 병영식당 리모델링 완수, 추가 예산까지 확보",
     ctx: "육군 보급장교 · 국방부 ‘더 좋은 병영식당’ 사업",
     kpi: "준공 일정 준수 · 예산 전액 집행 · 추가 예산 3천만 원 확보",
-    tags: ["협업·조율", "문제해결"],
+    tags: ["협업·조율"],
     S: "보급장교로 근무하던 중 맡은 사업으로, 배정 예산 8천만 원으로는 지침의 모든 품목을 살 수 없었고 준공 일정도 이미 확정된 상태였습니다.",
     T: "필수 품목 중심으로 우선순위를 정해 일정 내 확보하고, 추가 예산의 객관적 근거 마련하기.",
     A: ["식당관리관·조리원·조리병, 각 부대 대표와 운영회의로 품목별 필요성 조사",
@@ -738,8 +764,8 @@ const CASES = [
   {
     title: "수의계약에서 입찰로 전환, 압박 속에서도 계약 조건을 지키다",
     ctx: "육군 보급장교 · 전투식량 약 3천만 원",
-    kpi: "계약서상 수량·단가 그대로 납품 완료",
-    tags: ["원칙·협상", "문제해결"],
+    kpi: "업체의 수량 축소 요구 차단 · 훈련 인원 식사 차질 방지 · 반복 수의계약 지적 해소",
+    tags: ["원칙·협상"],
     S: "동일 업체 반복 수의계약이 부적절하다는 재정담당 지적으로 조달청 입찰로 전환했는데, 낙찰된 중개업체가 단가가 비현실적이라며 수량 축소를 요구했습니다.",
     T: "훈련에 차질이 없도록 계약 수량과 단가를 지키기.",
     A: ["입찰 서류·지침을 스스로 조사하며 계약 불이행 시 페널티 구조까지 사전에 파악",
