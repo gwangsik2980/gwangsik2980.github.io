@@ -237,8 +237,6 @@
   .list li { display: flex; justify-content: space-between; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 15px; color: #f2f2f0; }
   .list li span:last-child { color: var(--sub); font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   h4 { font-family: var(--display); font-stretch: 118%; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 12px; color: var(--sub); }
-  .thesis { margin-top: 32px; padding: 22px 24px; background: var(--panel); border: 1px solid var(--line-hi); font-size: 15px; color: #e4e4e1; }
-  .thesis b { display: block; margin-bottom: 6px; color: #fff; }
   .edu { margin-top: 40px; }
   .edu .list li, .list.vol li { align-items: baseline; padding: 16px 0; }
   /* 봉사활동: 좁은 칸이라 기간을 설명 아래로 */
@@ -246,6 +244,7 @@
   .nw { white-space: nowrap; }
   .list.vol .edu-main b { font-size: 16px; }  .edu-main b { display: block; font-size: 19px; font-weight: 700; letter-spacing: -0.02em; color: #fff; }
   .edu-main small { display: block; margin-top: 4px; font-size: 13px; color: var(--sub); }
+  .edu-main small.thesis { margin-top: 2px; }
   /* contact : 스투코 벽 */
   .contact {
     padding: 96px 0 80px;
@@ -373,8 +372,8 @@
     .hero, .stats, .contact, section.block, section.block.alt, footer { background: #fff !important; color: #111; }
     .hero *, .contact *, h2, h3, .glass b, .list li { color: #111 !important; text-shadow: none !important; }
     .glass b small { color: #444 !important; }
-    .glass, .value, .star, .thesis, .chip, .tag { background: #fff; border-color: #bbb; color: #111; box-shadow: none; }
-    .glass span, .body p, .tl ul.pts, .star dd, .thesis, .case .kpi, .value p, .flow .value li, .list li span:last-child { color: #333 !important; }
+    .glass, .value, .star, .chip, .tag { background: #fff; border-color: #bbb; color: #111; box-shadow: none; }
+    .glass span, .body p, .tl ul.pts, .star dd, .case .kpi, .value p, .flow .value li, .list li span:last-child { color: #333 !important; }
     section.block { padding: 32px 0; }
     .edu-main b { color: #111 !important; }
     .case { break-inside: avoid; }
@@ -575,12 +574,8 @@
         <div class="edu">
           <h4>Education</h4>
           <ul class="list">
-            <li><span class="edu-main"><b>경북대학교 (대구)</b><small>식품공학부 식품소재공학전공 · 학점 4.0 / 4.5</small></span><span>2019.03 – 2023.02 졸업</span></li>
+            <li><span class="edu-main"><b>경북대학교 (대구)</b><small>식품공학부 식품소재공학전공 · 학점 4.0 / 4.5</small><small class="thesis">* 졸업논문: 참마 껍질 유래 페난트렌 화합물의 항산화 활성 평가</small></span><span>2019.03 – 2023.02 졸업</span></li>
           </ul>
-        </div>
-        <div class="thesis">
-          <b>졸업논문: 참마 껍질 유래 페난트렌 화합물의 항산화 활성 평가</b>
-          가공 시 버려지던 참마 껍질에서 추출한 페난트렌 3종의 항산화 활성을 비교해, 농도 의존적 효과와 건강기능식품 소재로서의 가능성을 확인했습니다.
         </div>
       </div>
     </div>
