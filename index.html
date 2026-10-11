@@ -192,8 +192,8 @@
   /* 구매 흐름도 : 협상 → 계약 절차 → 검수와 유지 */
   .flow { list-style: none; display: grid; grid-template-columns: 1fr 28px 1fr 28px 1fr; align-items: stretch; margin-top: 40px; }
   .flow .value ul { list-style: none; }
-  .flow .value li { font-size: 14px; color: #d0d0cc; line-height: 1.6; padding: 3px 0; }
-  .flow .value li::before { content: ""; display: inline-block; width: 6px; height: 1px; background: var(--mute); vertical-align: middle; margin-right: 8px; }
+  .flow .value li { position: relative; font-size: 14px; color: #d0d0cc; line-height: 1.6; padding: 3px 0 3px 14px; }
+  .flow .value li::before { content: ""; position: absolute; left: 0; top: calc(3px + .8em); width: 6px; height: 1px; background: var(--mute); }
   .flow-arr { display: grid; place-items: center; color: #9a9a96; }
   .flow-arr svg { width: 18px; height: 18px; }
 
@@ -389,6 +389,9 @@
     section.block { padding: 32px 0; }
     .edu-main b { color: #111 !important; }
     .tl .exp-key { color: #111 !important; }
+    /* 흰 종이에서 흐려지던 라벨과 보조 글자 */
+    .sec-label, h4, .star dt { color: #111 !important; }
+    .sec-label small, .tl .when, .tl .role, .case .ctx, .edu-main small, .glass .k, .value .n, .case .idx, footer, footer .mark { color: #555 !important; }
     .case { break-inside: avoid; }
   }
   @media (prefers-reduced-motion: reduce) {
