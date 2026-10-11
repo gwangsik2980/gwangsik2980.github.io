@@ -207,6 +207,7 @@
   .tl ul.pts { margin-top: 10px; padding-left: 16px; font-size: 15px; color: #e4e4e1; list-style: circle; }
   .tl ul.pts li { padding: 2px 0; }
   .tl ul.pts li::marker { color: var(--mute); }
+  .tl .exp-key { font-weight: 700; color: var(--text); margin-right: 6px; }
 
   /* cases */
   .filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
@@ -387,6 +388,7 @@
     .glass span, .body p, .tl ul.pts, .star dd, .case .kpi, .value p, .flow .value li, .list li span:last-child { color: #333 !important; }
     section.block { padding: 32px 0; }
     .edu-main b { color: #111 !important; }
+    .tl .exp-key { color: #111 !important; }
     .case { break-inside: avoid; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -500,10 +502,10 @@
             <h3>삼정회계법인</h3>
             <div class="role">인턴 · 사회복지공동모금회 배분금 회계평가 및 정산 검증</div>
             <ul class="pts">
-              <li>사회복지공동모금회 배분금 사업 약 400건의 회계평가를 맡아 지출 증빙을 검토하고, 원천징수영수증 누락, 비교견적 누락, 배분금 인건비 편법 지출 등 규정 위반 식별</li>
-              <li>규정과 지침 기반 증빙 검증 기준표 제작 → 팀 표준으로 채택, 처리 속도 약 2배</li>
-              <li>증빙 택배 약 1,000건 창고를 담당 구역별로 재배치해 1주 예상 작업을 2일에 완료</li>
-              <li>Copilot으로 접수 시트와 택배 시트를 연결하고 엑셀 창고 도면을 만들어 택배 찾는 시간을 1시간에서 10분 안팎으로 단축</li>
+              <li><strong class="exp-key">증빙 검증</strong> 배분금 사업 약 400건을 회계평가하고 비교견적 누락 등 규정 위반 식별</li>
+              <li><strong class="exp-key">검증 기준표</strong> 규정과 지침으로 기준표를 만들어 팀 표준으로 채택, 처리 속도 약 2배</li>
+              <li><strong class="exp-key">창고 재배치</strong> 증빙 택배 약 1,000건을 구역별로 다시 쌓아 1주 예상 작업을 2일에 완료</li>
+              <li><strong class="exp-key">택배 위치 관리</strong> 엑셀로 접수 시트와 택배 시트를 잇고 창고 도면을 만들어 찾는 시간 1시간→10분</li>
             </ul>
           </div>
         </li>
@@ -513,11 +515,11 @@
             <h3>육군 국제평화지원단</h3>
             <div class="role">병참 · 보급장교 · 중위 전역</div>
             <ul class="pts">
-              <li>약 3천만 원 규모 전투식량 약 2,000개 구매를 나라장터 입찰로 전환해 계약특수조건과 구매내역서를 작성하고, 낙찰업체의 수량 축소 요구에 시장조사와 타부대 계약 자료로 대응해 계약 조건대로 납품받고 검수</li>
-              <li>방치된 대형 식기세척기 교체를 비교견적 수의계약으로 진행해 견적 3곳을 비교하고, 예산을 넘긴 철거비를 업체 부담으로 협상해 1,200만 원 안에서 교체</li>
-              <li>병영식당 리모델링 8천만 원 사업을 준공 일정 내 완료하고, 심의 결과를 근거로 추가 예산 3천만 원 확보</li>
-              <li>4년간 누락된 군 자산을 계약서와 공문으로 추적해 국방군수통합정보체계에 약 100건 등재하고 절차를 문서로 인계</li>
-              <li>증식비 3억 원, 4개 부대 약 600명의 예산 집행 절차를 개편해 집행 누락과 감사 지적 0건 → 부대 표준 프로세스로 정착, 표창</li>
+              <li><strong class="exp-key">전투식량 입찰</strong> 약 2,000개, 3천만 원 규모를 입찰로 전환하고 수량 축소 요구에도 계약대로 납품</li>
+              <li><strong class="exp-key">식기세척기 교체</strong> 견적 3곳을 비교하고 철거비를 업체 부담으로 협상해 1,200만 원 안에서 교체</li>
+              <li><strong class="exp-key">병영식당 리모델링</strong> 8천만 원 사업을 일정 내 마치고 심의 결과를 근거로 3천만 원 추가 확보</li>
+              <li><strong class="exp-key">자산 등재</strong> 4년간 누락된 자산 약 100건을 추적해 등재하고 절차를 문서로 남김</li>
+              <li><strong class="exp-key">예산 집행 개편</strong> 증식비 3억 원 집행 절차를 바꿔 감사 지적 0건, 부대 표준으로 정착</li>
             </ul>
           </div>
         </li>
@@ -527,8 +529,8 @@
             <h3>경북대학교 농업생명과학대학 학생회</h3>
             <div class="role">사무국장</div>
             <ul class="pts">
-              <li>사업별 예산 편성과 집행, 정산 담당</li>
-              <li>예산이 거의 소진된 상황에서 행정실과 협의해 추가 예산을 확보하고 타 단과대 협업 행사 개최</li>
+              <li><strong class="exp-key">예산 관리</strong> 사업별 예산 편성과 집행, 정산</li>
+              <li><strong class="exp-key">추가 예산 확보</strong> 예산이 거의 남지 않았을 때 행정실과 협의해 추가 확보</li>
             </ul>
           </div>
         </li>
