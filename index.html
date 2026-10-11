@@ -362,16 +362,16 @@
   .bc-front .bc-content span { font-family: var(--display); font-stretch: 125%; font-weight: 900; letter-spacing: .08em; font-size: clamp(26px, 8vw, 34px); color: #f2f2f0; }
   .bc-back .bc-content { padding: 22px 22px 20px; display: flex; flex-direction: column; justify-content: space-between; color: #f2f2f0; }
   .bc-nm { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.3; }
-  .bc-nm small { font-size: 13px; font-weight: 400; color: #bdbdb9; margin-left: 6px; }
-  .bc-role { font-size: 12px; color: #bdbdb9; margin-top: 4px; }
+  .bc-nm small { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; letter-spacing: .04em; color: #bdbdb9; }
+  .bc-role { font-size: 12px; color: #bdbdb9; margin-top: 6px; white-space: nowrap; }
   .bc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-  .bc-tag { flex: none; font-family: var(--display); font-stretch: 112%; font-weight: 700; font-size: 11px; letter-spacing: .14em; color: #bdbdb9; padding-top: 6px; }
-  .bc-nm small { white-space: nowrap; }
+  .bc-job { flex: none; text-align: right; }
+  .bc-tag { font-family: var(--display); font-stretch: 112%; font-weight: 700; font-size: 11px; letter-spacing: .14em; color: #bdbdb9; padding-top: 6px; }
   .bc-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
   .bc-ct { font-size: 12px; line-height: 1.7; color: #dadad6; min-width: 0; }
   .bc-go { flex: none; font-family: var(--display); font-stretch: 112%; font-weight: 700; font-size: 11px; letter-spacing: .14em; white-space: nowrap; }
-  @media (max-width: 420px) { .bc-nm { font-size: 20px; } .bc-nm small { font-size: 11px; margin-left: 5px; } .bc-tag { font-size: 9.5px; letter-spacing: .1em; } }
-  @media (max-width: 360px) { .bc-nm small { display: block; margin: 2px 0 0; } .bc-ct { font-size: 11px; } .bc-go { font-size: 10px; letter-spacing: .1em; } }
+  @media (max-width: 420px) { .bc-nm { font-size: 20px; } .bc-nm small { font-size: 11px; } .bc-tag { font-size: 10px; letter-spacing: .1em; } .bc-role { font-size: 11px; } }
+  @media (max-width: 360px) { .bc-ct { font-size: 11px; } .bc-go { font-size: 10px; letter-spacing: .1em; } }
   .intro-hint { font-size: 13px; color: #e2e2de; text-align: center; }
   .intro-skip { font: inherit; font-size: 14px; font-weight: 700; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.6); border-radius: 2px; padding: 10px 20px; cursor: pointer; }
   .intro-skip:hover { background: rgba(255,255,255,.08); }
@@ -414,7 +414,7 @@
       <div class="bc-face bc-back">
         <svg class="bc-wm" viewBox="-12 -12 24 24" aria-hidden="true"><g class="emblem-g" fill="none" stroke="#f2f2f0" stroke-width=".9" stroke-linejoin="round"></g></svg>
         <div class="bc-content">
-          <div class="bc-top"><div><div class="bc-nm">김광식<small>KIM GWANG SIK</small></div><div class="bc-role">구매 · 계약 · 증빙 검증</div></div><div class="bc-tag">PROCUREMENT</div></div>
+          <div class="bc-top"><div class="bc-nm">김광식<small>KIM GWANG SIK</small></div><div class="bc-job"><div class="bc-tag">PROCUREMENT</div><div class="bc-role">구매 · 계약 · 증빙 검증</div></div></div>
           <div class="bc-bottom"><div class="bc-ct">kgs2632947@naver.com</div><div class="bc-go">PORTFOLIO →</div></div>
         </div>
         <div class="bc-shine"></div><div class="bc-edge"></div>
