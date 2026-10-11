@@ -117,7 +117,7 @@
   .hero .eyebrow i { font-style: normal; color: #9a9a96; }
   .hero .eyebrow b { font-stretch: 125%; font-weight: 900; letter-spacing: .08em; font-size: 16px; color: var(--text); }
   .sconce { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; font-size: 14px; line-height: 1.7; color: #dadad6; text-align: right; }
-  .sconce .sep { display: none; font-style: normal; }
+  .sconce .want { font-weight: 700; color: #fff; }
   .hero-name {
     margin-top: 14px; color: var(--text);
     font-size: clamp(36px, 5vw, 52px); font-weight: 800; line-height: 1.1; letter-spacing: .2em;
@@ -306,8 +306,6 @@
     /* 모바일: 직무 문구를 이름 아래로 */
     .hero-top { flex-direction: column; align-items: flex-start; gap: 8px; }
     .sconce { align-items: flex-start; text-align: left; }
-    .sconce br { display: none; }
-    .sconce .sep { display: inline; }
     .hero-bottom { grid-template-columns: 1fr; gap: 24px; margin-top: 22px; }
     .photo { width: 124px; height: 164px; order: -1; }
     .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -444,7 +442,7 @@
         <p class="eyebrow">Portfolio</p>
         <div class="hero-name">김광식<span>Gwang Sik Kim</span></div>
       </div>
-      <div class="sconce"><span>구매 · 계약<i class="sep"> · </i><br>증빙 검증</span></div>
+      <div class="sconce"><span>구매 · 계약 · 증빙 검증</span><span class="want">희망 직무: 구매</span></div>
     </div>
     <div class="hero-bottom">
       <div>
