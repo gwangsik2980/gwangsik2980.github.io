@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>GWANG | 김광식 구매 직무 포트폴리오</title>
-<meta name="description" content="시장에서 근거를 찾고 기준 안에서 구매 조건을 만듭니다. 군에서는 부대 물자를 직접 사는 쪽에, 회계법인에서는 그 구매를 검증하는 쪽에 있었습니다.">
+<meta name="description" content="시장을 알고 기준을 지킵니다. 군에서는 부대 물자를 직접 사는 쪽에, 회계법인에서는 그 구매를 검증하는 쪽에 있었습니다.">
 <!-- 카톡·메일로 링크를 보낼 때 뜨는 미리보기 -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://gwangsik2980.github.io/">
 <meta property="og:title" content="김광식 | 구매 직무 포트폴리오">
-<meta property="og:description" content="시장에서 근거를 찾고 기준 안에서 구매 조건을 만듭니다. 군에서는 부대 물자를 직접 사는 쪽에, 회계법인에서는 그 구매를 검증하는 쪽에 있었습니다.">
+<meta property="og:description" content="시장을 알고 기준을 지킵니다. 군에서는 부대 물자를 직접 사는 쪽에, 회계법인에서는 그 구매를 검증하는 쪽에 있었습니다.">
 <meta property="og:image" content="https://gwangsik2980.github.io/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -309,12 +309,11 @@
     .photo { width: 124px; height: 164px; order: -1; }
     .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .glass { min-height: 150px; padding: 18px 12px; }
-    .glass > span { font-size: 12.5px; }
+    .glass > span { font-size: min(11.5px, 3.3cqi); letter-spacing: -0.02em; } /* 칸 폭에 맞춰 줄여 설명이 2줄을 넘지 않게 */
     .links { flex-direction: column; }
     .edu .list li { flex-direction: column; gap: 4px; }    .links .btn { width: 100%; text-align: center; }
     .glass b { font-size: clamp(16px, 8cqi, 32px); } /* 좁은 폰에서 1시간→10분이 칸을 넘지 않게 */
     .glass .k { margin-bottom: 8px; font-size: 14px; }
-    .glass span br { display: none; } /* 모바일: 직접 넣은 줄바꿈 무시하고 자연스럽게 흐르게 */
     section.block { padding: 64px 0; }
     #experience { padding-bottom: 44px; }
     #cases { padding-top: 44px; }
@@ -331,6 +330,7 @@
   @media (max-width: 400px) {
     /* 좁은 폰: 메뉴 5개가 한 화면에 들어가도록 */
     nav ul { gap: 12px; font-size: 13px; }
+    .glass { padding-left: 10px; padding-right: 10px; }
   }
   /* 인트로 : 회전하는 블랙카드 명함 */
   body.intro-open { overflow: hidden; }
@@ -454,7 +454,7 @@
     </div>
     <div class="hero-bottom">
       <div>
-        <h1><span class="nw">시장에서 근거를 찾고</span><br><span class="nw">기준 안에서</span> <span class="nw">구매 조건을 만듭니다</span></h1>
+        <h1>시장을 알고<br>기준을 지킵니다</h1>
         <p class="lead">군에서는 부대에 필요한 물자를 직접 사는 쪽에 있었고, 회계법인에서는 그 구매가 규정대로 이뤄졌는지 검증하는 쪽에 있었습니다. 시장조사와 계약 자료를 바탕으로 업체와 이야기하고, 비교견적과 입찰 절차를 지키면서 예산 안에서 필요한 물자를 확보해 왔습니다.</p>
         <div class="hero-meta">
           <span class="tag">육군 보급장교 · 중위 전역</span>
@@ -468,10 +468,10 @@
 
 <div class="stats">
   <div class="wrap stats-grid">
-    <div class="glass reveal"><em class="k">전투식량 입찰 계약</em><b>100<small>%</small></b><span>낙찰업체가 수량 축소를 요구했지만 시장조사와 타부대 계약 자료로 대응해 약 2,000개를 계약대로 납품받음</span></div>
-    <div class="glass reveal"><em class="k">식기세척기 교체</em><b>0<small>원</small></b><span>견적 3곳을 비교하고, 예산을 넘긴 철거비를 업체 부담으로 협상해 추가 비용 없이 1,200만 원 안에서 교체</span></div>
-    <div class="glass reveal"><em class="k">병영식당 리모델링</em><b>+3<small>천만 원</small></b><span>8천만 원으로 못 산 품목을 심의 결과를 근거로 상급부대에 올려 추가 예산 확보</span></div>
-    <div class="glass reveal"><em class="k">지출 증빙 검증</em><b>400<small>건</small></b><span>직접 회계평가한 사업 약 400건에서 비교견적이 빠진 지출 같은 규정 위반을 찾아냄</span></div>
+    <div class="glass reveal"><em class="k">전투식량 입찰 계약</em><b>100<small>%</small></b><span>수량 축소 요구에도<br>계약대로 전량 납품</span></div>
+    <div class="glass reveal"><em class="k">식기세척기 교체</em><b>0<small>원</small></b><span>예산을 넘긴 철거비를<br>업체 부담으로 협상</span></div>
+    <div class="glass reveal"><em class="k">병영식당 리모델링</em><b>+3<small>천만 원</small></b><span>심의 결과를 근거로<br>받아낸 추가 예산</span></div>
+    <div class="glass reveal"><em class="k">지출 증빙 검증</em><b>400<small>건</small></b><span>직접 회계평가한 사업에서<br>비교견적 누락 등 식별</span></div>
   </div>
 </div>
 
