@@ -309,7 +309,7 @@
     .photo { width: 124px; height: 164px; order: -1; }
     .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .glass { min-height: 150px; padding: 18px 12px; }
-    .glass > span { font-size: 12.5px; }
+    .glass > span { font-size: min(11.5px, 3.3cqi); letter-spacing: -0.02em; } /* 칸 폭에 맞춰 줄여 설명이 2줄을 넘지 않게 */
     .links { flex-direction: column; }
     .edu .list li { flex-direction: column; gap: 4px; }    .links .btn { width: 100%; text-align: center; }
     .glass b { font-size: clamp(16px, 8cqi, 32px); } /* 좁은 폰에서 1시간→10분이 칸을 넘지 않게 */
@@ -330,6 +330,7 @@
   @media (max-width: 400px) {
     /* 좁은 폰: 메뉴 5개가 한 화면에 들어가도록 */
     nav ul { gap: 12px; font-size: 13px; }
+    .glass { padding-left: 10px; padding-right: 10px; }
   }
   /* 인트로 : 회전하는 블랙카드 명함 */
   body.intro-open { overflow: hidden; }
