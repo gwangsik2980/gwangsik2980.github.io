@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>김광식 · 링크</title>
-<meta name="description" content="김광식(GWANG)의 작업 모음">
+<title>GWANG · 링크</title>
+<meta name="description" content="GWANG의 작업 모음">
 <meta name="theme-color" content="#121212">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -69,13 +69,12 @@ body {
 /* 이름 */
 .prof { position: relative; z-index: 3; text-align: center; margin-top: -64px; padding: 0 20px; }
 .word {
-  display: inline-flex; align-items: center; gap: 7px;
+  display: inline-flex; align-items: center; gap: 10px;
   font-family: Archivo, sans-serif; font-stretch: 125%; font-weight: 900;
-  font-size: 12px; letter-spacing: .14em; color: var(--sub);
+  font-size: 26px; letter-spacing: .08em; color: var(--text);
 }
-.word svg { width: 16px; height: 16px; transition: transform .8s cubic-bezier(.3,.7,.2,1); }
+.word svg { width: 30px; height: 30px; transition: transform .8s cubic-bezier(.3,.7,.2,1); }
 .prof:hover .word svg { transform: rotate(60deg); }
-h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; margin-top: 4px; }
 .pills { display: flex; justify-content: center; gap: 8px; margin-top: 16px; }
 .pill {
   display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 999px;
@@ -153,7 +152,6 @@ footer { text-align: center; padding-top: 12px; font-family: Archivo, sans-serif
 
   <header class="prof">
     <div class="word"><svg viewBox="-12 -12 24 24"><g class="emblem-g" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></g></svg>GWANG</div>
-    <h1>김광식</h1>
     <div class="pills">
       <a class="pill" href="mailto:kgs2632947@naver.com">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>메일</a>
@@ -237,7 +235,7 @@ const showToast = msg => {
 
 // 공유 버튼: 폰은 공유창, PC는 주소 복사
 document.getElementById("share").onclick = async () => {
-  const data = { title: "김광식 · 링크", url: location.href };
+  const data = { title: "GWANG · 링크", url: location.href };
   try {
     if (navigator.share) return await navigator.share(data);
     await navigator.clipboard.writeText(location.href);
