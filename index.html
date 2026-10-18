@@ -397,13 +397,34 @@
     .glass b small { color: #444 !important; }
     .glass, .value, .star, .chip, .tag { background: #fff; border-color: #bbb; color: #111; box-shadow: none; }
     .glass span, .body p, .tl ul.pts, .star dd, .case .kpi, .value p, .flow .value li, .list li span:last-child { color: #333 !important; }
-    section.block { padding: 32px 0; }
+    section.block { padding: 8px 0 0; }
+    /* 사는 쪽 → 검증하는 쪽 → 그래서 저는 : 종이에서는 가로 세 칸으로 (세로로 쌓으면 한 장을 넘김) */
+    .flow { grid-template-columns: 1fr 22px 1fr 22px 1fr; margin-top: 24px; }
+    .flow-arr { height: auto; }
+    .flow-arr svg { transform: none; }
+    .flow .value { padding: 16px 14px; }
+    /* 경력·자격 섹션이 한 장에 여유 있게 들어가도록 (아이폰 사파리는 여백이 달라 빠듯하면 넘침) */
+    .tl > li { padding: 14px 0; }
+    .two { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .list li { padding: 9px 0; }
+    .edu { margin-top: 24px; }
+    .edu .list li { padding: 10px 0; }
+    /* 연락처는 통째로 (라벨만 앞 장에 남지 않게) */
+    .contact { break-inside: avoid; padding-top: 24px !important; padding-bottom: 24px !important; }
     .edu-main b { color: #111 !important; }
     .tl .exp-key { color: #111 !important; }
     /* 흰 종이에서 흐려지던 라벨과 보조 글자 */
     .sec-label, h4, .star dt { color: #111 !important; }
     .sec-label small, .tl .when, .tl .role, .case .ctx, .edu-main small, .glass .k, .value .n, .case .idx, footer, footer .mark { color: #555 !important; }
+    /* 페이지 경계에서 상자와 문단이 반으로 잘리지 않게 */
+    .glass, .value, .flow, .tl > li, .star > div, .list li, .edu, .two > div { break-inside: avoid; }
+    h2, h3, h4 { break-after: avoid; }
+    /* 섹션마다 새 페이지에서 시작. 섹션 아래 구분선이 다음 장으로 넘어가 빈 페이지가 생기지 않게 선은 뺌 */
+    section.block { border-bottom: 0; }
+    #about, #experience, #cases, #skills { break-before: page; }
     .case { break-inside: avoid; }
+    .case + .case { break-before: page; }
+    .case:last-child { border-bottom: 0; }
   }
   @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1; transform: none; transition: none; }
