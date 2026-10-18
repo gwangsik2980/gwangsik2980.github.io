@@ -370,6 +370,14 @@
   .bc-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
   .bc-ct { font-size: 12px; line-height: 1.7; color: #dadad6; min-width: 0; }
   .bc-go { flex: none; font-family: var(--display); font-stretch: 112%; font-weight: 700; font-size: 11px; letter-spacing: .14em; white-space: nowrap; }
+  @media (min-width: 768px) {
+    .bc-scene { width: min(540px, calc(100vw - 96px)); }
+    .bc-front .bc-content span { font-size: 46px; }
+    .bc-back .bc-content { padding: 30px 30px 26px; }
+    .bc-nm { font-size: 29px; } .bc-nm small { font-size: 15px; }
+    .bc-tag { font-size: 14px; } .bc-role { font-size: 15px; }
+    .bc-ct { font-size: 15px; } .bc-go { font-size: 14px; }
+  }
   @media (max-width: 420px) { .bc-nm { font-size: 20px; } .bc-nm small { font-size: 11px; } .bc-tag { font-size: 10px; letter-spacing: .1em; } .bc-role { font-size: 11px; } }
   @media (max-width: 360px) { .bc-ct { font-size: 11px; } .bc-go { font-size: 10px; letter-spacing: .1em; } }
   .intro-hint { font-size: 13px; color: #e2e2de; text-align: center; }
@@ -470,7 +478,7 @@
   <div class="wrap stats-grid">
     <div class="glass reveal"><em class="k">전투식량 입찰 계약</em><b>100<small>%</small></b><span>수정계약 요청에도<br>계약대로 전량 납품</span></div>
     <div class="glass reveal"><em class="k">병영식당 리모델링</em><b>+3<small>천만 원</small></b><span>남은 품목을 건의해<br>전액 받은 추가 예산</span></div>
-    <div class="glass reveal"><em class="k">누락 자산 등재</em><b>100<small>건</small></b><span>4년간 빠져 있던 자산을<br>추적해 정상 등재</span></div>
+    <div class="glass reveal"><em class="k">예산 집행 개편</em><b>3<small>억 원</small></b><span>증식비 집행 절차를 바꿔<br>부대 표준으로 정착</span></div>
     <div class="glass reveal"><em class="k">지출 증빙 검증</em><b>400<small>건</small></b><span>직접 회계평가한 사업에서<br>비교견적 누락 등 식별</span></div>
   </div>
 </div>
@@ -663,13 +671,13 @@
     bc.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
     requestAnimationFrame(frame);
   }
-  const open = () => {
+  const open = (focus = false) => {
     savedY = window.scrollY; // 보던 위치 기억
     intro.classList.remove("hide");
     document.body.classList.add("intro-open");
     backBtn.classList.remove("show");
     if (!running) { running = true; requestAnimationFrame(frame); }
-    bc.focus({ preventScroll: true });
+    if (focus) bc.focus({ preventScroll: true });
   };
   const close = (restore = true) => {
     if (intro.classList.contains("hide")) return;
@@ -678,7 +686,7 @@
     if (restore) window.scrollTo(0, savedY); // 보던 위치로 복귀
     backBtn.classList.add("show");
   };
-  backBtn.addEventListener("click", open);
+  backBtn.addEventListener("click", e => open(e.detail === 0)); // detail 0 = 키보드로 누름
 
   // 섹션 주소(#cases 등)로 바로 들어오면 명함 건너뛰기
   if (location.hash && location.hash !== "#top") { close(false); }
