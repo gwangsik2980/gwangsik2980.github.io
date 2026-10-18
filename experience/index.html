@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GWANG | 경험 카드</title>
+<meta name="description" content="김광식의 역량·경험 정리를 카드로 넘겨 보는 페이지">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112..125,500..900&display=swap">
+<style>
+  :root {
+    /* 콘크리트 · 차콜 · 스테인리스 */
+    --char: #151515;
+    --panel: #242424;
+    --stucco: #5f5f5b;
+    --stucco-lo: #464643;
+    --text: #f2f2f0;
+    --sub: #b4b4b0;
+    --mute: #8a8a86;
+    --line: #2f2f2f;
+    --line-hi: #3d3d3d;
+    --steel: linear-gradient(180deg, #e4e4e2 0%, #b4b4b1 38%, #d8d8d5 55%, #9d9d99 100%);
+    --noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    --display: "Archivo", "Pretendard", sans-serif;
+    /* 카드 폭 : 화면 높이에서 머리·제목·선·바닥글(--chrome)을 뺀 만큼을 카드 높이로 씀.
+       창을 좁고 길게 줄이면 카드가 커지고, 폭의 72%·최대 400px을 넘지 않음 */
+    --chrome: 392px;
+    --cw: clamp(128px, min((100vh - var(--chrome)) * .625, 72vw), 400px);
+    --gap: 20px;          /* 카드 간격 */
+    --ease: cubic-bezier(.3,.7,.2,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
+  body {
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column;
+    font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    color: var(--text);
+    background-color: var(--stucco-lo);
+    background-image: var(--noise), linear-gradient(180deg, var(--stucco), var(--stucco-lo));
+    background-blend-mode: multiply, normal;
+    background-attachment: fixed;
+    font-size: 16px; line-height: 1.7; letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased; word-break: keep-all;
+  }
+  body.locked { overflow: hidden; }
+  a { color: inherit; }
+
+  /* 머리 */
+  header { width: 100%; background: var(--char); border-bottom: 1px solid var(--line); }
+  header .in { max-width: 960px; height: 58px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; }
+  .logo { display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    font-family: var(--display); font-stretch: 125%; font-weight: 900; letter-spacing: .08em; font-size: 15px; }
+  .emblem { width: 24px; height: 24px; display: block; overflow: visible; }
+  .emblem g { transform-origin: 0 0; transition: transform .8s var(--ease); }
+  .logo:hover .emblem g { transform: rotate(60deg); }
+
+  main { padding: 28px 0 8px; }
+  /* 카드 줄이 위 선(PICK ONE)과 아래 선 사이 정가운데 */
+  .deck { --space: 40px; padding: var(--space) 0 28px; }
+  .deck .rule { margin-top: var(--space); }
+  .rule { width: 100%; max-width: 960px; margin: 0 auto; padding: 0 24px; }
+  .rule::before { content: ""; display: block; height: 1px; background: #8f8f8b; }
+  .intro { width: 100%; max-width: 960px; margin: 0 auto; padding: 0 24px; }
+  .eyebrow { display: block; font-family: var(--display); font-stretch: 112%; font-size: 12px; font-weight: 700;
+    letter-spacing: .24em; text-transform: uppercase; color: #dadad6; }
+  .eyebrow::before { content: ""; display: block; width: 28px; height: 3px; background: var(--steel); margin-bottom: 14px; }
+  h1 { font-size: clamp(28px, 6vw, 40px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.25; margin-top: 10px; }
+  .desc { margin-top: 10px; max-width: 560px; color: #e2e2de; font-size: 16px; }
+  .hint { margin-top: 14px; font-family: var(--display); font-stretch: 125%; font-size: 13px; font-weight: 800;
+    letter-spacing: .16em; color: #dadad6; display: flex; align-items: center; gap: 12px; }
+  .hint::before, .hint::after { content: ""; flex: 1; height: 1px; background: #8f8f8b; }
+
+  /* 카드 줄 */
+  /* 가로만 자르고 세로는 열어 둠 → 카드가 떠오르거나 그림자가 생겨도 잘린 경계선이 안 보임 */
+  .stage { position: relative; width: 100%; overflow: hidden; overflow-x: clip; overflow-y: visible; }
+  .track { display: flex; width: max-content; will-change: transform; }
+  .card {
+    flex: none; width: var(--cw); aspect-ratio: 5 / 8; margin-right: var(--gap);
+    position: relative; padding: 0; border: 0; background: none; cursor: pointer;
+    border-radius: 14px; color: inherit; font: inherit;
+    transition: transform .35s var(--ease);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card:first-child { margin-left: 24px; }
+  .card .face { box-shadow: 0 18px 36px rgba(0,0,0,.38); transition: box-shadow .35s var(--ease), border-color .35s; }
+  .card:hover, .card:focus-visible { transform: translateY(-12px); }
+  .card:hover .face, .card:focus-visible .face { box-shadow: 0 30px 50px rgba(0,0,0,.5); border-color: #6a6a66; }
+  .card:focus-visible { outline: none; }
+  .card:focus-visible .face { outline: 2px solid #f2f2f0; outline-offset: 5px; }
+  .card.picked { transform: translateY(-12px); }
+  .card.picked .face { border-color: #9d9d99; box-shadow: 0 0 0 1px rgba(228,228,226,.35), 0 30px 50px rgba(0,0,0,.5); }
+  .card.gone { visibility: hidden; }
+
+  /* 카드 뒷면 : 포트폴리오 명함 그대로, 세로 */
+  .face {
+    position: absolute; inset: 0; border-radius: 14px; overflow: hidden;
+    background: #0d0d0d; border: 1px solid #3a3a3a;
+    container-type: size;
+  }
+  .face .wm { position: absolute; left: 50%; top: 50%; width: 86%; height: 86%; transform: translate(-50%, -50%); opacity: .2; pointer-events: none; }
+  .face .word { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-stretch: 125%; font-weight: 900; letter-spacing: .08em;
+    font-size: 15.5cqw; color: #f2f2f0; }
+  .face .shine { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.07) 45%, transparent 60%); }
+
+  footer { width: 100%; max-width: 960px; margin: auto auto 0; padding: 0 24px 24px;
+    font-family: var(--display); font-stretch: 112%; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #c4c4c0;
+    display: flex; align-items: center; gap: 8px; }
+  footer .emblem { width: 16px; height: 16px; flex: none; }
+
+  /* 열린 카드 */
+  .ov { position: fixed; inset: 0; z-index: 50; perspective: 1600px; }
+  .ov .dim { position: absolute; inset: 0; background: rgba(12,12,12,.62); opacity: 0; transition: opacity .45s ease; }
+  .ov.on .dim { opacity: 1; }
+  .fl { position: fixed; transform-style: preserve-3d; border-radius: 14px;
+    transition: left .7s var(--ease), top .7s var(--ease), width .7s var(--ease), height .7s var(--ease), transform .7s var(--ease); }
+  .fl .face { backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: translateZ(1px); }
+  .fl .front { transform: rotateY(180deg) translateZ(1px); background: #111110; box-shadow: 0 40px 80px rgba(0,0,0,.55); }
+  .fl.open { transform: rotateY(180deg); }
+
+  .doc { position: absolute; top: 0; left: 0; height: 100%; overflow-y: auto; overscroll-behavior: contain;
+    scrollbar-width: thin; scrollbar-color: #4a4a47 transparent;
+    opacity: 0; transition: opacity .3s ease; }
+  .fl.ready .doc { opacity: 1; }
+  .doc-in { padding: 34px 32px 40px; }
+  .x { position: absolute; top: 14px; right: 14px; z-index: 3; width: 40px; height: 40px; border-radius: 50%;
+    border: 1px solid var(--line-hi); background: rgba(17,17,16,.9); color: var(--text); cursor: pointer;
+    display: grid; place-items: center; opacity: 0; transition: opacity .3s ease, border-color .2s; }
+  .fl.ready .x { opacity: 1; }
+  .x:hover { border-color: #8f8f8b; }
+  .x:focus-visible { outline: 2px solid #f2f2f0; outline-offset: 3px; }
+  .x svg { width: 16px; height: 16px; }
+
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-right: 44px; }
+  .cat { font-size: 12px; font-weight: 700; color: var(--sub); margin-right: 6px; }
+  .tag { font-size: 12px; color: #d6d6d2; border: 1px solid var(--line-hi); border-radius: 2px; padding: 1px 8px; line-height: 1.6; }
+  .doc h2 { font-size: clamp(22px, 4.6vw, 28px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.35; margin-top: 14px; }
+  .sum { margin-top: 16px; padding-left: 14px; border-left: 2px solid #8f8f8b; color: #e2e2de; }
+  .sec { margin-top: 30px; }
+  .sec h3 { font-size: 13px; font-weight: 700; letter-spacing: .02em; color: var(--sub); margin-bottom: 8px; }
+  .sec h3::before { content: ""; display: block; width: 22px; height: 2px; background: var(--steel); margin-bottom: 10px; }
+  .sec p + p { margin-top: 8px; }
+  .sec ul { list-style: none; }
+  .sec li { position: relative; padding-left: 14px; }
+  .sec li + li { margin-top: 6px; }
+  .sec li::before { content: ""; position: absolute; left: 0; top: .78em; width: 5px; height: 1px; background: var(--sub); }
+  .step { padding: 14px 0; border-top: 1px solid var(--line); }
+  .step:first-of-type { border-top: 0; padding-top: 0; }
+  .step h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; display: flex; gap: 8px; }
+  .step h4 span { font-family: var(--display); font-stretch: 125%; font-weight: 800; color: var(--mute); }
+  .wip { margin-top: 26px; color: var(--sub); }
+  .src { display: inline-block; margin-top: 34px; font-family: var(--display); font-stretch: 112%; font-size: 12px; font-weight: 700;
+    letter-spacing: .14em; text-decoration: none; border-bottom: 1px solid #6a6a66; padding-bottom: 2px; }
+  .src:hover { border-color: #e4e4e2; }
+
+  @media (min-width: 1024px) {
+    :root { --gap: 24px; }
+  }
+
+  @media (max-width: 600px) {
+    :root { --gap: 14px; --chrome: 340px; }
+    header .in { padding: 0 16px; }
+    main { padding-top: 22px; }
+    .intro, .rule { padding: 0 16px; }
+    .deck { --space: 32px; }
+    .desc { font-size: 15px; }
+    .card:first-child { margin-left: 16px; }
+    footer { padding: 0 16px 20px; }
+    .doc-in { padding: 28px 20px 36px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stage { overflow-x: auto; }
+    .track .card[aria-hidden="true"] { display: none; }
+    .card, .card .face, .fl, .ov .dim, .doc, .x, .emblem g { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="in">
+    <a class="logo" href="https://gwangsik2980.github.io/" aria-label="GWANG 포트폴리오">
+      <svg class="emblem" viewBox="-12 -12 24 24" aria-hidden="true"><g class="emblem-g" fill="none" stroke="#f2f2f0" stroke-width="1.4" stroke-linejoin="round"></g></svg>
+      GWANG
+    </a>
+  </div>
+</header>
+
+<main>
+  <div class="intro">
+    <span class="eyebrow">Experience Cards</span>
+    <h1>경험 카드</h1>
+    <p class="hint">PICK ONE.</p>
+  </div>
+  <div class="deck">
+    <div class="stage" id="stage">
+      <div class="track" id="track"></div>
+    </div>
+    <div class="rule" aria-hidden="true"></div>
+  </div>
+</main>
+
+<footer>
+  <svg class="emblem" viewBox="-12 -12 24 24" aria-hidden="true"><g class="emblem-g" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></g></svg>
+  Notion snapshot · 2026.10.18
+</footer>
+
+<script>
+/* ─────────────────────────────────────────────
+   데이터 : 노션 '역량·경험 정리' DB 스냅샷 (2026-10-18)
+   - 13개 모두 본문을 넣었다('완료' 3개가 앞, '작성 중' 10개가 뒤).
+   - 면접 준비용 메모(대응 질문, 하고 싶은 말, 질문 유형별 활용 등)는 뺐다.
+   ───────────────────────────────────────────── */
+const experienceData = [
+  {
+    title: '더 좋은 병영식당 리모델링 추진 경험',
+    category: '군경험',
+    tags: ['기획', '공급업체 관리', '사양 확인', '협업', '커뮤니케이션'],
+    summary: '병영식당 리모델링 때 한정된 예산 안에서 식당 운영에 필요한 품목부터 우선 계약해 준공식 일정을 맞추고, 남은 품목은 추가 예산을 확보해 모두 구매한 경험',
+    situation: [
+      '병영식당 리모델링에서 식당 장비와 물품 구매 담당',
+      '배정된 예산 8천만 원으로는 지침에 명시된 모든 품목을 집행하기엔 부족 예상',
+      '시설팀에서 준공식까지 납품을 요구',
+      '식당 이용 인원 약 600명, 리모델링 기간 약 1개월'
+    ],
+    task: [
+      '8천만 원 안에서 식당 운영에 필요한 물품 갖추기',
+      '준공식 전 납품 마치기',
+      '예산 부족 시 추가 예산 확보를 위한 근거 마련'
+    ],
+    action: [
+      { title: '전체 내역서 작성 → 부족분 확인', items: [
+        '지침상 필요한 장비와 물품으로 전체 품목 내역서 작성',
+        '나라장터 종합쇼핑몰 식별번호로 품목을 정리하고, 잔반통 실수 뒤 만든 양식으로 규격, 형상 사진, 단가를 한 장에 정리',
+        '시설팀에서 공사 도면을 받아 정격용량을 미리 확인하고 내역서에 반영',
+        '견적 합계 약 1억 1천만 원 → 예산보다 약 3천만 원 부족 확인'
+      ]},
+      { title: '심의와 우선 구매 품목 선정 → 준공 전 납품', items: [
+        '규모가 크고 업체 선정의 공정성이 필요해 전체 안으로 심의 → 위원회가 품목별 업체 A, B, C안의 기능과 단가를 검토해 최종안 선정',
+        '심의 자료도 종합쇼핑몰 자료로 작성. 선정 기준은 품목마다 다름: 손소독기, 손건조기, 국그릇 디스펜서처럼 기능이 같으면 저렴한 제품, 배식대 등은 품질 좋은 제품',
+        '운영회의(식당 관계자, 부대별 대표 간부와 용사, 군수과장, 나 참석)를 열어 기존 장비로 대체 가능한지, 조리와 배식에 꼭 필요한지 따져 우선 구매 품목 선정',
+        '심의 결과를 근거로 나라장터 종합쇼핑몰에서 우선 구매 품목부터 계약, 준공식 전에 받을 수 있도록 공급 업체와 미리 납기 조율 → 준공 전 납품 완료'
+      ]},
+      { title: '준공 후 추가 예산 건의 → 전액 확보', items: [
+        '구매하지 못한 품목을 심의 확정 단가로 합산 → 약 3천만 원',
+        '상급부대에 공문으로 추가 예산 3천만 원 건의 → 약 3개월 뒤 전액 배정, 남은 품목 모두 구매'
+      ]}
+    ],
+    result: [
+      '8천만 원 안에서 식당 운영에 필요한 물품 확보',
+      '준공식 전 납품 완료, 지연 품목 없음',
+      '추가 예산 3천만 원 전액 확보, 지침 품목 모두 구매'
+    ],
+    reason: [
+      '왜 우선순위를 정했나: 배정된 예산으로는 전체 품목을 다 살 수 없었고, 준공식 전에 식당 운영에 문제가 없어야 해서 꼭 필요한 품목부터 사야 했음',
+      '왜 전체 안으로 심의를 받았나: 예산 규모가 크고 업체 선정의 공정성이 필요해 심의가 필수 → 전체 안으로 심의를 받아 집행 명분과 추가 예산 근거를 함께 확보',
+      '왜 심의 다음에 운영회의를 열었나: 배정된 예산으로 전체 품목을 다 사기 어려워 불가피하게 우선 구매 품목을 정해야 했음 → 예산이 충분했다면 심의 후 전 품목을 바로 계약했을 것'
+    ],
+    role: '전체 내역서와 심의 자료 작성, 운영회의로 우선 구매 품목 선정, 납기 조율, 추가 예산 건의',
+    collaboration: [
+      '조리실 품목과 식당 환경 개선 요구가 부딪힘 → 운영 우선으로 정하고 식당 환경은 추가 예산에 반영하겠다고 설득 → 추가 예산으로 시리얼 디스펜서, 토스트기 등을 구매해 약속 이행',
+      '설득 방법: 같은 사업을 하는 타 부대에서 예산이 남는 사례가 있었고, 연말에 쓰지 못해 상급부대로 반납되는 예산도 생각보다 많아 추가 예산을 확보할 가능성이 높다고 설명'
+    ],
+    regret: '내역서를 품목마다 직접 검색해 시간이 오래 걸림 → 지금이라면 구매 대행업체에 견적 리스트를 받아 참고할 것',
+    learning: '전체 큰 틀을 먼저 잡고 지금 할 것과 나중에 할 것을 나눠야 한정된 예산 안에서도 일을 놓치지 않음',
+    url: 'https://app.notion.com/p/3ce7ee08001480e4a12bfd1e6f5b978e'
+  },
+  {
+    title: '예산 집행 체계 개선 경험',
+    category: '군경험',
+    tags: ['구매 규정', '프로세스 개선', '문제해결', '분석'],
+    summary: '개인에게 몰려 있던 예산 집행 업무를 부대 단위로 나누는 체계로 바꾸고, 부대별 집행 현황을 실시간으로 볼 수 있는 엑셀을 만들어 업무 부담과 감사 위험을 함께 줄인 경험',
+    situation: [
+      '보급장교로 예산 집행 업무를 맡았을 때, 하위 부대 실무자들은 카드 영수증만 제출하고 본부에서 일괄 처리하는 방식으로 예산을 운용하고 있었습니다. 실무자들은 주로 1인당 5천 원 이내 간식을 지침에서 벗어나지 않는 선에서 직접 고른 가게에서 카드로 샀습니다.',
+      '그래서 약 400건의 카드 전표를 제가 혼자 검토하고 처리해야 했고, 지출이 예산 집행 지침에 맞게 이루어졌는지 확인하기 어려웠습니다.',
+      '각 부대별 예산 사용 현황도 실시간으로 파악할 수 없어 예산 통제에 한계가 있었습니다. 과거 자료를 검토해보니 증식비로 식사를 대신하는 품목을 산 경우처럼 지침에 맞지 않는 지출이 있었고, 증식비 안의 여러 항목으로 같은 날 같은 인원에게 중복 지출된 경우도 있어 감사 지적 위험이 컸습니다.',
+      '이 방식은 이전 담당자로부터 그대로 이어져 온 관행이었습니다.'
+    ],
+    situationAsText: true,
+    task: ['반복되는 행정 비효율 제거', '감사 위험 최소화', '예산 집행의 투명성 확보', '부대별 예산 사용 현황 관리'],
+    action: [
+      { title: '타 부대 조사와 원인 분석', text: [
+        '타 부대는 어떤 방식으로 예산을 집행하는지 조사했고, 상급부대 실무자, 과원들과 논의하며 현재 체계의 문제점과 개선 방향을 검토했습니다.'
+      ]},
+      { title: '집행 절차 재설계', text: [
+        '기존: 카드 사용 → 영수증 제출 → 본부 일괄 처리',
+        '개선: 집행계획 공문 작성 → 예산 집행 → 결과보고 공문 제출 → 전표 스캔본 첨부',
+        '예산 집행 전후 과정을 모두 문서로 남길 수 있게 했습니다. 집행계획을 검토할 때는 품목이 식사를 대신하는 것은 아닌지, 수량이 전 인원에게 고르게 돌아가는지, 구매처가 실제로 그 품목을 파는 곳인지, 단가가 1인당 5천 원 기준 안인지 네 가지를 봤습니다.'
+      ]},
+      { title: '역할 분담', text: [
+        '기존에는 제가 실물 영수증을 모두 보관하고 처리했지만, 개선 후에는 각 부대가 영수증을 자체 관리하고 본부는 집행 적정성 검토, 예산 배정과 조정, 통합 관리에 집중하도록 역할을 나눴습니다.'
+      ]},
+      { title: '예산관리 엑셀 구축', text: [
+        '부대별 현황(배정액, 집행액, 집행률)을 수시로 확인할 수 있는 관리대장 엑셀을 직접 만들었고, 집행이 저조한 부대의 예산을 다른 부대로 재배정할 수 있게 됐습니다.'
+      ]},
+      { title: '교육과 현장 지도로 정착', text: [
+        '집행계획과 결과보고 작성이라는 추가 업무 때문에 하위 부대 실무자들의 반발이 가장 큰 난관이었습니다. 예산 절차 교육자료(PPT)를 만들어 전 부대 실무자 교육, 질의응답, 현장 방문 지도를 진행했습니다.'
+      ]}
+    ],
+    result: [
+      '증식비 3억 원 규모, 4개 부대(부대별 약 150명, 총 약 600명) 대상으로 약 400건의 전표를 본부에서 일괄 처리하던 구조를 개선',
+      '예산 체계를 바꾼 2024년 이후 예산 집행 누락 0건, 감사 지적 0건, 집행률 100% 달성',
+      '부대별 집행 현황을 수시로 확인할 수 있는 관리대장을 활용해 예산 재배정이 수월해짐',
+      '부대 표준 프로세스로 정착해 후임자에게 인계된 뒤에도 계속 활용되고, 타 부대 표준사례로 소개되어 우수부대 표창까지 받음'
+    ],
+    reason: [
+      '절차를 설계하기 전에 다른 방법도 검토했습니다. 월 1회 회의로 부대별 집행률을 추정하는 방식, 계획 문서만 받고 기존 체계를 유지하며 제가 결과 공문으로 근거를 남기는 방식도 고려했지만, 업무량 대비 효과를 따졌을 때 지금 방식이 최선이라고 판단했습니다.',
+      '엑셀을 직접 만든 이유는 군 재정관리시스템이 예산 목(항목) 단위로만 기록돼 부대별 배정 내역이 남지 않았기 때문입니다. 예를 들어 1대대가 100만 원을 집행해도 시스템에는 증식비 목에만 기록되고 1대대 배정 근거는 남지 않아서, 부대별 추적을 위한 별도 관리대장이 필요했습니다.'
+    ],
+    reasonAsText: true,
+    role: '타 부대 조사, 절차 설계, 관리대장 엑셀 구축, 교육자료 제작, 교육과 현장 지도',
+    collaboration: [
+      '상급부대 실무자, 군수과 실무자: 문제점과 개선 방향 논의',
+      '하위 부대 실무자: 새 절차 적용 대상(초기 반발 있음)'
+    ],
+    regret: '계획서와 결과보고서를 통일된 서식으로 만들지 않아 모니터링할 때 비효율이 있었습니다. 관리용 엑셀 외에 실무자들이 쉽게 쓸 수 있는 공유용 엑셀을 따로 만들지 못한 점도 아쉬웠습니다.',
+    learning: '혼자 처리하던 일을 나눠 맡기니 오히려 통제가 더 쉬워진다는 걸 이때 배웠습니다.',
+    url: 'https://app.notion.com/p/3cf7ee080014809aa1eadc1e9f5ed800'
+  },
+  {
+    title: '전투식량 입찰 계약 협상 경험',
+    category: '군경험',
+    tags: ['협상', '원가관리', '구매 규정', '문제해결'],
+    summary: '훈련용 전투식량을 입찰로 구매할 때 낙찰업체가 단가를 이유로 수정계약을 요청했는데, 타 부대 단가를 확인해 업체를 설득하고 수정계약 없이 처음 계약대로 납품받은 경험',
+    situation: [
+      '하위 부대 야외 숙영 훈련용 전투식량 약 4,000개, 약 1,200만 원 구매 담당',
+      '이전에는 수의계약으로 구매했고, 이번에는 재정담당과 상의해 입찰로 진행 → 구매요구서에 기존 수의계약 단가 약 3,300원 기재',
+      '약 3,100원에 낙찰된 업체는 물건을 사 와서 납품하는 중개업체 → 낙찰 뒤 그 단가로는 사 올 곳을 못 찾겠다며 수량을 줄이는 수정계약 요청'
+    ],
+    task: [
+      '처음 진행하는 입찰이라 필요한 서류와 지침을 직접 파악해 구매요구서 준비하기',
+      '수량 약 4,000개를 훈련 출발 전 부대로 무사히 납품받기',
+      '낙찰업체의 수정계약 요청에 근거를 찾아 처음 계약대로 이행하도록 설득하기'
+    ],
+    action: [
+      { title: '입찰로 진행 → 절차 파악', items: [
+        '재정담당과 상의해 이번에는 입찰로 진행하고, 입찰 서류와 지침을 하나씩 찾아보며 구매요구서 작성',
+        '처음 하는 입찰이라 경험 많은 타 부대 구매 담당에게 먼저 조언을 구함'
+      ]},
+      { title: '수정계약 요청 → 줄일 수 없는 이유 설명, 타 부대 거래 사례로 설득', items: [
+        '훈련 인원과 일정에 맞춰 잡은 수량이라 줄일 수 없다고 설명',
+        '타 부대 구매 담당에게 다시 물어, 타 부대가 약 3,100원에 납품받은 사례 확인 → 그 단가로도 구할 수 있다는 근거로 낙찰업체에 알려줌',
+        '타 부대에 협조를 요청해 거래 공문을 공유받음 → 같은 품목인지 공문으로 확인하고, 요구하면 근거자료로 제시할 준비를 해둠',
+        '낙찰 단가와 수량은 계약서에 정해진 조건이라 수정계약 없이 그대로 이행해 달라고 설득'
+      ]}
+    ],
+    result: [
+      '낙찰업체를 설득해 수정계약 없이 처음 계약한 단가와 수량 그대로 납품받음',
+      '약 4,000개 전량을 훈련 출발 전 납품받고 수량, 하자, 실제 형상을 직접 검수',
+      '기존 수의계약보다 개당 약 200원 낮은 약 3,100원 단가 유지'
+    ],
+    reason: [
+      '왜 수량을 줄이지 않았나: 훈련 인원과 일정에 맞춰 잡은 수량이고, 단가와 수량은 계약서에 정해진 조건이었음',
+      '왜 타 부대에 물어봤나: 기존 수의계약 단가만 알아서 낙찰업체 말이 맞는지 판단할 기준이 없었고, 실제로 그 정도 단가에 납품되는 사례가 있으면 반박 근거가 된다고 판단',
+      '공문에 나온 업체를 알려주지 않은 이유: 어디서 물건을 구할지는 낙찰업체가 정할 일이라고 봐서, 그 단가로 납품되고 있다는 사실만 근거로 말함',
+      '업체가 끝까지 거부했다면: 재입찰도 방법이지만 훈련 가는 인원에게 제때 납품되는 게 우선이라, 사유서를 쓰더라도 수의계약으로 다시 진행했을 것'
+    ],
+    role: '구매요구서 작성, 타 부대 거래 사례 확인, 낙찰업체 설득, 납품 검수',
+    collaboration: [
+      '재정담당: 상의해서 이번에는 입찰로 진행, 서류는 내가 준비하고 공고 등록은 재정담당이 맡음',
+      '타 부대 구매 담당: 입찰 전에 조언을 구했고, 수정계약 요청 때 다시 물어 낙찰 단가와 비슷한 단가 납품 사례 확인'
+    ],
+    regret: '수의계약할 때 시장조사는 했지만 타 부대가 같은 제품을 얼마에 거래하는지까지는 조사하지 못해서, 더 낮은 단가를 더 일찍 알지 못한 점',
+    learning: '업체와 단가를 두고 이야기하려면 구매 담당이 먼저 적정 단가를 알고 있어야 함',
+    url: 'https://app.notion.com/p/3d77ee08001481be9fcecf11f72e01b8'
+  },
+  // 아래는 노션에서 '작성 중' — 노션이 고쳐지면 해당 항목만 바꾸면 된다
+  {
+    title: 'AI를 활용한 택배 관리 프로세스 개선 경험',
+    category: '인턴십',
+    tags: ['문제해결', '협업', '프로세스 개선'],
+    summary: '회계법인 인턴 때 Copilot으로 따로 놀던 이메일 접수 시트와 택배 관리 시트를 연결하고, 창고를 엑셀 도면으로 옮겨 택배 찾는 시간을 길게는 1시간에서 10분 안팎으로 줄인 경험',
+    situation: [
+      '회계평가를 위해 기관들로부터 대량의 실물 증빙자료를 택배로 받고 있었습니다.',
+      '택배 정보와 이메일 접수 정보가 따로 관리됐고, 창고 안 택배 위치도 정해져 있지 않아 평가 1건을 위해 택배를 찾는 데 길게는 1시간까지 걸렸습니다.',
+      '평가 업무는 자료를 찾고 검토하는 게 핵심인데, 찾는 데 시간을 뺏겨 실제 평가에 집중할 시간이 부족했습니다.',
+      '이 작업은 창고를 담당자별로 한 번 재배치한 이후 시점으로, 정리된 창고를 디지털로도 관리하고 싶다는 생각에서 시작했습니다.'
+    ],
+    situationAsText: true,
+    task: ['이메일 접수 정보와 택배 정보 연결', '창고 안 택배 위치를 체계적으로 관리', '자료 찾는 시간 최소화'],
+    action: [
+      { title: 'Copilot 교육과 활용 준비', text: [
+        '회사에서 제공한 Copilot 교육을 들으며 원하는 결과 정의, 데이터 구조 설명, AI의 역질문 활용 같은 프롬프트 작성법을 익혔습니다.'
+      ]},
+      { title: '두 시트 연결 (다른 인턴과 함께)', text: [
+        '같은 교육을 들은 인턴과 함께, 이메일 관리 시트의 사업명과 기관명이 택배관리 시트의 사업명, 기관명과 정확히 일치하면 택배관리 시트의 No 번호(B-00 형식)가 이메일 관리 시트의 지정된 셀에 자동으로 들어가도록 INDEX와 MATCH 함수를 조합해 만들었습니다.'
+      ]},
+      { title: '창고 위치 고정 (혼자)', text: [
+        '택배를 찾는 시간이 길수록 평가 시간이 줄어든다고 보고, 리스트가 아니라 지도처럼 방향을 보여주는 형태가 필요하다고 생각했습니다. 그래서 담당자별로 나뉘어 있던 구역을 100번대, 200번대처럼 번호대별로 묶어 위치를 고정했습니다. 계약이 끝나도 후임자가 그대로 이어받아 쓸 수 있게 하기 위해서였습니다.',
+        '이후 창고 안 택배 약 500건의 위치를 혼자 전수조사해 데이터로 만들었습니다. 입고가 가장 많을 때는 약 1,000건이었지만, 평가가 끝난 택배는 기관으로 반송돼서 이때 남아 있던 건 약 500건이었습니다.'
+      ]},
+      { title: '엑셀 창고 도면 (혼자)', text: [
+        '전수조사 데이터로 창고를 엑셀 도면으로 만들고, 택배 추가, 삭제, 위치 변경이 자동 반영되게 했습니다. 택배 번호를 입력하면 도면에서 그 택배가 있는 행과 열이 표시되고 해당 구역 색이 바뀌게 만들었습니다.'
+      ]},
+      { title: '기능 확장과 공유', text: [
+        '보관 중인 택배 수와 평가 완료 여부도 확인할 수 있게 했고, 선임 회계사에게 양해를 구해 팀 공유 엑셀 파일에 시트를 추가해 누구나 쓸 수 있게 했습니다.'
+      ]}
+    ],
+    result: [
+      '평가 1건당 택배 찾는 시간: 길게는 1시간 → 10분 안팎 (본인 체감 기준)',
+      '관리 대상 약 500건의 접수 정보와 택배 정보가 연결돼 추적이 쉬워짐',
+      '평가 완료 여부와 보관 현황을 실시간으로 확인 가능',
+      '프롬프트 활용법을 동료 인턴들에게 공유'
+    ],
+    reason: [
+      '담당자 기준 배치는 담당자가 바뀌면 아무도 못 찾기 때문에, 누가 와도 찾을 수 있는 번호대별 고정 위치가 필요하다고 봤습니다',
+      '위치가 고정돼야 엑셀 도면으로 옮길 수 있었기 때문에 위치 고정을 먼저 했습니다'
+    ],
+    role: '위치 고정, 500건 전수조사, 엑셀 도면 설계와 구현 (두 시트를 잇는 함수는 같은 교육을 들은 인턴과 함께 구현)',
+    collaboration: [
+      '같은 교육을 들은 인턴: 두 시트를 잇는 함수 함께 구현',
+      '선임 회계사: 팀 공유 파일 반영 허락'
+    ],
+    regret: '택배 정보 시트에 입력하면 도면에 자동으로 반영되는 완전 자동화까지 하고 싶었는데, 시도하던 중 인턴 기간이 끝나 마무리하지 못했습니다.',
+    learning: 'AI가 알려준 건 함수였지만, 무엇과 무엇을 연결할지 정한 건 제 몫이었습니다.',
+    url: 'https://app.notion.com/p/3cf7ee08001480f589b7cdbb2d9fcee9'
+  },
+  {
+    title: '상급자 대리업무 수행 중 소통 실패 경험',
+    category: '군경험',
+    tags: ['커뮤니케이션'],
+    summary: '선임의 휴가 중 행사 준비를 대신 맡았는데 결과만 전하고 과정을 공유하지 않아 혼선을 만들었고, 이후 중간보고와 과정 공유를 습관으로 만든 경험',
+    situation: [
+      '군 복무 당시 직속 선임 실무자가 휴가를 가면서 그 업무를 제가 대신 맡게 됐습니다.',
+      '계양소방서장의 부대 방문 행사를 준비해야 했고, 방문 일정과 참석 인원, 장소 조율이 제 몫이었습니다.',
+      '평소 담당하던 업무가 아니라 경험이나 노하우가 부족한 상태였습니다.'
+    ],
+    situationAsText: true,
+    task: '행사 준비를 차질 없이 진행하고, 선임이 복귀한 뒤 바로 업무를 이어받을 수 있게 관리하는 것',
+    action: [
+      { title: '당시 한 일', text: [
+        '방문 일시, 장소, 참석 인원 같은 기본 정보는 확인해 정리했고, 과장님과 소통하며 필요한 일을 진행했습니다.'
+      ]},
+      { title: '놓친 것', text: [
+        '행사 준비를 일정 조율로만 보고 차량 지원, 인솔 인원 지정, 세부 동선, 방문 시 준비사항 같은 후속 조치는 챙기지 못했습니다.',
+        '무엇보다 진행 과정을 선임에게 중간중간 공유하지 않고 결과만 전했습니다. "처리했다"는 데만 집중하고, 원래 담당자가 이어서 일할 수 있는 상태를 만드는 건 생각하지 못했습니다.'
+      ]},
+      { title: '이후 바꾼 것', items: [
+        '진행 중 변경사항이 생기면 반드시 중간보고',
+        '대리업무를 할 때는 원래 담당자에게 "이런 방향으로 진행하고 있는데 괜찮습니까?"를 먼저 확인',
+        '일을 할 때 "이 다음에는 무엇이 필요할까?"를 한 번 더 생각'
+      ]}
+    ],
+    result: [
+      '선임이 복귀 후 세부 동선, 차량 지원, 인솔 방안이 정리돼 있지 않아 다시 확인하는 작업이 필요했음',
+      '선임과 면담에서 "대리업무 자체는 잘했지만 진행 상황을 공유하지 않아 복귀 후 파악하기 어려웠다"는 피드백을 받음',
+      '처음엔 왜 지적받는지 몰랐지만, 입장을 바꿔 보니 저라도 혼란스러웠을 거라고 깨달음',
+      '이후 같은 실수를 반복하지 않았고, 결과뿐 아니라 진행 과정과 결정 배경까지 공유하는 습관이 생김'
+    ],
+    reason: '당시에는 행사 준비를 일정 조율 업무로만 판단했고, 대리업무의 목적이 "원래 담당자가 이어받을 수 있게 하는 것"이라는 걸 놓쳤습니다. 이 판단이 실패의 원인이었습니다.',
+    role: '대리업무 수행, 기본 정보 확인',
+    collaboration: ['과장님: 진행 중 소통', '선임 실무자: 복귀 후 면담과 피드백'],
+    regret: '처음부터 원래 담당자 입장에서 "복귀하면 무엇이 필요할까"를 생각했다면 후속 준비와 공유를 함께 챙길 수 있었을 것입니다.',
+    learning: '일을 끝내는 것과 남이 이어받을 수 있게 끝내는 건 다르다는 걸 배웠습니다.',
+    url: 'https://app.notion.com/p/3cf7ee080014808cbffbdd12179684a6'
+  },
+  {
+    title: '단과대 협업 행사 예산 확보 및 운영 경험',
+    category: '대외활동',
+    tags: ['문제해결', '협업'],
+    summary: '학생회 예산이 거의 소진된 상황에서 타 단과대와의 협업 행사를 제안받아, 행사를 현실적인 규모로 줄이고 행정실과 협의해 추가 예산을 받아 개최한 경험',
+    situation: [
+      '학생회 사무국장으로 단과대 가요제를 준비하던 중이었고, 학생회 예산 약 200만 원은 무대 설치, 사회자 섭외 등으로 대부분 쓴 상태였습니다.',
+      '이때 타 단과대 학생회와 친분이 있던 임원을 통해 "농생대 & 생활과학대 달빛걷기" 협업 행사를 제안받았습니다. 기획안상 양 단과대 학생 약 60명이 참여하는 행사였습니다.',
+      '코로나19로 학생 간 교류가 크게 줄어든 시기였습니다.'
+    ],
+    situationAsText: true,
+    task: ['행사 개최 가능성 검토', '예산 산출과 운영 계획 수립', '추가 재원 확보'],
+    action: [
+      { title: '행사 필요성 판단', text: [
+        '교류가 줄어든 시기라 학생들에게 의미 있는 행사라고 보고, 예산 부족만으로 포기하기보다 실행 가능한 대안을 찾기로 했습니다.'
+      ]},
+      { title: '핵심만 남긴 축소안', text: [
+        '학생회 내부에서는 "가요제도 하는데 예산이 부족하다"는 의견이 있었습니다. 예산 문제는 인정하면서도, 달빛걷기라는 핵심 콘셉트와 학생들이 관심 있어 하는 게임 요소는 남겨야 참여율이 나온다고 보고 비용이 큰 구성만 조정했습니다. 기념품과 간식을 빼서 약 60만 원이던 예산을 334,550원으로 줄였습니다.'
+      ]},
+      { title: '행정실 협의', text: [
+        '남은 학생회 예산으로는 다 감당할 수 없어서 학교 행정실에 행사 목적, 학생 교류의 필요성, 수정한 예산안을 설명했습니다. 테이프 같은 저렴한 소모품은 학생회 예산으로 쓰라는 안내를 받아서, 소모품과 예비비 124,550원은 학생회 잔여 예산으로 맞추고 가장 큰 항목인 달고나 키트 210,000원만 행정실 지원으로 요청하도록 기획안을 고쳐 제출했습니다.'
+      ]},
+      { title: '예산 편성과 집행', text: [
+        '품목별 비용 산출, 예산안 작성, 학생회 안건 상정, 최종 구매와 정산까지 직접 했습니다.'
+      ]}
+    ],
+    result: [
+      '행정실 지원 210,000원 확보 (달고나 키트 35개), 나머지 124,550원은 학생회 잔여 예산으로 집행',
+      '농생대와 생활과학대 협업 행사를 정상 진행, 약 60명 참여',
+      '학생회 안에서 취소 가능성이 나오던 행사를 실제로 개최'
+    ],
+    reason: '예산이 부족하다고 행사를 접기보다, 행사의 핵심이 무엇인지 먼저 정하고 그것만 남기면 적은 돈으로도 할 수 있다고 봤습니다. 학생회 예산이 바닥이라 학교 행정실의 지원을 받는 게 유일한 방법이라고 판단했습니다.',
+    role: '행사 가치 판단, 축소안 작성, 행정실 협의, 예산 편성과 정산',
+    collaboration: ['학생회 임원: 타 단과대와 연결, 행사 제안', '학교 행정실: 지원 가능 항목과 절차 안내, 예산 지원'],
+    regret: '행정실 지원을 한 종목에 대해서만 이끌어냈는데, 종목을 더 다양하게 구성해 지원을 요청했다면 행사를 더 풍성하게 만들 수 있었을 것 같아 아쉽습니다.',
+    learning: '줄일 건 줄이고, 항목별로 채울 곳을 나눠 찾기. 그 뒤로는 예산이 부족하면 할지 말지보다 항목별로 어디서 채울 수 있을지부터 찾아보게 됐습니다.',
+    url: 'https://app.notion.com/p/3cf7ee08001480ff9980c2f088048db3'
+  },
+  {
+    title: '4년간 누락된 군 자산 재산등재 정상화 경험',
+    category: '군경험',
+    tags: ['구매 사후관리', '문제해결', '커뮤니케이션', '도전'],
+    summary: '전군 재물조사 중 약 4년간 자산관리체계에 등록되지 않은 자산을 발견하고, 자료를 추적하고 상급부대와 보완 근거를 합의해 약 100건의 자산을 정상 등재한 경험',
+    situation: [
+      '보급장교로 전군 재물조사를 하던 중, 부대에 실제로 있는 컨테이너, 에어컨, 신축 생활관 시설물 등이 군 자산관리체계(DELIS)에는 등록되어 있지 않다는 것을 발견했습니다.',
+      '재산이 등록되지 않으면 수리 의뢰, 폐기, 자산 현황 관리가 불가능하고 감사에서도 큰 지적사항이 될 수 있었습니다.',
+      '조사해보니 약 4년 동안 누적된 문제였고, 그사이 담당자가 여러 번 바뀌며 인수인계가 이어지지 않았습니다. 누락된 건은 대부분 부대가 계약으로 구매만 하고 재산 등재라는 후속 처리를 하지 않은 경우였습니다. 상급부대가 내려보낸 물자는 수입만 잡으면 시스템에 자동으로 반영돼서 섞일 일이 없었습니다. 주변에서는 해결하기 어려운 문제로 여기고 있었습니다.'
+    ],
+    situationAsText: true,
+    task: ['누락된 자산 현황 파악', '누락 원인과 시점 확인', '등재에 필요한 근거자료 확보', 'DELIS 정상 등록'],
+    action: [
+      { title: '누락 시점 추적', text: [
+        '과거 공문과 계약자료를 조사해 언제부터 재산 등재가 빠졌는지 확인했고, 약 4년간 누적된 문제라는 것을 확인했습니다.'
+      ]},
+      { title: '상급부대 실무자 협의', text: [
+        '내부 자료만 보지 않고 상급부대 자산 담당자에게 직접 연락해 해결 방법과 절차를 물었습니다.'
+      ]},
+      { title: '4년치 자료 조사', text: [
+        '계약서, 납품 공문, 시설 공사 자료를 확인하며 컨테이너, 에어컨, 생활관 비품, 시설물 등 실제 취득한 자산을 하나씩 찾아냈습니다. 재정 담당관이 계약 문서를 함께 찾아줬고, 군수과 실무자들이 현장을 같이 돌며 사진 확보를 도왔습니다.'
+      ]},
+      { title: '보완 근거 합의', text: [
+        '가장 어려웠던 건 오래된 자산이라 근거자료가 남아 있지 않은 경우였습니다. 전군 재물조사 결과, 실물 확인, 현장 사진, 사유서로 근거를 대신하는 방식을 상급부대 실무자와 소통하며 합의했습니다.'
+      ]},
+      { title: '등록과 승인', text: [
+        '근거가 갖춰진 자산은 DELIS에 직접 입력하고 상급부대 담당자 승인을 거쳐 등재를 마쳤습니다.'
+      ]}
+    ],
+    result: [
+      '약 4년간 누락된 자산 약 100건 정상 등재',
+      '감사 위험 제거, 이후 수리와 폐기 등 자산 관리 업무 가능',
+      '관련 절차를 문서로 정리해 후임자에게 인계',
+      '상급자로부터 "보통 끈기로 할 수 있는 일이 아니다"라는 평가를 받음'
+    ],
+    reason: [
+      '근거자료가 없는 자산은 내부에서 아무리 확인해도 승인이 나지 않기 때문에, 승인권을 가진 상급부대 실무자와 대체 근거 방식을 먼저 합의하는 게 돌파구라고 봤습니다',
+      '관리 책임자로서 알고도 방치하면 다음 담당자에게 같은 문제가 넘어간다고 판단했습니다',
+      '구매는 물건을 산 데서 끝나는 게 아니라 관리할 수 있게 체계에 등록해야 마무리된다고 봤습니다'
+    ],
+    role: '문제 발견, 시점 추적, 자료 조사, 보완 근거 작성, DELIS 입력',
+    collaboration: [
+      '상급부대 자산 담당자: 절차 안내, 보완 근거 방식 합의, 승인',
+      '재정 담당관: 계약 문서 찾기',
+      '군수과 실무자: 현장 확인과 사진 확보'
+    ],
+    regret: '조사에 한 달 이상 걸려 다른 업무와 병행하기 쉽지 않았습니다. CCTV처럼 끝내 근거자료를 확보하지 못해 등재하지 못한 자산도 일부 있었습니다.',
+    learning: '다들 어렵다고 했던 건 방법을 몰라서였지, 해결할 수 없는 문제는 아니었습니다.',
+    url: 'https://app.notion.com/p/3cf7ee08001480849322f86052da041a'
+  },
+  {
+    title: '예산 집행 체계 정착 중 실무자 갈등 해결 경험',
+    category: '군경험',
+    tags: ['문제해결', '커뮤니케이션'],
+    summary: '새 예산 집행 체계를 정착시키던 중 반발한 하위 부대 실무자와의 갈등을 대면 설명과 원인 파악으로 풀고, 같은 일이 반복되지 않도록 절차를 명문화한 경험',
+    situation: [
+      '예산 집행 체계 개선을 정착시키던 중, 한 부대 실무자가 새 방식대로 전표를 첨부하지 않고 공문 하단에 "실무자에게 직접 인계"라고만 적어 제출했습니다.',
+      '공문을 반송하자 그 실무자에게서 "이때까지 이렇게 해도 문제없었는데 뭐가 잘못됐는지 모르겠다"는 항의 전화를 받았습니다.'
+    ],
+    situationAsText: true,
+    task: '감정적으로 맞서지 않으면서 증빙 첨부 원칙은 지키고, 실무자를 납득시켜 새 체계를 정착시키는 것',
+    action: [
+      { title: '전화로 1차 설명', text: [
+        '결과보고에 증빙 첨부가 필요한 이유를 설명했지만 상대는 계속 납득하지 못했습니다.'
+      ]},
+      { title: '대면 요청과 상급자 보고', text: [
+        '언쟁으로 번질 것 같아 직접 만나자고 요청했고, 상황이 생기면 상급자에게 보고하는 원칙에 따라 과장님께도 공유했습니다. 과장님은 실무자가 위축되지 않도록 자원해서 자리에 함께해주셨습니다.'
+      ]},
+      { title: '원인 파악', text: [
+        '만나서 이야기해보니 그 실무자는 다른 실무자의 업무를 인수받아 절차 전체를 제대로 이해하지 못한 상태였습니다.'
+      ]},
+      { title: '코칭', text: [
+        '그 뒤에도 영수증을 여러 장 따로 첨부하는 등 서류 작성이 미숙한 부분이 보이면 사진을 합쳐 PDF로 첨부하는 방법처럼 개선 방법을 안내했습니다.'
+      ]},
+      { title: '재발 방지', text: [
+        '실무자들이 쓰는 전달 장치인 메모보고에 전체 절차와 지침을 명문화하고, 담당자가 바뀌면 반드시 "수신자 변경"으로 인계하도록 당부했습니다. 필요하면 현장교육도 지원하겠다고 안내했습니다.'
+      ]}
+    ],
+    result: [
+      '당일 안에 갈등 해결',
+      '해당 실무자가 이후 지침을 지키며 점점 숙련됨',
+      '전 실무자 대상으로 절차와 지침을 공식 전달 장치에 명문화하고 인수인계 절차를 만듦'
+    ],
+    reason: [
+      '전화로는 서로 감정이 쌓일 수 있어 얼굴을 보고 설명하는 게 더 빠르다고 판단했습니다',
+      '상급자 보고는 원칙이기도 했고, 과장님이 함께하면 실무자가 일방적으로 지적받는 자리가 아니라는 신호가 됐습니다',
+      '한 사람의 문제가 아니라 인수인계 때 절차가 끊기는 구조의 문제라고 보고 재발 방지 장치를 만들었습니다'
+    ],
+    role: '설명, 대면 요청, 원인 파악, 코칭, 절차 명문화',
+    collaboration: ['과장님: 대면 자리에 동석', '해당 실무자: 항의 후 새 절차 적용'],
+    regret: '혼자 잘하면 되던 구조에서 여러 사람이 개입하는 구조로 바뀌면서, 특히 인수인계로 새로 업무를 맡은 사람을 관리하는 데 한계가 있다는 걸 느꼈습니다. 재발 방지 장치로 일부 보완했지만 인수인계 과정 자체를 표준화하지 못한 점은 아쉽습니다.',
+    learning: '상대가 왜 그렇게 했는지 먼저 알아보는 게 설득보다 빨랐습니다.',
+    url: 'https://app.notion.com/p/3d77ee08001481969abbe378c7621916'
+  },
+  {
+    title: '증빙 검증 기준표 수립 경험',
+    category: '인턴십',
+    tags: ['구매 규정', '프로세스 개선', '분석', '협업'],
+    summary: '회계평가에서 반복되는 지적사항을 매번 지침서로 확인하던 방식에서 기준표로 정리하는 방식으로 바꿔, 평가 속도를 약 2배로 높이고 팀의 판단 기준을 하나로 맞춘 경험',
+    situation: [
+      '회계법인 인턴으로 사회복지공동모금회 배분금을 받은 기관들의 집행 내역을 평가했습니다. 전체 평가 대상은 400개 기관, 약 2,800건 규모였습니다.',
+      '여러 건을 평가하다 보니 계좌이체 시 전자세금계산서 누락, 강사비 지급 시 원천징수영수증 누락, 200만 원 초과 지출 건의 비교견적 누락, 배분금으로 내부직원 인건비를 편법 지출한 경우처럼 반복되는 지적사항이 보였습니다.',
+      '기준표가 없어 매번 지침서를 찾아 확인해야 했고, 담당자마다 판단 기준도 조금씩 달랐습니다.'
+    ],
+    situationAsText: true,
+    task: '반복되는 지적사항을 매번 규정을 찾는 대신 기준표로 정리해 검증 속도와 정확도를 함께 높이는 것',
+    action: [
+      { title: '규정과 지침 정리', text: ['관련 규정집과 지침서를 먼저 정리했습니다.'] },
+      { title: '엑셀 기준표 제작', text: [
+        '결의서 작성 여부, 적격증빙 구비 여부, 자산성 품목 실사 여부, 비교견적 이행 여부, 금액 구간별 계약 방식 준수 여부(배분 사업 지침 기준으로 200만 원 이상 비교견적, 2천만 원 미만 수의계약 가능, 2천만 원 이상 5천만 원 미만 입찰이지만 사회적기업 입증 시 수의계약 가능, 5천만 원 이상 경쟁입찰) 등으로 기준표 항목을 구성했습니다.'
+      ]},
+      { title: '기준표로 검증', text: [
+        '카드 전표에 품목이 안 나오면 거래명세서를 추가로 받았고, 견적서만 낸 기관은 거래명세서로 다시 내도록 했습니다. 현금 지급이면 현금지급사유서, 계좌이체면 세금계산서처럼 결제 방식과 사업자 유형에 맞는 증빙인지도 확인했습니다.',
+        '기관이 낸 표준현금출납부 엑셀에 필터를 걸어 같은 목적으로 같은 업체에 나눠 결제한 건을 찾아 비교견적서를 추가로 요청했습니다.',
+        '누락이 보이면 실무자가 제출만 빠뜨렸을 수도 있어 메일이나 전화로 먼저 보완을 요청했고, 그래도 없으면 회계평가 예외사항으로 감점했습니다.'
+      ]},
+      { title: '사례 축적', text: ['평가를 진행하면서 실제 사례를 기준표에 계속 쌓았습니다.'] },
+      { title: '다른 인턴 사례 취합', text: [
+        '혼자 겪은 사례만으로는 한계가 있어 다른 인턴들과 사례를 나누고, 제가 겪지 못한 경우까지 기준표에 반영했습니다.'
+      ]},
+      { title: '팀 공유', text: ['완성한 기준표를 팀에 공유해 공식적으로 함께 썼습니다.'] }
+    ],
+    result: [
+      '평가 속도 약 2배 (주 2~3건 → 주 5~6건)',
+      '팀원과 함께 사용하며 실시간 최신화',
+      '담당자마다 다르던 판단 기준을 하나로 맞춤'
+    ],
+    reason: '같은 지적사항이 반복되는데 매번 지침서를 다시 찾는 건 시간 낭비이고, 사람마다 판단이 달라지면 평가 결과의 신뢰도도 흔들린다고 봤습니다. 그래서 개인 메모가 아니라 팀이 함께 쓰는 기준표로 만들었습니다.',
+    role: '규정 정리, 기준표 설계와 제작, 사례 축적',
+    collaboration: ['다른 인턴들: 각자 겪은 사례 공유'],
+    regret: '지침서에 명시되지 않은 특수한 경우는 여전히 기준표에 넣지 못했습니다. 예를 들어 주택 임대차 계약 관련 오사용 사례 같은 경우입니다.',
+    learning: '혼자 아는 것보다 같이 쓰는 기준을 만드는 게 팀 전체 속도를 바꾼다는 걸 느꼈습니다.',
+    url: 'https://app.notion.com/p/3de7ee080014813e83e8e556247e6c66'
+  },
+  {
+    title: '실물 증빙 창고 재배치 경험',
+    category: '인턴십',
+    tags: ['리더십', '협업', '문제해결', '도전'],
+    summary: '창고에 무작위로 쌓인 실물 증빙 약 1,000건을, 의견이 갈리는 동료들을 설득하고 AI 시뮬레이션으로 배치를 검토해 담당 구역별로 정리하고, 1주일 예상 작업을 2일 만에 끝낸 경험',
+    situation: [
+      '인턴 2개월차였던 2월, 창고에 택배로 온 실물 증빙이 1,000건 가까이 쌓여 창고가 수용 한계를 넘었습니다.',
+      '들어온 순서대로 기준 없이 쌓여 있어서, 정리하지 않으면 업무 자체가 진행되지 않는 상태였습니다.'
+    ],
+    situationAsText: true,
+    task: '상급자에게 보고해 정리할 시간을 확보하고, 갈린 의견을 조율해 회계평가에 맞는 정리 기준을 세워 실행하는 것',
+    action: [
+      { title: '보고로 시간 확보', text: ['상황을 상급자에게 보고해 창고를 정리할 시간을 확보했습니다.'] },
+      { title: '정리 기준 토의와 제안', text: [
+        '다른 인턴들과 정리 기준을 이야기해보니 번호대별로 하자는 의견과 박스 크기별로 하자는 의견이 갈렸습니다. 정리의 목적은 결국 회계평가를 수월하게 하는 것이라고 보고, 각자 맡은 담당 구역별로 정리하자고 제안했습니다.'
+      ]},
+      { title: '반대 의견 설득', text: [
+        '시간이 오래 걸린다는 반대에는, 지금 시간을 들이면 이후 각자의 평가가 빨라진다는 논리로 설득했습니다.'
+      ]},
+      { title: 'AI 시뮬레이션으로 배치 검토', text: [
+        '누적 입고 데이터와 인원별 할당 구역 조건을 넣어 AI로 택배를 어떻게 적재할지 시뮬레이션해보고 배치를 정했습니다.'
+      ]},
+      { title: '역할 분담과 실행', text: [
+        '팀을 증빙이 어느 기관 것인지 찾는 식별팀과 구역별로 실물을 쌓는 적재팀으로 나눠 동시에 진행했습니다.'
+      ]}
+    ],
+    result: [
+      '1주일 걸릴 것으로 예상한 정리 작업을 2일 만에 완료',
+      '서류 찾는 시간이 줄고 회계평가 속도가 빨라짐',
+      '담당 구역별 정리 기준이 팀 전체에 적용됨'
+    ],
+    reason: [
+      '번호대나 박스 크기는 정리하기는 쉽지만, 결국 각자 자기 평가 건을 찾아야 하는 상황에서는 담당자별 구역이 평가에 가장 빠르다고 봤습니다',
+      '1,000건을 한 사람씩 들고 확인하며 옮기면 느리기 때문에, 찾는 일과 쌓는 일을 나누면 동시에 진행할 수 있다고 판단했습니다'
+    ],
+    role: '문제 제기와 보고, 정리 기준 제안, 반대 의견 설득, AI 시뮬레이션, 역할 분담',
+    collaboration: ['다른 인턴들: 정리 기준 토의, 식별팀과 적재팀으로 나눠 실행', '상급자: 정리 시간 허락'],
+    regret: '구역별로 정리해도 일부 택배가 다른 사람 구역에 섞이거나, 담당이 정해지지 않은 택배가 많아 처리에 어려움이 있었습니다. 이후 계약 종료를 앞두고 후임자도 찾을 수 있게 번호대별로 다시 정리했습니다.',
+    url: 'https://app.notion.com/p/3de7ee08001481f58ed7f2579214ce03'
+  },
+  {
+    title: '잔반통 구성품 미확인 구매 실수 경험',
+    category: '군경험',
+    tags: ['사양 확인', '문제해결', '커뮤니케이션'],
+    summary: '나라장터에서 사진만 보고 잔반통을 사서 별도 판매인 뚜껑을 놓쳤고, 바로 보고하고 타 여단의 남는 예산을 찾아 3일 만에 수습한 뒤 구매 전 상세 설명과 구성품을 확인하는 습관을 들인 경험',
+    situation: [
+      '보급장교 초반, 매년 식당 운영에 부족하거나 오래된 품목을 바꾸는 예산으로 나라장터에서 대형 잔반통 4개(약 400만 원)를 샀습니다.',
+      '가격과 사진만 보고 구매했는데, 납품받고 보니 뼈대만 있고 입구를 막는 뚜껑이 없었습니다. 다시 확인해보니 상세 설명에 "뚜껑 별도"라고 적혀 있었습니다.',
+      '이미 납품받은 물건이라 환불할 수 없었고, 현장은 보관할 공간이 애매해서 바로 쓰기를 원하는 상황이었습니다.'
+    ],
+    situationAsText: true,
+    task: '뚜껑을 최대한 빨리 확보해 잔반통을 쓸 수 있게 만드는 것',
+    action: [
+      { title: '바로 보고', text: ['실수를 숨기지 않고 상급부대 실무자에게 바로 알리고 해결 방법을 같이 찾았습니다.'] },
+      { title: '예산 확보 방법 확인', text: [
+        '공문으로 예산을 추가 배정받는 방법이 있었지만, 상급부대에도 남은 예산이 없어 다른 여단이 쓰지 않은 예산을 가져와야 했습니다.'
+      ]},
+      { title: '타 여단 예산 수소문', text: ['다른 여단 실무자들에게 직접 전화해 남는 예산이 있는지 수소문했습니다.'] },
+      { title: '뚜껑 추가 구매', text: [
+        '확보한 예산으로 뚜껑 4개(개당 약 30만 원, 총 약 120만 원)를 추가로 샀습니다. 다른 업체 뚜껑은 규격이 맞지 않을 수 있어서 잔반통을 산 업체에서 그대로 샀습니다.'
+      ]},
+      { title: '내역서 양식 개선', text: [
+        '같은 실수를 막으려고 제품 특징, 규격, 형상 사진, 단가, 수량을 한 장에 정리하는 내역서 양식을 직접 만들었습니다.'
+      ]}
+    ],
+    result: [
+      '잔반통을 못 쓴 기간 약 3일로 마무리',
+      '예상에 없던 약 120만 원이 추가로 들었음',
+      '규격과 형상 사진까지 확인하는 내역서 양식을 직접 만들어 이후 구매에 씀',
+      '바로 다음에 맡은 병영식당 리모델링에서 이 양식을 그대로 썼고 같은 실수를 하지 않았음'
+    ],
+    reason: [
+      '이미 받은 물건은 환불이 안 되고 현장은 바로 써야 했기 때문에, 누구 책임인지 따지기보다 뚜껑을 빨리 구하는 게 먼저라고 판단했습니다',
+      '혼자 해결하려다 시간을 끌면 현장 불편만 길어지기 때문에 상급부대에 바로 알렸습니다',
+      '뚜껑을 다른 업체에서 사면 규격이 안 맞는 등 또 다른 문제가 생길 수 있어 같은 업체에서 샀습니다'
+    ],
+    role: '실수 인지, 보고, 타 여단 예산 수소문, 추가 구매',
+    collaboration: ['상급부대 실무자: 해결 방법 논의, 예산 배정', '타 여단 실무자: 남는 예산 확인'],
+    regret: '가격과 사진만 보고 상세 설명을 읽지 않은 게 원인이었고, 그 때문에 약 120만 원이 더 들고 다른 여단 예산까지 끌어와야 했습니다.',
+    learning: '실수를 빨리 털어놓은 덕에 수습도 빨랐다고 생각합니다.',
+    url: 'https://app.notion.com/p/3ef7ee0800148166b295cf761dd1773f'
+  },
+  {
+    title: '전역 후 생활 패턴 회복과 인턴 도전 경험',
+    category: '개인',
+    tags: ['도전'],
+    summary: '전역 후 쉬는 기간이 길어지며 생활 패턴이 무너진 걸 스스로 알아차리고, 군에서 맡았던 사업비 집행 실무경험과 연계하여 회계법인 인턴에 도전해 직장인 리듬을 되찾은 경험',
+    situation: [
+      '2025년 6월 전역 후 처음 한두 달은 그동안 못 본 친구들을 만나고 해외여행도 다녀오며 쉬었습니다.',
+      '그런데 쉬는 기간이 길어지면서 현실에 대한 고민도 많아지고 점점 무기력해졌고 생활패턴 또한 무너져 있었습니다.'
+    ],
+    situationAsText: true,
+    task: '무너진 생활패턴을 되찾고 내가 했던 군 경험을 발전시킬 수 있는 다음 단계를 찾는 것',
+    action: [
+      { title: '상태를 스스로 알아차림', text: ['쉬는 게 아니라 무기력해지고 있는 걸 인정하고, 다시 일을 시작하기로 했습니다.'] },
+      { title: '경험을 살릴 곳 찾기', text: [
+        '회계법인 인턴 업무가 사업비 정산이었는데, 군에서 사업비 실무자였기 때문에 정산할 때 도움이 될 거라고 판단해 지원했습니다.'
+      ]},
+      { title: '루틴 회복', text: ['직장인 루틴이 생기면서 식사, 운동, 퇴근 후 개인 시간을 확보했습니다.'] }
+    ],
+    result: [
+      '2026년 1월부터 8월까지 회계법인 인턴 완주',
+      '직장인과 동일한 생활 패턴과 운동 습관 회복',
+      '인턴 기간에 기준표, 창고 재배치, 택배 관리 개선 같은 비효율적인 부분을 개선한 경험을 쌓음'
+    ],
+    reason: '아무 일이나 다시 시작하기보다, 군에서 잘했던 사업비 관련 업무 경험이 바로 쓰이는 사업비 정산 업무를 골라야 빨리 적응하고 다음 진로로도 이어질 수 있다고 봤습니다.',
+    role: '상태 인정, 지원처 선택, 루틴 회복',
+    regret: '전역 후 목표 없이 단순히 쉬는 기간이 생각보다 길었다는 점',
+    learning: '목표 없이 쉬는 것은 날이 지날수록 사람을 무기력하게 만들며 사람을 지치게 한다. 지금도 취업 준비를 매일 정해진 루틴으로 하고 있습니다(직장인과 동일한 패턴, 운동 습관 유지).',
+    url: 'https://app.notion.com/p/3ef7ee08001481969d1fe43217030b91'
+  },
+  {
+    title: '식기세척기 교체 구매 협상 경험',
+    category: '군경험',
+    tags: ['협상', '원가관리', '공급업체 관리', '문제해결', '커뮤니케이션'],
+    summary: '식당 현장을 점검하다 몇 년째 쓰지 못하고 방치된 대형 식기세척기를 찾아 교체를 추진했고, 철거비 때문에 예산을 넘기자 업체와 협상해 철거비를 업체 부담으로 돌려 배정 예산 1,200만 원 안에서 교체를 마친 경험',
+    situation: [
+      '식당 현장을 점검하다가 10년 된 컨베이어형 대형 식기세척기가 쓰지 못하는 상태로 몇 년째 방치돼 있는 걸 발견했습니다. 현장에서도 설거지가 힘들다는 불편을 여러 번 호소하던 상황이었습니다.',
+      '교체 예산으로 1,200만 원이 배정됐는데, 견적을 받아보니 기존 설비 철거비가 따로 붙어 배정 예산을 넘겼습니다.'
+    ],
+    situationAsText: true,
+    task: '배정된 예산 안에서 식기세척기 교체를 마무리하는 것',
+    action: [
+      { title: '현장 점검에서 문제 식별', text: [
+        '식당 현장을 점검하면서 방치된 식기세척기를 찾았고, 식당관리관과 소통하며 현장에서 겪는 불편을 최대한 들었습니다.'
+      ]},
+      { title: '구매 방식 결정', text: [
+        '다른 부대에서 같은 품목을 입찰로 샀을 때 민원이 많았다는 이야기를 듣고, 비교견적을 받는 수의계약으로 진행하기로 했습니다. 구매 절차는 재정담당과 함께 진행했습니다.'
+      ]},
+      { title: '견적 비교와 철거비 협상', text: [
+        '3곳에서 견적을 받았는데 철거비 때문에 예산을 넘겼습니다. 업체에 철거비를 업체 쪽에서 부담해줄 수 있는지 요청하면서 다음 구매 때 견적 요청 대상에 포함하겠다는 정도로 이야기했고, 업체가 한 번에 받아들였습니다. 특정 업체에 혜택을 약속한 건 아니었습니다.'
+      ]},
+      { title: '업체 선정', text: [
+        '새 설비가 다시 방치되지 않도록, 가격과 함께 한 달에 한 번 정기점검과 세제 리필을 해주는지를 보고 최종 업체를 골랐습니다.'
+      ]}
+    ],
+    result: [
+      '배정 예산 1,200만 원 안에서 교체 완료',
+      '설치 후 설거지에 필요한 인원이 크게 줄어듦',
+      '월 1회 정기점검과 세제 리필로 설치 후 관리까지 확보'
+    ],
+    reason: [
+      '타부대에서 입찰로 진행했을 때 민원이 많았다고 들어서, 비교견적을 받는 수의계약이 더 안정적이라고 판단했습니다',
+      '이미 한 번 설비가 몇 년간 방치됐던 곳이라, 새로 넣은 식기세척기는 다시 방치되지 않게 하려고 가격뿐 아니라 월 1회 정기점검과 세제 리필까지 해주는 업체를 골랐습니다'
+    ],
+    role: '현장 점검과 문제 식별, 구매 방식 결정, 견적 비교, 철거비 협상, 업체 선정',
+    collaboration: [
+      '재정담당: 구매 절차 함께 진행',
+      '식당관리관: 현장 상황과 불편 공유',
+      '업체: 철거비 부담, 정기점검과 세제 리필'
+    ],
+    learning: '저렴하게 사는 것도 중요하지만, 산 것을 유지하는 것까지가 구매',
+    url: 'https://app.notion.com/p/3f47ee08001481a78749ca402671fe5f'
+  }
+];
+
+/* ─────────────────────────────────────────────
+   실제 노션 연결 자리
+   브라우저 코드에 노션 토큰을 넣으면 누구나 볼 수 있으므로 절대 넣지 않는다.
+   방법 1) 서버 프록시: /api/experiences 가 서버에서 토큰으로 노션을 읽어 위와 같은 배열을 돌려준다.
+   방법 2) 빌드 시점 JSON: 배포 전에 스크립트로 노션을 읽어 experiences.json 을 만들고 fetch('experiences.json').
+   지금은 GitHub Pages(정적)라 위 스냅샷을 그대로 쓴다.
+   ───────────────────────────────────────────── */
+async function fetchExperiences() {
+  const response = await fetch('/api/experiences');
+  return response.json();
+}
+</script>
+
+<script>
+(() => {
+  /* 엠블럼 */
+  const deg = Math.PI / 180;
+  const p = (r, a) => `${(r*Math.cos(a*deg)).toFixed(2)},${(r*Math.sin(a*deg)).toFixed(2)}`;
+  let d = "";
+  for (let k = 0; k < 6; k++) {
+    const a = k * 60 - 90;
+    d += `M${p(10.5, a-30)}L${p(10.5, a+30)}L${p(3.4, a+75)}Z`;
+    d += `M${p(6.5, a-10)}L${p(10.5, a+30)}`;
+  }
+  const emblemPath = () => { const el = document.createElementNS("http://www.w3.org/2000/svg", "path"); el.setAttribute("d", d); return el; };
+  document.querySelectorAll(".emblem-g").forEach(g => g.appendChild(emblemPath()));
+
+  const backHTML = `<svg class="wm" viewBox="-12 -12 24 24" aria-hidden="true"><g fill="none" stroke="#f2f2f0" stroke-width=".9" stroke-linejoin="round"><path d="${d}"/></g></svg><span class="word" aria-hidden="true">GWANG</span><span class="shine"></span>`;
+
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* 카드 줄 : 같은 13장을 두 번 이어 붙여 끊김 없이 돈다 */
+  const stage = document.getElementById("stage");
+  const track = document.getElementById("track");
+  const cards = [];
+  [0, 1].forEach(copy => {
+    experienceData.forEach((exp, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "card";
+      b.dataset.i = i;
+      b.innerHTML = `<span class="face">${backHTML}</span>`;
+      if (copy === 0) {
+        b.setAttribute("aria-label", `경험 카드 ${i + 1} 열기`);
+        b.setAttribute("aria-pressed", "false");
+        cards.push(b);
+      } else {
+        b.setAttribute("aria-hidden", "true");
+        b.tabIndex = -1;
+      }
+      track.appendChild(b);
+    });
+  });
+
+  let offset = 0, vel = 0, last = 0, setW = 0;
+  const SPEED = 26; // px/s, 천천히
+  const hold = { hover: false, focus: false, open: false };
+  const measure = () => { const all = track.children; setW = all[experienceData.length].offsetLeft - all[0].offsetLeft; };
+  measure();
+  addEventListener("resize", () => { measure(); if (setW && offset <= -setW) offset %= setW; });
+
+  const tick = t => {
+    const dt = last ? Math.min((t - last) / 1000, .05) : 0;
+    last = t;
+    const target = (hold.hover || hold.focus || hold.open || reduce) ? 0 : SPEED;
+    vel += (target - vel) * Math.min(1, dt * 5);        // 서서히 멈추고 서서히 출발
+    offset -= vel * dt;
+    if (setW && offset <= -setW) offset += setW;
+    track.style.transform = `translate3d(${offset.toFixed(2)}px,0,0)`;
+    requestAnimationFrame(tick);
+  };
+  if (!reduce) requestAnimationFrame(tick);
+
+  // 마우스를 움직일 때만 멈춤 → 카드를 닫은 뒤 커서가 줄 위에 그대로 있어도 바로 다시 흐른다
+  stage.addEventListener("pointermove", e => { if (e.pointerType === "mouse" && !hold.open) hold.hover = true; });
+  stage.addEventListener("pointerleave", () => { hold.hover = false; });
+  track.addEventListener("focusin", e => {
+    hold.focus = true;
+    if (reduce) return;
+    const r = e.target.getBoundingClientRect(), pad = 16, vw = innerWidth;
+    if (r.left < pad) offset = Math.min(0, offset + (pad - r.left));
+    else if (r.right > vw - pad) offset -= r.right - (vw - pad);
+  });
+  track.addEventListener("focusout", e => { if (!track.contains(e.relatedTarget)) hold.focus = false; });
+
+  /* 열린 카드 */
+  const list = arr => `<ul>${arr.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
+  const paras = arr => arr.map(x => `<p>${esc(x)}</p>`).join("");
+  const block = (label, v, asText) => {
+    if (v == null || (Array.isArray(v) && !v.length) || v === "") return "";
+    const body = Array.isArray(v) ? (asText ? paras(v) : list(v)) : `<p>${esc(v)}</p>`;
+    return `<section class="sec"><h3>${label}</h3>${body}</section>`;
+  };
+  const actions = arr => {
+    if (!arr || !arr.length) return "";
+    return `<section class="sec"><h3>행동</h3>${arr.map((s, n) =>
+      `<div class="step"><h4><span>${String(n + 1).padStart(2, "0")}</span>${esc(s.title)}</h4>${s.items ? list(s.items) : paras(s.text || [])}</div>`
+    ).join("")}</section>`;
+  };
+  const render = e => `
+    <div class="meta"><span class="cat">${esc(e.category)}</span>${(e.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+    <h2 id="doc-title">${esc(e.title)}</h2>
+    ${e.draft ? `<p class="wip">노션에서 정리 중인 경험이에요. 정리가 끝나면 내용이 채워져요.</p>` : `
+      ${e.summary ? `<p class="sum">${esc(e.summary)}</p>` : ""}
+      ${block("상황", e.situation, e.situationAsText)}
+      ${block("과제", e.task)}
+      ${actions(e.action)}
+      ${block("결과", e.result)}
+      ${block("판단 이유", e.reason, e.reasonAsText)}
+      ${block("내 역할", e.role)}
+      ${block("협업", e.collaboration)}
+      ${block("아쉬운 점", e.regret)}
+      ${block("배운 점", e.learning)}
+      ${e.url ? `<a class="src" href="${esc(e.url)}" target="_blank" rel="noopener">NOTION 원본 보기 ↗</a>` : ""}
+    `}`;
+
+  let cur = null; // { card, ov, fl }
+  const targetBox = () => {
+    const m = innerWidth <= 600 ? 12 : 32;
+    const w = Math.min(640, innerWidth - m * 2);
+    const h = Math.min(innerHeight - m * 2, 880);
+    return { left: (innerWidth - w) / 2, top: (innerHeight - h) / 2, width: w, height: h };
+  };
+  const place = (el, b) => { el.style.left = b.left + "px"; el.style.top = b.top + "px"; el.style.width = b.width + "px"; el.style.height = b.height + "px"; };
+  const after = (ms, fn) => setTimeout(fn, reduce ? 0 : ms);
+
+  function open(card) {
+    const i = +card.dataset.i;
+    const real = cards[i];
+    hold.open = true;
+    cards.forEach(c => c.setAttribute("aria-pressed", String(c === real)));
+    card.classList.add("picked");
+
+    after(180, () => {
+      const r = card.getBoundingClientRect();
+      const tb = targetBox();
+      const ov = document.createElement("div");
+      ov.className = "ov";
+      ov.innerHTML = `
+        <div class="dim"></div>
+        <div class="fl" role="dialog" aria-modal="true" aria-labelledby="doc-title">
+          <div class="face">${backHTML}</div>
+          <div class="face front">
+            <button class="x" type="button" aria-label="닫기"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+            <div class="doc" style="width:${tb.width - 2}px"><div class="doc-in">${render(experienceData[i])}</div></div>
+          </div>
+        </div>`;
+      document.body.appendChild(ov);
+      document.body.classList.add("locked");
+      const fl = ov.querySelector(".fl");
+      place(fl, r);
+      card.classList.add("gone");
+      card.classList.remove("picked");
+      cur = { card, ov, fl, real };
+
+      fl.getBoundingClientRect(); // 시작 위치 확정
+      ov.classList.add("on");
+      place(fl, tb);
+      fl.classList.add("open");
+      after(650, () => { fl.classList.add("ready"); ov.querySelector(".x").focus({ preventScroll: true }); });
+
+      ov.querySelector(".dim").addEventListener("click", () => close(false));
+      ov.querySelector(".x").addEventListener("click", e => close(e.detail === 0)); // detail 0 = 키보드(Enter/Space)로 누름
+    });
+  }
+
+  function close(byKey) {
+    if (!cur || cur.closing) return;
+    cur.closing = true;
+    const { card, ov, fl, real } = cur;
+    fl.classList.remove("ready");
+    after(200, () => {
+      card.classList.remove("gone");
+      const r = card.getBoundingClientRect();
+      card.classList.add("gone");
+      ov.classList.remove("on");
+      place(fl, r);
+      fl.classList.remove("open");
+      after(720, () => {
+        ov.remove();
+        card.classList.remove("gone");
+        document.body.classList.remove("locked");
+        real.setAttribute("aria-pressed", "false");
+        cur = null;
+        hold.open = false;
+        hold.hover = false;
+        // 키보드로 닫았을 때만 카드에 포커스를 돌려준다(포커스가 있으면 줄이 멈추므로)
+        if (byKey === true) real.focus({ preventScroll: true });
+        else if (document.activeElement) document.activeElement.blur();
+      });
+    });
+  }
+
+  track.addEventListener("click", e => {
+    const card = e.target.closest(".card");
+    if (!card || cur) return;
+    open(card);
+  });
+
+  addEventListener("keydown", e => {
+    if (!cur) return;
+    if (e.key === "Escape") { e.preventDefault(); close(true); return; }
+    if (e.key === "Tab") { // 열린 카드 안에서만 포커스 이동
+      const f = [...cur.fl.querySelectorAll("button, a[href]")];
+      const first = f[0], lastEl = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); lastEl.focus(); }
+      else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); first.focus(); }
+    }
+  });
+})();
+</script>
+</body>
+</html>
