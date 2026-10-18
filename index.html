@@ -390,11 +390,24 @@
   /* 인쇄 여백을 직접 지정 (아이폰 사파리는 기본 여백이 넓어 한 장에 덜 들어감) */
   @page { size: A4; margin: 12mm 10mm; }
   @media print {
-    /* 브라우저마다 인쇄 칸 크기가 달라서, 좁은 쪽(아이폰 사파리)에서도 섹션과 사례가 한 장에 들어가게 조금 줄임 */
-    body { zoom: .88; }
+    /* 아이폰 사파리는 @page 여백과 zoom을 무시하고 인쇄 칸이 좁음(약 627x940px).
+       그래서 인쇄용 글자와 간격을 직접 줄여 섹션과 사례가 그 칸 안에 들어가게 함 */
+    body { font-size: 14px; line-height: 1.6; }
+    .body p { font-size: 14px; }
+    .tl h3 { font-size: 16px; }
+    .tl ul.pts { font-size: 13.5px; margin-top: 6px; }
+    .tl ul.pts li { padding: 1px 0; }
+    .case summary { padding: 14px 0; }
+    .case h3 { font-size: 17px; }
+    .star { margin: 0 0 8px; padding: 16px 18px; }
+    .star dt { padding-top: 0; }
+    .star dd { font-size: 13px; line-height: 1.6; }
+    .screen-only { display: none; } /* 종이에서는 의미 없는 '클릭하면 펼쳐집니다' */
+    .case .chip-row { margin-top: 6px; }
+    .case .kpi { margin-top: 6px; }
     /* 사파리는 그리드 안 상자의 '쪼개지 않기'를 지키지 않아서 STAR 상자는 일반 블록으로 */
     .star { display: block; }
-    .star > div + div { margin-top: 14px; }
+    .star > div + div { margin-top: 10px; }
     .intro { display: none !important; }
     body { background: #fff; color: #111; }
     body::before, nav, .filters, .tog, .links .ghost, .to-top, .to-card { display: none !important; }
@@ -581,7 +594,7 @@
 
   <section class="block" id="cases">
     <div class="wrap sec-head">
-      <div class="sec-label">Key Cases<small>핵심 경험 7선<br>클릭하면 펼쳐집니다</small></div>
+      <div class="sec-label">Key Cases<small>핵심 경험 7선<span class="screen-only"><br>클릭하면 펼쳐집니다</span></small></div>
       <div class="reveal">
         <div class="filters" role="group" aria-label="직무 필터">
           <button class="on" data-f="all">전체</button>
