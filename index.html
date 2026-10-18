@@ -387,7 +387,14 @@
   .intro-skip { font: inherit; font-size: 14px; font-weight: 700; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.6); border-radius: 2px; padding: 10px 20px; cursor: pointer; }
   .intro-skip:hover { background: rgba(255,255,255,.08); }
 
+  /* 인쇄 여백을 직접 지정 (아이폰 사파리는 기본 여백이 넓어 한 장에 덜 들어감) */
+  @page { size: A4; margin: 12mm 10mm; }
   @media print {
+    /* 브라우저마다 인쇄 칸 크기가 달라서, 좁은 쪽(아이폰 사파리)에서도 섹션과 사례가 한 장에 들어가게 조금 줄임 */
+    body { zoom: .88; }
+    /* 사파리는 그리드 안 상자의 '쪼개지 않기'를 지키지 않아서 STAR 상자는 일반 블록으로 */
+    .star { display: block; }
+    .star > div + div { margin-top: 14px; }
     .intro { display: none !important; }
     body { background: #fff; color: #111; }
     body::before, nav, .filters, .tog, .links .ghost, .to-top, .to-card { display: none !important; }
