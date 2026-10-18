@@ -195,6 +195,9 @@
   .flow .value li { position: relative; font-size: 14px; color: #d0d0cc; line-height: 1.6; padding: 3px 0 3px 14px; }
   .flow .value li::before { content: ""; position: absolute; left: 0; top: calc(3px + .8em); width: 6px; height: 1px; background: var(--mute); }
   .flow-arr { display: grid; place-items: center; color: #9a9a96; }
+  .flow .value .who { font-size: 14px; color: #b4b4b0; margin: -4px 0 10px; }
+  .flow .value.so { border-color: #8f8f8b; }
+  .flow .value.so .who { color: #f2f2f0; font-weight: 600; }
   .flow-arr svg { width: 18px; height: 18px; }
 
   /* timeline */
@@ -491,12 +494,12 @@
         <h2><span class="nw">사는 쪽에서도,</span> <span class="nw">검증하는 쪽에서도</span><br>구매를 해봤습니다.</h2>
         <p>보급장교로 근무하며 부대에 필요한 물자를 직접 구매했습니다. 전투식량을 처음 입찰로 샀을 때 낙찰업체가 그 단가로는 물건을 못 구한다며 수량을 줄이는 수정계약을 요청했는데, 타 부대가 같은 단가로 납품받는 사례를 확인해 알려주고 처음 계약대로 납품받았습니다. 병영식당 리모델링에서는 예산 8천만 원으로 지침 품목을 다 살 수 없어서 식당 운영에 꼭 필요한 품목부터 계약해 준공식 일정을 맞췄고, 남은 품목은 상급부대에 건의해 3천만 원을 더 받아 모두 샀습니다.</p>
         <p>전역 후 삼정회계법인 인턴으로 사회복지공동모금회 배분금 사업 약 400건의 회계평가를 맡았는데, 비교견적이 빠졌거나 증빙이 없는 지출을 찾아내는 일이 많았습니다. 사는 쪽에서 일할 때는 몰랐던 빈틈이 검증하는 쪽에서는 잘 보였고, 그 경험이 구매를 더 꼼꼼하게 보는 기준이 됐습니다.</p>
-        <ol class="flow" aria-label="구매 흐름">
-          <li class="value"><div class="n">STEP 01</div><h3>협상</h3><ul><li>업체별 단가 시장조사</li><li>타부대 계약 자료 확보</li></ul></li>
+        <ol class="flow" aria-label="사는 쪽과 검증하는 쪽">
+          <li class="value"><div class="n">BUY SIDE</div><h3>사는 쪽</h3><p class="who">육군 보급장교</p><ul><li>예산과 납기 안에서 결정</li><li>전투식량 입찰, 병영식당</li></ul></li>
           <div class="flow-arr" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-          <li class="value"><div class="n">STEP 02</div><h3>계약 절차</h3><ul><li>계약특수조건과 구매내역서 작성</li><li>비교견적과 입찰</li></ul></li>
+          <li class="value"><div class="n">CHECK SIDE</div><h3>검증하는 쪽</h3><p class="who">삼정회계법인 인턴</p><ul><li>비교견적과 증빙 확인</li><li>회계평가 약 400건</li></ul></li>
           <div class="flow-arr" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-          <li class="value"><div class="n">STEP 03</div><h3>검수와 사후관리</h3><ul><li>수량과 하자 검수</li><li>자산 등재와 절차 문서화</li></ul></li>
+          <li class="value so"><div class="n">SO</div><h3>그래서 저는</h3><p class="who">살 때부터 근거를 남깁니다</p><ul><li>규격과 단가 내역서</li><li>집행계획, 결과보고 공문</li></ul></li>
         </ol>
       </div>
       </div>
