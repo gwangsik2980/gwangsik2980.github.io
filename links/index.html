@@ -166,13 +166,14 @@ html.js .rise.in {
 
 <script>
 // 링크 목록 — 새 작업은 여기에 한 줄 추가. url이 비어 있으면 화면에 안 나옴
-// thumb: "emblem" | "check" | "book" | "map" | "shirt" | 이미지 data URI
+// thumb: "emblem" | "check" | "book" | "map" | "chart" | "shirt" | 이미지 data URI
 const SECTIONS = [
   { title: "Procurement Works", links: [
     { title: "포트폴리오", desc: "자기소개와 경력 정리", url: "https://gwangsik2980.github.io/?ref=links", thumb: "emblem" },
     { title: "경험카드", desc: "역량·경험 카드 모음 · PICK ONE", url: "https://gwangsik2980.github.io/experience/?ref=links", thumb: "cards" },
     { title: "구매 용어집", desc: "구매 직무 용어 65개 + 면접 예시", url: "https://gwangsik2980.github.io/glossary/?ref=links", thumb: "book" },
     { title: "구매 직무 기업 지도", desc: "구매 직무 기업 374곳을 지도로", url: "https://gwangsik2980.github.io/company-map/?ref=links", thumb: "map" },
+    { title: "구매 신입 공고 대시보드", desc: "구매 신입 공고 705건의 시기·요건·근무지", url: "https://gwangsik2980.github.io/postings/?ref=links", thumb: "chart" },
   ]},
   { title: "AI Business Lab", links: [
     { title: "GWANG", desc: "의류 브랜드 홈페이지", url: "https://gwangsik2980.github.io/GWANG/", thumb: "shirt" },
@@ -205,6 +206,7 @@ const THUMBS = {
   book: icon(`<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M9 7h7M9 11h5"/>`),
   map: icon(`<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>`),
   cards: icon(`<rect x="8" y="3" width="11" height="16" rx="2"/><path d="M5 7v12a2 2 0 0 0 2 2h9"/>`),
+  chart: icon(`<path d="M3 3v18h18"/><path d="M7 16v-4M12 16V8M17 16v-7"/>`),
   shirt: icon(`<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>`),
 };
 const go = `<svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>`;

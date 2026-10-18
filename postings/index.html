@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구매 신입 공고 대시보드</title>
+<meta name="description" content="자소설닷컴 구매 신입 공고 2023–2026 분석: 시기, 기업, 어학·전공 요건, 근무지">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Archivo:wdth,wght@112..125,500..900&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#151515}
+.gm-nav{display:flex;gap:14px;align-items:center;font-family:var(--display);font-stretch:112%;font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#9a9a96;margin-bottom:6px}
+.gm-nav a{color:#dadad6;text-decoration:none}
+.gm-nav a:first-child{font-stretch:125%;font-weight:900;letter-spacing:.08em;font-size:14px;color:#f2f2f0}
+.gm-nav a:last-child{margin-left:auto;letter-spacing:.02em;text-transform:none;font-family:var(--body);font-size:13px;font-weight:500}
+.gm-nav a:hover{color:#fff}
+
+/* GWANG 디자인 시스템: 스투코 벽 + 브러시드 스틸 + 숯. 무채색만, 강조는 스틸과 밝기 대비. */
+.gm {
+  --char: #151515; --char-2: #1d1d1d; --panel: #242424; --stucco: #5f5f5b; --stucco-lo: #464643; --ink: #121212;
+  --text: #f2f2f0; --sub: #b4b4b0; --mute: #808080; --line: #2f2f2f; --line-hi: #3d3d3d;
+  --steel: linear-gradient(180deg, #e4e4e2 0%, #b4b4b1 38%, #d8d8d5 55%, #9d9d99 100%);
+  --noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --display: "Archivo", "Noto Sans KR", "Arial", sans-serif;
+  --body: "Noto Sans KR", "Pretendard", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --w: 960px;
+  position: relative; isolation: isolate; color-scheme: dark;
+  background: var(--char); color: var(--text);
+  font-family: var(--body); font-size: 15px; line-height: 1.7; letter-spacing: -0.01em; word-break: keep-all;
+  -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
+}
+.gm::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0; background-image: var(--noise); opacity: .16; mix-blend-mode: overlay; }
+.gm > * { position: relative; z-index: 1; }
+.gm-in { max-width: var(--w); margin-inline: auto; padding-inline: 24px; }
+
+/* 영문 라벨: 와이드 대문자 + 넓은 자간 */
+.gm-eyebrow { font-family: var(--display); font-stretch: 112%; font-size: 12px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; color: #dadad6; margin: 0; }
+.gm-label { font-family: var(--display); font-stretch: 118%; font-size: 13px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--sub); margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.gm-label::before { content: ""; width: 28px; height: 3px; background: var(--steel); }
+
+/* 히어로: 스투코 벽 */
+.gm-hero {
+  background-color: var(--stucco);
+  background-image: var(--noise), radial-gradient(120% 90% at 15% 0%, rgba(255,255,255,.14), transparent 60%), linear-gradient(180deg, var(--stucco), var(--stucco-lo));
+  background-blend-mode: multiply, normal, normal;
+  border-bottom: 1px solid var(--line);
+}
+.gm-hero .gm-in { padding-block: 56px 40px; display: flex; flex-direction: column; gap: 14px; }
+.gm-title { margin: 0; font-size: clamp(26px, 3.8vw, 36px); font-weight: 800; letter-spacing: -.035em; line-height: 1.35; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.28); text-wrap: balance; }
+.gm-take { margin: 0; font-size: 16px; color: #fff; max-width: 62ch; }
+.gm-base { margin: 0; font-size: 13px; color: #9a9a96; max-width: 70ch; }
+
+/* 지표: 유리 패널 */
+.gm-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+.gm-kpi {
+  position: relative; padding: 18px 20px; border: 1px solid rgba(255,255,255,.16); border-radius: 2px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 14px),
+    linear-gradient(125deg, rgba(255,255,255,.14), rgba(255,255,255,.03) 45%, rgba(0,0,0,.12));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+  backdrop-filter: blur(6px); display: flex; flex-direction: column; gap: 2px; container-type: inline-size; min-width: 0;
+}
+.gm-kpi::after { content: ""; position: absolute; inset: 10px; border: 1px solid rgba(255,255,255,.06); pointer-events: none; }
+.gm-kpi-label { font-family: var(--display); font-stretch: 118%; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #dadad6; }
+.gm-kpi-ko { font-size: 13px; color: #dadad6; }
+.gm-kpi-val { font-family: var(--display); font-stretch: 118%; font-weight: 800; font-size: clamp(22px, 14cqi, 38px); letter-spacing: -.02em; line-height: 1.2; color: #fff; }
+.gm-kpi-sub { font-size: 12px; color: #9a9a96; }
+
+/* 필터 바 */
+.gm-filterbar { background: var(--char); border-bottom: 1px solid var(--line); }
+.gm-filterbar .gm-in { padding-block: 16px; display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: end; }
+.gm-filterbar label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.gm-filterbar label > span { font-family: var(--display); font-stretch: 118%; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--sub); }
+.gm-select, .gm-search {
+  font: inherit; font-size: 13px; color: var(--text); background: transparent; border: 1px solid var(--line-hi); border-radius: 2px;
+  padding: 7px 10px; min-width: 0; transition: background .2s, color .2s;
+}
+.gm-select option { background: var(--panel); color: var(--text); }
+.gm-select.is-on { background: var(--steel); color: var(--ink); font-weight: 600; border-color: #8a8a86; }
+.gm-btn { font: inherit; font-size: 13px; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.6); border-radius: 2px; padding: 7px 14px; cursor: pointer; transition: background .2s, transform .15s; }
+.gm-btn:hover { background: rgba(255,255,255,.08); transform: translateY(-2px); }
+.gm-select:focus-visible, .gm-search:focus-visible, .gm-btn:focus-visible, .gm-table th button:focus-visible, .gm-bar.gm-click:focus-visible { outline: 2px solid #d8d8d5; outline-offset: 2px; }
+
+/* 섹션 */
+.gm-sec { border-bottom: 1px solid var(--line); }
+.gm-sec:nth-of-type(even) { background: var(--char-2); }
+.gm-sec > .gm-in { padding-block: 64px; display: flex; flex-direction: column; gap: 28px; }
+.gm-sec-head { display: grid; grid-template-columns: 190px 1fr; gap: 36px; align-items: start; }
+.gm-sec-h { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -.03em; line-height: 1.4; color: #fff; }
+.gm-sec-p { margin: 4px 0 0; color: #e4e4e1; font-size: 15px; max-width: 60ch; }
+.gm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 10px; }
+.gm-card { background: var(--panel); border: 1px solid var(--line-hi); border-radius: 2px; padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.gm-card h3 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -.02em; color: #fff; line-height: 1.4; }
+.gm-note { margin: 0; font-size: 13px; color: var(--sub); }
+.gm-chart { min-height: 8rem; min-width: 0; margin-top: 6px; }
+
+/* 막대 */
+.gm-bars { display: flex; flex-direction: column; gap: 7px; }
+.gm-bar { display: grid; grid-template-columns: minmax(5.5rem, 9rem) 1fr 3.2rem; gap: 10px; align-items: center; font-size: 13px; color: #d0d0cc; }
+.gm-bar.gm-click { cursor: pointer; }
+.gm-bar.gm-click:hover .gm-bar-label { color: #fff; }
+.gm-bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color .2s; }
+.gm-bar-track { height: 12px; border-radius: 1px; background: rgba(255,255,255,.05); overflow: hidden; }
+.gm-bar-fill { height: 100%; border-radius: 1px; background: var(--steel); box-shadow: inset 0 1px 0 rgba(255,255,255,.6); }
+.gm-bar-fill.is-dim { background: rgba(255,255,255,.18); box-shadow: none; }
+.gm-bar-val { text-align: right; color: var(--sub); }
+.gm-stack-row { display: grid; grid-template-columns: minmax(5.5rem, 8.5rem) 1fr; gap: 10px; align-items: center; font-size: 13px; color: #d0d0cc; }
+.gm-stack { display: flex; height: 16px; border-radius: 1px; overflow: hidden; background: rgba(255,255,255,.05); gap: 1px; }
+.gm-stack > div { height: 100%; }
+.gm-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--sub); margin-top: 10px; }
+.gm-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.gm-legend i { width: 10px; height: 10px; border-radius: 1px; display: inline-block; border: 1px solid rgba(255,255,255,.12); }
+
+/* 히트맵 */
+.gm-heat { display: grid; grid-template-columns: 3.6rem repeat(12, minmax(0, 1fr)); gap: 3px; font-size: 12px; }
+.gm-heat-h { color: var(--mute); text-align: center; font-family: var(--display); font-size: 11px; }
+.gm-heat-y { color: var(--sub); display: flex; align-items: center; font-family: var(--display); font-stretch: 118%; font-weight: 800; font-size: 12px; letter-spacing: .06em; }
+.gm-heat-c { aspect-ratio: 1.3; border-radius: 1px; display: flex; align-items: center; justify-content: center; font-size: 11px; min-width: 0; }
+
+/* 툴팁 */
+.gm-tip { position: absolute; z-index: 5; pointer-events: none; background: var(--panel); border: 1px solid var(--line-hi); border-radius: 2px; padding: 6px 10px; font-size: 12px; color: var(--text); max-width: 16rem; line-height: 1.5; }
+.gm-tip b { display: block; color: var(--sub); font-weight: 500; }
+
+/* 표 */
+.gm-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.gm-search { flex: 1 1 14rem; font-size: 14px; padding: 9px 12px; }
+.gm-search::placeholder { color: var(--mute); }
+.gm-table-wrap { max-height: 34rem; overflow: auto; border: 1px solid var(--line-hi); border-radius: 2px; }
+.gm-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.gm-table th { position: sticky; top: 0; background: var(--panel); text-align: left; border-bottom: 1px solid var(--line-hi); padding: 0; white-space: nowrap; }
+.gm-table th button { font-family: var(--display); font-stretch: 118%; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--sub); background: none; border: 0; padding: 10px 12px; cursor: pointer; width: 100%; text-align: left; }
+.gm-table th[aria-sort="ascending"] button, .gm-table th[aria-sort="descending"] button { color: #fff; }
+.gm-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; color: #d0d0cc; }
+.gm-table tbody tr:hover td { background: rgba(255,255,255,.03); }
+.gm-table td.gm-long { min-width: 14rem; }
+.gm-table a { color: #fff; text-underline-offset: 3px; text-decoration-color: rgba(255,255,255,.4); }
+
+
+@media (max-width: 940px) { .gm-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .gm-sec-head { grid-template-columns: 136px 1fr; } }
+@media (max-width: 760px) {
+  .gm-sec-head { grid-template-columns: 1fr; gap: 12px; }
+  .gm-sec > .gm-in { padding-block: 48px; }
+  .gm-hide-sm { display: none; }
+  .gm-filterbar label { flex: 1 1 calc(50% - 10px); }
+  .gm-select { width: 100%; }
+  .gm-btn { width: 100%; }
+}
+@media (max-width: 400px) { .gm-in { padding-inline: 16px; } }
+@media (prefers-reduced-motion: reduce) { .gm * { transition: none !important; } }
+
+</style>
+</head><body>
+
+
+<div class="gm" id="top">
+  <header class="gm-hero">
+    <div class="gm-in">
+      <nav class="gm-nav"><a href="../links/">GWANG</a><span>Procurement Works</span><a href="../">포트폴리오</a></nav>
+      <p class="gm-eyebrow">Procurement · Entry-level · 2023–2026</p>
+      <h1 class="gm-title">구매 신입 공고 대시보드</h1>
+      <p class="gm-take" id="takeaway">—</p>
+      <p class="gm-base" id="base">—</p>
+      <div class="gm-kpis" id="kpis">
+        <div class="gm-kpi"><span class="gm-kpi-label">Postings</span><span class="gm-kpi-ko">지원 대상 공고</span><span class="gm-kpi-val" id="k-n">—</span><span class="gm-kpi-sub" id="k-n-sub">—</span></div>
+        <div class="gm-kpi"><span class="gm-kpi-label">Employers</span><span class="gm-kpi-ko">채용한 기업</span><span class="gm-kpi-val" id="k-co">—</span><span class="gm-kpi-sub" id="k-co-sub">—</span></div>
+        <div class="gm-kpi"><span class="gm-kpi-label">Score required</span><span class="gm-kpi-ko">어학 점수 필수</span><span class="gm-kpi-val" id="k-lang">—</span><span class="gm-kpi-sub" id="k-lang-sub">—</span></div>
+        <div class="gm-kpi"><span class="gm-kpi-label">Any major</span><span class="gm-kpi-ko">전공 무관</span><span class="gm-kpi-val" id="k-major">—</span><span class="gm-kpi-sub" id="k-major-sub">—</span></div>
+        <div class="gm-kpi"><span class="gm-kpi-label">Outside capital</span><span class="gm-kpi-ko">지방 근무</span><span class="gm-kpi-val" id="k-local">—</span><span class="gm-kpi-sub" id="k-local-sub">—</span></div>
+        <div class="gm-kpi"><span class="gm-kpi-label">Intern to hire</span><span class="gm-kpi-ko">인턴 후 전환</span><span class="gm-kpi-val" id="k-intern">—</span><span class="gm-kpi-sub" id="k-intern-sub">—</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="gm-filterbar" id="filters">
+    <div class="gm-in">
+      <label><span>Year</span><select class="gm-select" id="f-year" aria-label="연도"></select></label>
+      <label><span>Industry</span><select class="gm-select" id="f-industry" aria-label="산업군"></select></label>
+      <label><span>Size</span><select class="gm-select" id="f-size" aria-label="기업규모"></select></label>
+      <label><span>Region</span><select class="gm-select" id="f-region" aria-label="근무지 권역"></select></label>
+      <label><span>Language</span><select class="gm-select" id="f-lang" aria-label="어학 구분"></select></label>
+      <label><span>Major</span><select class="gm-select" id="f-major" aria-label="전공 구분"></select></label>
+      <button class="gm-btn" id="f-reset" type="button">필터 초기화</button>
+    </div>
+  </div>
+
+  <section class="gm-sec" id="when">
+    <div class="gm-in">
+      <div class="gm-sec-head"><p class="gm-label">Timing</p><div><h2 class="gm-sec-h">언제 뜨나</h2><p class="gm-sec-p">공고가 몰리는 달과 마감 요일입니다.</p></div></div>
+      <div class="gm-grid">
+        <div class="gm-card"><h3>연도 × 마감 월</h3><p class="gm-note">칸 숫자는 그 달에 마감한 공고 수입니다. 2026년은 11월 1일 마감분까지 모은 진행 중인 해입니다.</p><div class="gm-chart" id="c-heat"></div></div>
+        <div class="gm-card"><h3>마감 요일</h3><p class="gm-note">대부분 일요일 자정에 마감합니다.</p><div class="gm-chart" id="c-dow"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="gm-sec" id="who">
+    <div class="gm-in">
+      <div class="gm-sec-head"><p class="gm-label">Employers</p><div><h2 class="gm-sec-h">누가 뽑나</h2><p class="gm-sec-p">산업군 막대를 누르면 그 산업군으로 전체가 걸러집니다.</p></div></div>
+      <div class="gm-grid">
+        <div class="gm-card"><h3>산업군별 공고</h3><p class="gm-note">원본 시트의 산업군 분류를 따릅니다.</p><div class="gm-chart" id="c-industry"></div></div>
+        <div class="gm-card"><h3>기업규모별 공고</h3><p class="gm-note">원본 시트의 기업규모 분류를 따릅니다.</p><div class="gm-chart" id="c-size"></div></div>
+        <div class="gm-card"><h3>자주 뽑는 기업</h3><p class="gm-note">대표 기업명 기준 공고 수 상위 15곳과, 공고가 있었던 연도 수입니다.</p><div class="gm-chart" id="c-repeat"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="gm-sec" id="what">
+    <div class="gm-in">
+      <div class="gm-sec-head"><p class="gm-label">Requirements</p><div><h2 class="gm-sec-h">무엇을 요구하나</h2><p class="gm-sec-p">어학 기준, 전공, 영어면접, 채용 형태입니다.</p></div></div>
+      <div class="gm-grid">
+        <div class="gm-card"><h3>어학 요건 구분 · 기업규모별</h3><p class="gm-note">점수 필수는 공인 성적 기준이 있는 경우, 성적만 필수는 기준 없이 제출만 요구하는 경우입니다.</p><div class="gm-chart" id="c-lang"></div></div>
+        <div class="gm-card"><h3>OPIc 최소 등급</h3><p class="gm-note">어학 점수 필수 공고 중 OPIc 기준이 적힌 공고입니다. 'IM'만 적힌 경우는 IM1로 셌습니다.</p><div class="gm-chart" id="c-opic"></div></div>
+        <div class="gm-card"><h3>토익스피킹 최소 점수</h3><p class="gm-note">Level 6은 130점, IM3는 130점처럼 점수로 바꿔 셌습니다.</p><div class="gm-chart" id="c-toss"></div></div>
+        <div class="gm-card"><h3>전공 구분</h3><p class="gm-note">혼합은 직무나 계열사마다 전공 요건이 다른 공고입니다.</p><div class="gm-chart" id="c-major"></div></div>
+        <div class="gm-card"><h3>영어면접</h3><p class="gm-note">공고에 영어면접이나 영어 테스트가 적혀 있는지입니다.</p><div class="gm-chart" id="c-eng"></div></div>
+        <div class="gm-card"><h3>채용 형태</h3><p class="gm-note">공고 대부분이 형태를 따로 적지 않습니다.</p><div class="gm-chart" id="c-type"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="gm-sec" id="where">
+    <div class="gm-in">
+      <div class="gm-sec-head"><p class="gm-label">Location</p><div><h2 class="gm-sec-h">어디서 일하나</h2><p class="gm-sec-p">권역 막대를 누르면 그 권역으로 전체가 걸러집니다.</p></div></div>
+      <div class="gm-grid">
+        <div class="gm-card"><h3>근무지 권역</h3><p class="gm-note">혼합은 수도권과 지방 근무지가 함께 적힌 공고입니다.</p><div class="gm-chart" id="c-region"></div></div>
+        <div class="gm-card"><h3>근무 도시 상위 15곳</h3><p class="gm-note">한 공고에 여러 도시가 적히면 도시마다 한 번씩 셌습니다. 서울은 구 단위를 합쳤고, 판교·분당은 성남을 포함합니다.</p><div class="gm-chart" id="c-city"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="gm-sec" id="list">
+    <div class="gm-in">
+      <div class="gm-sec-head"><p class="gm-label">Postings</p><div><h2 class="gm-sec-h">공고 찾아보기</h2><p class="gm-sec-p">위 필터가 적용된 공고 목록입니다. 열 이름을 누르면 정렬됩니다.</p></div></div>
+      <div class="gm-tools"><input class="gm-search" id="q" type="search" placeholder="기업명, 직무, 근무지, 요건으로 검색" aria-label="공고 검색"><span class="gm-note" id="q-count">—</span></div>
+      <div class="gm-table-wrap">
+        <table class="gm-table" id="t-posts">
+          <thead><tr>
+            <th data-field="마감일"><button type="button" data-k="마감일">마감일</button></th>
+            <th data-field="기업명"><button type="button" data-k="기업명">기업명</button></th>
+            <th data-field="직무명"><button type="button" data-k="직무명">직무명</button></th>
+            <th data-field="근무지"><button type="button" data-k="근무지">근무지</button></th>
+            <th data-field="어학요건" class="gm-hide-sm"><button type="button" data-k="어학요건">어학 요건</button></th>
+            <th data-field="전공요건" class="gm-hide-sm"><button type="button" data-k="전공요건">전공 요건</button></th>
+            <th data-field="공고 링크"><button type="button" data-k="공고 링크">공고</button></th>
+          </tr></thead>
+          <tbody id="t-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="gm-tip" id="tip" hidden></div>
+</div>
+
+
+<script>
+
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const PARAMS = { year: null, industry: null, size: null, region: null, lang: null, major: null };
+  let DATA = { status: 'loading', data: [] };
+  const setParams = (o) => { Object.assign(PARAMS, o); render(); };
+  const resetParams = () => { Object.keys(PARAMS).forEach((k) => { PARAMS[k] = null; }); render(); };
+
+  const fmt = d3.format(',');
+  const pct = d3.format('.0%');
+  const root = $('top');
+  const tip = $('tip');
+  const MONTH = d3.range(1, 13);
+  const DOW = ['월', '화', '수', '목', '금', '토', '일'];
+  const OPIC = ['NH', 'IL', 'IM1', 'IM2', 'IM3', 'IH', 'AL'];
+  const LANG = ['점수 필수', '성적만 필수', '회화 필수', '우대', '없음'];
+  const LANG_TONE = { '점수 필수': '#e4e4e2', '성적만 필수': '#b4b4b1', '회화 필수': '#8a8a86', '우대': '#5f5f5b', '없음': '#3d3d3d' };
+  const FILTERS = [
+    ['year', 'f-year', '연도', '전체 연도'],
+    ['industry', 'f-industry', '산업군', '전체 산업군'],
+    ['size', 'f-size', '기업규모', '전체 규모'],
+    ['region', 'f-region', '근무지_권역', '전체 권역'],
+    ['lang', 'f-lang', '어학_구분', '전체 어학 구분'],
+    ['major', 'f-major', '전공_구분', '전체 전공 구분'],
+  ];
+  let sortKey = '마감일', sortDir = -1;
+
+  const showTip = (event, head, line) => {
+    tip.replaceChildren();
+    const b = document.createElement('b'); b.textContent = head; tip.append(b);
+    const s = document.createElement('span'); s.textContent = line; tip.append(s);
+    tip.hidden = false;
+    const box = root.getBoundingClientRect();
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = event.clientX - box.left + 12, y = event.clientY - box.top + 12;
+    if (x + w > box.width) x = Math.max(0, event.clientX - box.left - w - 12);
+    tip.style.left = x + 'px'; tip.style.top = (y + h > box.height ? y - h - 24 : y) + 'px';
+  };
+  const hideTip = () => { tip.hidden = true; };
+
+  const hbars = (el, items, opt = {}) => {
+    el.replaceChildren();
+    const wrap = document.createElement('div'); wrap.className = 'gm-bars';
+    const max = d3.max(items, (d) => d.value) || 1;
+    const total = opt.total || d3.sum(items, (d) => d.value) || 1;
+    items.forEach((d) => {
+      const row = document.createElement('div'); row.className = 'gm-bar' + (opt.onClick ? ' gm-click' : '');
+      const lab = document.createElement('span'); lab.className = 'gm-bar-label'; lab.textContent = d.label;
+      const tr = document.createElement('div'); tr.className = 'gm-bar-track';
+      const fill = document.createElement('div'); fill.className = 'gm-bar-fill';
+      if (opt.highlight && opt.highlight !== d.label) fill.classList.add('is-dim');
+      fill.style.width = (d.value / max * 100) + '%';
+      tr.append(fill);
+      const val = document.createElement('span'); val.className = 'gm-bar-val'; val.textContent = fmt(d.value);
+      row.append(lab, tr, val);
+      row.addEventListener('mousemove', (e) => showTip(e, d.label, `${fmt(d.value)}건 · ${pct(d.value / total)}${d.extra ? ' · ' + d.extra : ''}`));
+      row.addEventListener('mouseleave', hideTip);
+      if (opt.onClick) {
+        row.tabIndex = 0; row.setAttribute('role', 'button');
+        row.addEventListener('click', () => opt.onClick(d));
+        row.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opt.onClick(d); } });
+      }
+      wrap.append(row);
+    });
+    if (!items.length) { const p = document.createElement('p'); p.className = 'gm-note'; p.textContent = '이 조건에 맞는 공고가 없습니다.'; wrap.append(p); }
+    el.append(wrap);
+  };
+  const countBy = (rows, f, order) => {
+    const m = d3.rollup(rows, (v) => v.length, f);
+    const keys = order ? order.filter((k) => m.has(k)) : Array.from(m.keys()).sort((a, b) => m.get(b) - m.get(a));
+    return keys.map((k) => ({ label: k, value: m.get(k) }));
+  };
+
+  FILTERS.forEach(([p, id]) => {
+    $(id).addEventListener('change', (e) => {
+      const v = e.target.value;
+      setParams({ [p]: v === '' ? null : (p === 'year' ? Number(v) : v) });
+    });
+  });
+  $('f-reset').addEventListener('click', () => { resetParams(); $('q').value = ''; });
+  $('q').addEventListener('input', () => drawTable());
+  document.querySelectorAll('#t-posts th button').forEach((b) => b.addEventListener('click', () => {
+    const k = b.dataset.k;
+    sortDir = sortKey === k ? -sortDir : (k === '마감일' ? -1 : 1); sortKey = k; drawTable();
+  }));
+
+  let current = [];
+  const drawTable = () => {
+    const q = $('q').value.trim().toLowerCase();
+    const cols = ['마감일', '기업명', '직무명', '근무지', '어학요건', '전공요건'];
+    let rows = current.filter((r) => !q || cols.some((c) => String(r[c] ?? '').toLowerCase().includes(q)));
+    rows = rows.slice().sort((a, b) => sortDir * String(a[sortKey] ?? '').localeCompare(String(b[sortKey] ?? ''), 'ko'));
+    document.querySelectorAll('#t-posts th').forEach((th) => th.setAttribute('aria-sort', th.dataset.field === sortKey ? (sortDir > 0 ? 'ascending' : 'descending') : 'none'));
+    const body = $('t-body'); body.replaceChildren();
+    rows.forEach((r) => {
+      const tr = document.createElement('tr'); tr.dataset.key = String(r['행']);
+      cols.forEach((c) => {
+        const td = document.createElement('td'); td.textContent = r[c] || '—';
+        if (c === '직무명' || c === '어학요건' || c === '전공요건') td.className = 'gm-long';
+        if (c === '어학요건' || c === '전공요건') td.classList.add('gm-hide-sm');
+        tr.append(td);
+      });
+      const td = document.createElement('td');
+      if (r['공고 링크']) { const a = document.createElement('a'); a.href = r['공고 링크']; a.target = '_blank'; a.rel = 'noopener'; a.textContent = '열기'; td.append(a); }
+      tr.append(td); body.append(tr);
+    });
+    $('q-count').textContent = `${fmt(rows.length)}건 표시`;
+  };
+
+  const render = () => {
+    const ds = DATA;
+    const ok = ds.status === 'ok';
+    document.querySelectorAll('.dash-skeleton').forEach((el) => { if (ok || ds.status === 'error') el.classList.remove('dash-skeleton'); });
+    if (!ok) {
+      ['takeaway', 'base', 'k-n', 'k-co', 'k-lang', 'k-major', 'k-local', 'k-intern'].forEach((id) => { $(id).textContent = '—'; });
+      document.querySelectorAll('.gm-chart').forEach((el) => el.replaceChildren());
+      $('t-body').replaceChildren();
+      return;
+    }
+    const all = ds.data.map((r) => ({ ...r, 연도: Number(r['연도']), 월: Number(r['월']) }));
+    const target = all.filter((r) => r['지원대상'] === '대상');
+    const P = PARAMS;
+
+    FILTERS.forEach(([p, id, col, allLabel]) => {
+      const sel = $(id);
+      const vals = Array.from(new Set(target.map((r) => r[col]).filter((v) => v !== '' && v != null))).sort((a, b) => (p === 'year' ? a - b : String(a).localeCompare(String(b), 'ko')));
+      sel.replaceChildren(new Option(allLabel, ''), ...vals.map((v) => new Option(p === 'year' && v === 2026 ? '2026 (진행 중)' : String(v), String(v))));
+      sel.value = P[p] == null ? '' : String(P[p]);
+      sel.classList.toggle('is-on', P[p] != null);
+    });
+
+    const rows = target.filter((r) => FILTERS.every(([p, , col]) => P[p] == null || String(r[col]) === String(P[p])));
+    current = rows;
+    const n = rows.length;
+    const share = (f, base = rows) => (base.length ? base.filter(f).length / base.length : 0);
+
+    const excluded = all.length - target.length;
+    $('base').textContent = `자소설닷컴 구매 신입 공고 ${fmt(all.length)}건 중 지원 대상 ${fmt(target.length)}건이 기준입니다. 경력 전용·구매 명칭 없음·공고 없음 ${fmt(excluded)}건은 뺐습니다.`;
+    const cityCount = countBy(rows.flatMap((r) => (r['근무 도시'] || '').split('|').filter(Boolean)).map((c) => ({ c })), (d) => d.c);
+    const langShare = share((r) => r['어학_구분'] === '점수 필수');
+    const majorShare = share((r) => r['전공_구분'] === '무관');
+    $('takeaway').textContent = n
+      ? `조건에 맞는 공고 ${fmt(n)}건 중 어학 점수를 요구하는 곳은 ${pct(langShare)}, 전공을 묻지 않는 곳은 ${pct(majorShare)}입니다. 근무지는 ${cityCount[0] ? cityCount[0].label + '(' + fmt(cityCount[0].value) + '건)' : '—'}이 가장 많습니다.`
+      : '이 조건에 맞는 공고가 없습니다. 필터를 줄여 보세요.';
+
+    const cos = new Set(rows.map((r) => r['대표 기업명'])).size;
+    const regionKnown = rows.filter((r) => r['근무지_권역'] && r['근무지_권역'] !== '공고에 없음');
+    const typeKnown = rows.filter((r) => r['채용형태'] && r['채용형태'] !== '공고에 없음');
+    $('k-n').textContent = fmt(n); $('k-n-sub').textContent = P.year ? `${P.year}년` : '2023–2026년';
+    $('k-co').textContent = fmt(cos); $('k-co-sub').textContent = n ? `기업당 ${d3.format('.1f')(n / Math.max(cos, 1))}건` : '—';
+    $('k-lang').textContent = pct(langShare); $('k-lang-sub').textContent = `${fmt(rows.filter((r) => r['어학_구분'] === '점수 필수').length)}건 / ${fmt(n)}건`;
+    $('k-major').textContent = pct(majorShare); $('k-major-sub').textContent = `${fmt(rows.filter((r) => r['전공_구분'] === '무관').length)}건 / ${fmt(n)}건`;
+    $('k-local').textContent = pct(share((r) => r['근무지_권역'] === '지방', regionKnown)); $('k-local-sub').textContent = `근무지가 적힌 ${fmt(regionKnown.length)}건 기준`;
+    $('k-intern').textContent = pct(share((r) => r['채용형태'].includes('인턴 후 전환'), typeKnown)); $('k-intern-sub').textContent = `형태가 적힌 ${fmt(typeKnown.length)}건 기준`;
+
+    // 연도 × 월: 밝기로만 농도 표현
+    const heat = $('c-heat'); heat.replaceChildren();
+    const years = Array.from(new Set(target.map((r) => r['연도']))).sort();
+    const cell = d3.rollup(rows, (v) => v.length, (r) => r['연도'], (r) => r['월']);
+    const hmax = d3.max(Array.from(cell.values()).flatMap((m) => Array.from(m.values()))) || 1;
+    const grid = document.createElement('div'); grid.className = 'gm-heat';
+    grid.append(document.createElement('span'));
+    MONTH.forEach((mo) => { const h = document.createElement('span'); h.className = 'gm-heat-h'; h.textContent = String(mo); grid.append(h); });
+    years.forEach((y) => {
+      const yl = document.createElement('span'); yl.className = 'gm-heat-y'; yl.textContent = y === 2026 ? '2026*' : String(y); grid.append(yl);
+      MONTH.forEach((mo) => {
+        const v = (cell.get(y) && cell.get(y).get(mo)) || 0;
+        const c = document.createElement('span'); c.className = 'gm-heat-c';
+        const a = v ? 0.1 + 0.82 * v / hmax : 0;
+        c.style.background = v ? `rgba(228,228,226,${a.toFixed(3)})` : 'rgba(255,255,255,.03)';
+        c.style.color = a > 0.5 ? '#121212' : '#d0d0cc';
+        c.textContent = v ? String(v) : '';
+        c.addEventListener('mousemove', (e) => showTip(e, `${y}년 ${mo}월 마감`, `${fmt(v)}건`));
+        c.addEventListener('mouseleave', hideTip);
+        grid.append(c);
+      });
+    });
+    heat.append(grid);
+
+    hbars($('c-dow'), countBy(rows, (r) => r['요일'], DOW), { highlight: '일' });
+
+    hbars($('c-industry'), countBy(rows, (r) => r['산업군']), { highlight: P.industry || null, onClick: (d) => setParams({ industry: P.industry === d.label ? null : d.label }) });
+    hbars($('c-size'), countBy(rows, (r) => r['기업규모']));
+    const byCo = d3.rollups(rows, (v) => ({ n: v.length, y: new Set(v.map((r) => r['연도'])).size }), (r) => r['대표 기업명'])
+      .sort((a, b) => b[1].n - a[1].n || b[1].y - a[1].y).slice(0, 15);
+    hbars($('c-repeat'), byCo.map(([k, v]) => ({ label: k, value: v.n, extra: `${v.y}개 연도` })), { total: n });
+
+    const lang = $('c-lang'); lang.replaceChildren();
+    const groups = [['전체', rows]].concat(d3.groups(rows, (r) => r['기업규모']).sort((a, b) => b[1].length - a[1].length));
+    const stack = document.createElement('div'); stack.className = 'gm-bars';
+    groups.forEach(([g, rs]) => {
+      const row = document.createElement('div'); row.className = 'gm-stack-row';
+      const lab = document.createElement('span'); lab.className = 'gm-bar-label'; lab.textContent = `${g} (${fmt(rs.length)})`;
+      const bar = document.createElement('div'); bar.className = 'gm-stack';
+      LANG.forEach((k) => {
+        const v = rs.filter((r) => (r['어학_구분'] || '없음') === k).length;
+        if (!v) return;
+        const seg = document.createElement('div'); seg.style.width = (v / rs.length * 100) + '%'; seg.style.background = LANG_TONE[k];
+        seg.addEventListener('mousemove', (e) => showTip(e, `${g} · ${k}`, `${fmt(v)}건 · ${pct(v / rs.length)}`));
+        seg.addEventListener('mouseleave', hideTip);
+        bar.append(seg);
+      });
+      row.append(lab, bar); stack.append(row);
+    });
+    const leg = document.createElement('div'); leg.className = 'gm-legend';
+    LANG.forEach((k) => { const s = document.createElement('span'); const i = document.createElement('i'); i.style.background = LANG_TONE[k]; s.append(i, document.createTextNode(k)); leg.append(s); });
+    lang.append(stack, leg);
+
+    const scoreReq = rows.filter((r) => r['어학_구분'] === '점수 필수');
+    hbars($('c-opic'), countBy(scoreReq.filter((r) => r['OPIc 최소']), (r) => r['OPIc 최소'], OPIC));
+    hbars($('c-toss'), countBy(scoreReq.filter((r) => r['토익스피킹 최소'] != null && r['토익스피킹 최소'] !== ''), (r) => Number(r['토익스피킹 최소']), [90, 110, 120, 130, 140, 150, 160, 180]).map((d) => ({ ...d, label: d.label + '점' })));
+    hbars($('c-major'), countBy(rows, (r) => r['전공_구분'] || '공고에 없음', ['무관', '상경', '이공', '혼합', '공고에 없음']));
+    hbars($('c-eng'), countBy(rows, (r) => r['영어면접'] || '확인 안 됨', ['있음', '일부 직무', '없음', '확인 안 됨']));
+    hbars($('c-type'), countBy(rows, (r) => r['채용형태'] || '공고에 없음'));
+
+    hbars($('c-region'), countBy(rows, (r) => r['근무지_권역'] || '공고에 없음', ['수도권', '지방', '혼합', '공고에 없음']), { highlight: P.region || null, onClick: (d) => setParams({ region: P.region === d.label ? null : d.label }) });
+    hbars($('c-city'), cityCount.slice(0, 15), { total: n });
+
+    drawTable();
+  };
+  render();
+  fetch('data.json').then((r) => r.json()).then((d) => { DATA = { status: 'ok', data: d }; render(); })
+    .catch(() => { DATA = { status: 'error', data: [] }; render(); $('takeaway').textContent = '데이터를 불러오지 못했습니다. 새로고침해 보세요.'; });
+})();
+
+</script>
+</body></html>
