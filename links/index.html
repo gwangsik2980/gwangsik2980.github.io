@@ -197,7 +197,7 @@ html.js .rise.in {
 
 <script>
 // 링크 목록 — 새 작업은 여기에 한 줄 추가. url이 비어 있으면 화면에 안 나옴
-// thumb: "emblem" | "check" | "book" | "map" | "chart" | "shirt" | 이미지 data URI
+// thumb: "emblem" | "check" | "book" | "map" | "chart" | "chat" | "shirt" | 이미지 data URI
 // banner: "태그 문구" 를 넣으면 일반 카드 대신 큰 배너로 나옴
 const SECTIONS = [
   { title: "Procurement Works", links: [
@@ -208,6 +208,7 @@ const SECTIONS = [
   ]},
   { title: "AI Business Lab", links: [
     { title: "Virtual Workplace", desc: "가상 기업 구매팀을 관찰하고 도구로 개선하는 시뮬레이션", url: "https://gwangsik2980.github.io/virtual-workplace/?ref=links", banner: "NEW" },
+    { title: "ENGLISH QUEST", desc: "AI와 생활 미션으로 하는 영어 회화 연습", url: "https://english-quest-gwang.vercel.app/", thumb: "chat" },
     { title: "GWANG", desc: "의류 브랜드 홈페이지", url: "https://gwangsik2980.github.io/GWANG/", thumb: "shirt" },
   ]},
 ];
@@ -239,6 +240,7 @@ const THUMBS = {
   map: icon(`<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>`),
   cards: icon(`<rect x="8" y="3" width="11" height="16" rx="2"/><path d="M5 7v12a2 2 0 0 0 2 2h9"/>`),
   chart: icon(`<path d="M3 3v18h18"/><path d="M7 16v-4M12 16V8M17 16v-7"/>`),
+  chat: icon(`<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/>`),
   shirt: icon(`<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>`),
 };
 // 배너 미리보기: 앱 첫 화면을 선과 면으로만 그린 축소판 (무채색)
