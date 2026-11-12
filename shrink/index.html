@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#151515">
-<title>용량 줄이기</title>
+<title>파일 도구</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112..125,500..900&display=swap" rel="stylesheet">
@@ -93,17 +93,69 @@ input[type=file]{display:none}
 .pane canvas,.pane img{display:block;width:100%;height:auto;background:#fff;border-radius:2px}
 .mfoot{padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
 @media (max-width:560px){h1{font-size:24px}.mbody{grid-template-columns:1fr}}
+/* 탭 */
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:20px}
+.tabs button{appearance:none;border:1px solid var(--line-hi);background:transparent;color:var(--sub);border-radius:var(--r-sm);padding:10px 4px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .2s,color .2s,border-color .2s;white-space:nowrap}
+.tabs button:hover{color:var(--text)}
+.tabs button.on{background:var(--white);border-color:var(--white);color:var(--ink)}
+.tlead{color:var(--sub);font-size:13.5px;line-height:1.6;margin:16px 0 0}
+.drop.small{min-height:96px}
+@media (max-width:400px){.tabs button{font-size:12.5px;letter-spacing:-.04em}}
+
+/* 쪽·사진 격자 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.grid .empty{grid-column:1/-1}
+.th{position:relative;border:1px solid var(--line);border-radius:var(--r-sm);padding:6px;background:rgba(0,0,0,.18);cursor:pointer;transition:border-color .2s}
+.th.sel{border-color:var(--white);box-shadow:0 0 0 1px var(--white)}
+.th .im{height:120px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.th .im img,.th .im canvas{max-width:100%;max-height:100%;background:#fff;transition:transform .25s var(--spring)}
+.th .no{font-size:11.5px;color:var(--mute);margin-top:5px;display:flex;justify-content:space-between;align-items:center;font-variant-numeric:tabular-nums;min-width:0}
+.th .no span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th .ctl{display:flex;gap:4px;margin-top:5px}
+.th .ctl button{flex:1;appearance:none;border:1px solid var(--line-hi);background:var(--char);color:var(--sub);border-radius:var(--r-xs);font:inherit;font-size:13px;padding:3px 0;cursor:pointer}
+.th .ctl button:hover{color:var(--text);border-color:var(--sub)}
+.th .chk{position:absolute;top:10px;left:10px;width:18px;height:18px;border-radius:var(--r-xs);border:1px solid var(--line-hi);background:var(--char);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink)}
+.th.sel .chk{background:var(--white);border-color:var(--white)}
+
+/* 서명 */
+.pad-wrap{position:relative;border:1px dashed var(--line-hi);border-radius:var(--r-sm);background:#fff;height:160px;touch-action:none}
+#pad{display:block;width:100%;height:100%;cursor:crosshair}
+.pad-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#999;font-size:13px;pointer-events:none}
+#stampPick{display:none}
+.sigs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.sig{position:relative;width:96px;height:56px;border:1px solid var(--line-hi);border-radius:var(--r-sm);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:4px}
+.sig img{max-width:100%;max-height:100%}
+.sig.on{box-shadow:0 0 0 2px var(--white);border-color:var(--white)}
+.sig .del{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;border:1px solid var(--line-hi);background:var(--char);color:var(--sub);font-size:12px;line-height:1;cursor:pointer;padding:0}
+.pager{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px;font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums}
+.stage{position:relative;margin:0 auto;max-width:100%;touch-action:pan-y}
+.stage canvas{display:block;width:100%;height:auto;background:#fff;border-radius:2px}
+.layer{position:absolute;inset:0}
+.placed{position:absolute;border:1px dashed rgba(0,0,0,.45);touch-action:none;cursor:move}
+.placed img{width:100%;height:100%;display:block;pointer-events:none}
+.placed .rs{position:absolute;right:-9px;bottom:-9px;width:18px;height:18px;background:var(--white);border:1px solid #555;border-radius:50%;cursor:nwse-resize;touch-action:none}
+.placed .rm{position:absolute;right:-9px;top:-9px;width:18px;height:18px;background:#222;color:#fff;border:0;border-radius:50%;font-size:11px;line-height:18px;padding:0;cursor:pointer}
+
 .foot{margin-top:28px;color:var(--mute);font-size:12px;line-height:1.6}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">GWANG · SHRINK</div>
-    <h1>용량 줄이기</h1>
-    <p class="lead">PDF · 사진 · 워드/PPT/엑셀 · 한글(HWPX) 파일 안의 그림만 다시 압축합니다. 글자는 건드리지 않아요.<br>파일은 이 기기 밖으로 나가지 않습니다.</p>
+    <div class="eyebrow">GWANG · FILE TOOLS</div>
+    <h1>파일 도구</h1>
+    <p class="lead">파일은 이 기기 밖으로 나가지 않습니다. 모든 처리는 이 화면 안에서 끝나요.</p>
   </header>
 
+  <nav class="tabs" id="tabs">
+    <button data-t="shrink" class="on">용량 줄이기</button>
+    <button data-t="edit">PDF 편집</button>
+    <button data-t="sign">서명·도장</button>
+    <button data-t="img2pdf">사진→PDF</button>
+  </nav>
+
+  <div class="tab" id="t-shrink">
+  <p class="tlead">PDF · 사진 · 워드/PPT/엑셀 · 한글(HWPX) 안의 그림만 다시 압축합니다. 글자는 건드리지 않아요.</p>
   <section class="card">
     <label class="drop" id="drop" for="pick">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4m0 0L8 8m4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
@@ -139,6 +191,83 @@ input[type=file]{display:none}
   </section>
 
   <p class="foot">줄인 결과가 원본보다 크거나 같으면 원본을 그대로 둡니다. 암호 걸린 PDF, 옛 한글(HWP), 동영상은 아직 지원하지 않아요.</p>
+  </div>
+
+  <!-- ───── PDF 편집 ───── -->
+  <div class="tab" id="t-edit" hidden>
+    <p class="tlead">PDF 여러 개를 한 파일로 합치고, 쪽 순서를 바꾸거나 돌리거나 빼고, 필요한 쪽만 따로 저장합니다.</p>
+    <section class="card">
+      <label class="drop small" for="ePick"><b>PDF 넣기</b><span>여러 개 넣으면 넣은 순서대로 이어 붙어요</span></label>
+      <input type="file" id="ePick" multiple accept=".pdf,application/pdf">
+    </section>
+    <section class="card">
+      <div class="label">쪽 <span id="eCount"></span></div>
+      <div class="hint" style="margin:0 0 10px">쪽을 누르면 선택돼요. ‹ › 로 순서, ↻ 로 회전, × 로 빼기.</div>
+      <div class="grid" id="eGrid"><div class="empty">아직 넣은 PDF가 없어요</div></div>
+      <div class="actions">
+        <button class="btn white" id="eSave" disabled>전체를 한 PDF로 저장</button>
+        <button class="btn" id="eSaveSel" disabled>고른 쪽만 저장</button>
+        <button class="btn" id="eSplit" disabled>쪽마다 나눠 저장(ZIP)</button>
+      </div>
+      <div class="actions" style="margin-top:8px">
+        <button class="btn" id="eSelAll" disabled>모두 선택</button>
+        <button class="btn" id="eRotSel" disabled>고른 쪽 회전</button>
+        <button class="btn" id="eDelSel" disabled>고른 쪽 빼기</button>
+        <button class="btn" id="eClear" disabled>비우기</button>
+      </div>
+      <div class="status" id="eStatus"></div>
+    </section>
+  </div>
+
+  <!-- ───── 서명·도장 ───── -->
+  <div class="tab" id="t-sign" hidden>
+    <p class="tlead">서명을 그리거나 도장 사진을 넣고, PDF 위 원하는 곳을 눌러 붙입니다.</p>
+    <section class="card">
+      <label class="drop small" for="sPick"><b>PDF 넣기</b><span>서명할 PDF 한 개</span></label>
+      <input type="file" id="sPick" accept=".pdf,application/pdf">
+    </section>
+    <section class="card">
+      <div class="label">서명·도장</div>
+      <div class="pad-wrap"><canvas id="pad"></canvas><span class="pad-hint" id="padHint">여기에 손가락이나 마우스로 서명</span></div>
+      <div class="actions" style="margin-top:10px">
+        <button class="btn" id="padClear">지우기</button>
+        <button class="btn" id="padSave">이 서명 기억</button>
+        <label class="btn" for="stampPick">도장 사진 넣기</label>
+        <input type="file" id="stampPick" accept="image/*">
+      </div>
+      <div class="sigs" id="sigs"></div>
+      <div class="hint">고른 서명이 흰 테두리로 표시돼요. 도장 사진의 흰 바탕은 자동으로 투명하게 바꿉니다. ‘기억’한 서명은 이 기기에만 저장돼요.</div>
+    </section>
+    <section class="card" id="sStageCard" hidden>
+      <div class="pager"><button class="btn" id="sPrev">이전</button><span id="sPg"></span><button class="btn" id="sNext">다음</button></div>
+      <div class="stage" id="stage"><canvas id="sCanvas"></canvas><div class="layer" id="layer"></div></div>
+      <div class="hint">쪽을 누르면 고른 서명이 그 자리에 붙어요. 끌어서 옮기고, 오른쪽 아래 모서리로 크기 조절, × 로 지우기.</div>
+      <div class="actions"><button class="btn white" id="sSave" disabled>서명한 PDF 저장</button></div>
+      <div class="status" id="sStatus"></div>
+    </section>
+  </div>
+
+  <!-- ───── 사진 → PDF ───── -->
+  <div class="tab" id="t-img2pdf" hidden>
+    <p class="tlead">폰으로 찍은 증명서·영수증 사진 여러 장을 PDF 한 개로 묶습니다.</p>
+    <section class="card">
+      <label class="drop small" for="iPick"><b>사진 넣기</b><span>JPG, PNG, WebP, HEIC · 여러 장 가능</span></label>
+      <input type="file" id="iPick" multiple accept="image/*,.heic,.heif">
+    </section>
+    <section class="card">
+      <div class="label">쪽 크기</div>
+      <div class="seg" id="iSize">
+        <button data-v="a4" class="on">A4<small>여백 있음</small></button>
+        <button data-v="a4full">A4<small>꽉 채움</small></button>
+        <button data-v="fit">사진 크기<small>그대로</small></button>
+      </div>
+      <div class="label" style="margin-top:16px">사진 <span id="iCount"></span></div>
+      <div class="grid" id="iGrid"><div class="empty">아직 넣은 사진이 없어요</div></div>
+      <div class="actions"><button class="btn white" id="iSave" disabled>PDF로 저장</button><button class="btn" id="iClear" disabled>비우기</button></div>
+      <div class="hint">사진은 ‘용량 줄이기’의 ‘중’ 강도로 줄여서 넣어요.</div>
+      <div class="status" id="iStatus"></div>
+    </section>
+  </div>
 </div>
 
 <div class="modal" id="modal">
@@ -635,6 +764,363 @@ $("#mprev").onclick = () => { if (cmp && cmp.page > 1){ cmp.page--; drawPages();
 $("#mnext").onclick = () => { if (cmp && cmp.page < cmp.n){ cmp.page++; drawPages(); } };
 $("#mzoom").onclick = () => { $("#mbody").classList.toggle("zoom"); $("#mzoom").textContent = $("#mbody").classList.contains("zoom") ? "작게" : "크게"; drawPages(); };
 document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#modal").classList.contains("open")) closeCompare(); });
+</script>
+<script>
+"use strict";
+/* ═════════ 탭 ═════════ */
+function showTab(t){
+  document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x.dataset.t === t));
+  document.querySelectorAll(".tab").forEach(x => x.hidden = x.id !== "t-" + t);
+  try { localStorage.setItem("gwang-tools-tab", t); } catch(e){}
+  if (t === "sign") setTimeout(() => { padFit(); if (S.pj) sDraw(); }, 0);
+}
+$("#tabs").onclick = e => { const b = e.target.closest("button"); if (b) showTab(b.dataset.t); };
+try { const t = localStorage.getItem("gwang-tools-tab"); if (t && $("#t-" + t)) showTab(t); } catch(e){}
+
+const baseOf = n => n.replace(/\.[^.]+$/, "");
+const today = () => { const d = new Date(); return d.getFullYear() + String(d.getMonth()+1).padStart(2,"0") + String(d.getDate()).padStart(2,"0"); };
+async function loadLibPdf(bytes){
+  const doc = await PDFLib.PDFDocument.load(bytes, {ignoreEncryption:true, updateMetadata:false});
+  if (doc.isEncrypted) throw new Error("암호 걸린 PDF는 다룰 수 없어요");
+  return doc;
+}
+function moveIn(arr, i, d){ const j = i + d; if (j < 0 || j >= arr.length) return; [arr[i], arr[j]] = [arr[j], arr[i]]; }
+
+/* ═════════ PDF 편집 ═════════ */
+const E = {srcs: [], pages: []};
+const eStatus = m => $("#eStatus").textContent = m || "";
+$("#ePick").onchange = async e => { const fs = [...e.target.files]; e.target.value = ""; await eAdd(fs); };
+async function eAdd(files){
+  try { await loadPdfJs(); } catch(err){ eStatus(err.message); return; }
+  for (const f of files){
+    eStatus(`${f.name} 여는 중…`);
+    try {
+      const bytes = new Uint8Array(await f.arrayBuffer());
+      await loadLibPdf(bytes);                         // 암호 확인
+      const pj = await pdfjsLib.getDocument({data: bytes.slice()}).promise;
+      const s = E.srcs.push({name: f.name, bytes, pj}) - 1;
+      for (let i = 0; i < pj.numPages; i++) E.pages.push({id: ++seq, s, i, rot: 0, sel: false, thumb: null});
+    } catch(err){ eStatus(`${f.name}: 열지 못했어요 (${err.message || "알 수 없는 오류"})`); return eRender(); }
+  }
+  eStatus(""); eRender(); eThumbs();
+}
+let eThumbBusy = false;
+async function eThumbs(){
+  if (eThumbBusy) return; eThumbBusy = true;
+  let p;   // 그리는 동안 순서가 바뀌어도 빠짐없이: 매번 아직 안 그린 쪽을 찾음
+  while ((p = E.pages.find(x => !x.thumb && !x.fail))){
+    try {
+      const pg = await E.srcs[p.s].pj.getPage(p.i + 1);
+      const vp0 = pg.getViewport({scale: 1}), vp = pg.getViewport({scale: 220 / Math.max(vp0.width, vp0.height)});
+      const c = document.createElement("canvas"); c.width = vp.width; c.height = vp.height;
+      await pg.render({canvasContext: c.getContext("2d"), viewport: vp}).promise;
+      p.thumb = c.toDataURL("image/jpeg", .7); freeCanvas(c);
+      const img = document.querySelector(`#eGrid [data-id="${p.id}"] img`); if (img) img.src = p.thumb;
+    } catch(e){ p.fail = true; }
+  }
+  eThumbBusy = false;
+}
+function eRender(){
+  const g = $("#eGrid"), n = E.pages.length, ns = E.pages.filter(p => p.sel).length;
+  $("#eCount").textContent = n ? `${n}쪽` + (ns ? ` · ${ns}쪽 선택` : "") : "";
+  ["#eSave","#eSplit","#eSelAll","#eClear"].forEach(s => $(s).disabled = !n);
+  ["#eSaveSel","#eRotSel","#eDelSel"].forEach(s => $(s).disabled = !ns);
+  $("#eSelAll").textContent = n && ns === n ? "선택 해제" : "모두 선택";
+  if (!n){ g.innerHTML = '<div class="empty">아직 넣은 PDF가 없어요</div>'; return; }
+  g.innerHTML = "";
+  E.pages.forEach((p, k) => {
+    const el = document.createElement("div"); el.className = "th" + (p.sel ? " sel" : ""); el.dataset.id = p.id;
+    el.innerHTML = `<span class="chk">${p.sel ? "✓" : ""}</span><div class="im"><img alt=""></div>
+      <div class="no"><b>${k + 1}</b><span></span></div>
+      <div class="ctl"><button data-a="l" title="앞으로">‹</button><button data-a="r" title="회전">↻</button><button data-a="n" title="뒤로">›</button><button data-a="x" title="빼기">×</button></div>`;
+    const img = el.querySelector("img"); if (p.thumb) img.src = p.thumb;
+    img.style.transform = `rotate(${p.rot}deg)`;
+    const sn = el.querySelector(".no span"); sn.textContent = E.srcs.length > 1 ? `${baseOf(E.srcs[p.s].name)} p${p.i + 1}` : `원래 ${p.i + 1}쪽`; sn.title = E.srcs[p.s].name;
+    el.onclick = e => {
+      const a = e.target.closest("button") && e.target.closest("button").dataset.a;
+      const idx = E.pages.indexOf(p);
+      if (a === "l") moveIn(E.pages, idx, -1);
+      else if (a === "n") moveIn(E.pages, idx, 1);
+      else if (a === "r") p.rot = (p.rot + 90) % 360;
+      else if (a === "x") E.pages.splice(idx, 1);
+      else p.sel = !p.sel;
+      eRender();
+    };
+    g.appendChild(el);
+  });
+}
+async function eBuild(pages){
+  const out = await PDFLib.PDFDocument.create(), cache = {};
+  let k = 0;
+  for (const p of pages){
+    if (!cache[p.s]) cache[p.s] = await loadLibPdf(E.srcs[p.s].bytes);
+    const [pg] = await out.copyPages(cache[p.s], [p.i]);
+    if (p.rot) pg.setRotation(PDFLib.degrees((pg.getRotation().angle + p.rot) % 360));
+    out.addPage(pg);
+    if (++k % 10 === 0){ eStatus(`만드는 중… ${k}/${pages.length}`); await tick(); }
+  }
+  return new Blob([await out.save({useObjectStreams: true})], {type: "application/pdf"});
+}
+async function eRun(fn){
+  document.querySelectorAll("#t-edit .actions .btn").forEach(b => b.disabled = true);
+  try { await fn(); eStatus("저장했어요"); } catch(err){ console.error(err); eStatus("저장하지 못했어요: " + (err.message || "")); }
+  eRender();
+}
+const eName = suf => (E.srcs.length > 1 ? "합친파일_" + today() : baseOf(E.srcs[0].name)) + suf;
+$("#eSave").onclick = () => eRun(async () => { const b = await eBuild(E.pages); save(b, eName("_편집.pdf")); eStatus(""); });
+$("#eSaveSel").onclick = () => eRun(async () => save(await eBuild(E.pages.filter(p => p.sel)), eName("_고른쪽.pdf")));
+$("#eSplit").onclick = () => eRun(async () => {
+  const z = new JSZip(), base = eName("");
+  for (let k = 0; k < E.pages.length; k++){
+    eStatus(`나누는 중… ${k + 1}/${E.pages.length}`);
+    z.file(`${base}_${String(k + 1).padStart(3, "0")}.pdf`, await eBuild([E.pages[k]]));
+  }
+  save(await z.generateAsync({type: "blob"}), base + "_쪽별.zip");
+});
+$("#eSelAll").onclick = () => { const all = E.pages.every(p => p.sel); E.pages.forEach(p => p.sel = !all); eRender(); };
+$("#eRotSel").onclick = () => { E.pages.forEach(p => { if (p.sel) p.rot = (p.rot + 90) % 360; }); eRender(); };
+$("#eDelSel").onclick = () => { E.pages = E.pages.filter(p => !p.sel); eRender(); };
+$("#eClear").onclick = () => { E.srcs.forEach(s => s.pj.destroy()); E.srcs = []; E.pages = []; eStatus(""); eRender(); };
+
+/* ═════════ 서명·도장 ═════════ */
+const S = {pj: null, bytes: null, name: "", page: 1, n: 0, places: [], sigs: [], active: null, padDirty: false};
+const sStatus = m => $("#sStatus").textContent = m || "";
+const pad = $("#pad"), pctx = pad.getContext("2d");
+function padFit(){
+  const r = pad.getBoundingClientRect(); if (!r.width) return;
+  const dpr = Math.min(3, window.devicePixelRatio || 1);
+  if (pad.width === Math.round(r.width * dpr)) return;
+  pad.width = Math.round(r.width * dpr); pad.height = Math.round(r.height * dpr); S.padDirty = false; $("#padHint").hidden = false;
+}
+let drawing = null;
+pad.addEventListener("pointerdown", e => {
+  padFit(); pad.setPointerCapture(e.pointerId);
+  const r = pad.getBoundingClientRect(), k = pad.width / r.width;
+  drawing = {k, x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k};
+  pctx.lineCap = pctx.lineJoin = "round"; pctx.strokeStyle = "#111"; pctx.lineWidth = 2.6 * k;
+  pctx.beginPath(); pctx.arc(drawing.x, drawing.y, pctx.lineWidth / 2, 0, 7); pctx.fillStyle = "#111"; pctx.fill();
+  S.padDirty = true; S.active = "pad"; $("#padHint").hidden = true; sigRender();
+});
+pad.addEventListener("pointermove", e => {
+  if (!drawing) return;
+  const r = pad.getBoundingClientRect(), x = (e.clientX - r.left) * drawing.k, y = (e.clientY - r.top) * drawing.k;
+  pctx.beginPath(); pctx.moveTo(drawing.x, drawing.y); pctx.lineTo(x, y); pctx.stroke();
+  drawing.x = x; drawing.y = y;
+});
+["pointerup","pointercancel"].forEach(t => pad.addEventListener(t, () => drawing = null));
+function padClear(){ pctx.clearRect(0, 0, pad.width, pad.height); S.padDirty = false; $("#padHint").hidden = false; }
+$("#padClear").onclick = () => { padClear(); if (S.active === "pad") S.active = null; sigRender(); };
+
+function trimCanvas(c){
+  const g = c.getContext("2d"), d = g.getImageData(0, 0, c.width, c.height).data;
+  let x0 = c.width, y0 = c.height, x1 = -1, y1 = -1;
+  for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) if (d[(y * c.width + x) * 4 + 3] > 8){
+    if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+  }
+  if (x1 < 0) return null;
+  const m = 4, w = x1 - x0 + 1 + m * 2, h = y1 - y0 + 1 + m * 2, o = document.createElement("canvas");
+  o.width = w; o.height = h; o.getContext("2d").drawImage(c, x0 - m, y0 - m, w, h, 0, 0, w, h);
+  return o;
+}
+function addSig(c, saved){
+  const sig = {id: ++seq, url: c.toDataURL("image/png"), ar: c.width / c.height, saved};
+  S.sigs.push(sig); S.active = sig.id; sigRender(); return sig;
+}
+function padToSig(){
+  if (!S.padDirty) return null;
+  const t = trimCanvas(pad); if (!t) return null;
+  const sig = addSig(t, false); padClear(); return sig;
+}
+$("#padSave").onclick = () => {
+  const sig = S.padDirty ? padToSig() : S.sigs.find(s => s.id === S.active);
+  if (!sig){ sStatus("먼저 서명을 그려 주세요"); return; }
+  sig.saved = true; sigPersist(); sigRender(); sStatus("서명을 이 기기에 기억했어요");
+};
+$("#stampPick").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try {
+    const bmp = await decodeBlob(f), [w, h] = fitSize(bmp.width, bmp.height, 700);
+    const c = drawTo(bmp, w, h, false), g = c.getContext("2d"), id = g.getImageData(0, 0, w, h), d = id.data;
+    for (let i = 0; i < d.length; i += 4){        // 흰 바탕 → 투명
+      const m = Math.min(d[i], d[i+1], d[i+2]);
+      if (m > 225) d[i+3] = 0; else if (m > 190) d[i+3] = Math.round(d[i+3] * (225 - m) / 35);
+    }
+    g.putImageData(id, 0, 0);
+    addSig(trimCanvas(c) || c, false); sStatus("도장을 넣었어요. PDF 위를 눌러 붙이세요");
+  } catch(err){ sStatus("사진을 열지 못했어요"); }
+};
+function sigPersist(){
+  try { localStorage.setItem("gwang-sigs", JSON.stringify(S.sigs.filter(s => s.saved).slice(-6).map(s => ({url: s.url, ar: s.ar})))); } catch(e){}
+}
+function sigRender(){
+  const box = $("#sigs"); box.innerHTML = "";
+  for (const s of S.sigs){
+    const el = document.createElement("div"); el.className = "sig" + (S.active === s.id ? " on" : "");
+    el.innerHTML = `<img alt="서명"><button class="del" title="지우기">×</button>`;
+    el.querySelector("img").src = s.url;
+    el.onclick = e => {
+      if (e.target.classList.contains("del")){ S.sigs.splice(S.sigs.indexOf(s), 1); if (S.active === s.id) S.active = null; sigPersist(); }
+      else S.active = s.id;
+      sigRender();
+    };
+    box.appendChild(el);
+  }
+}
+try { (JSON.parse(localStorage.getItem("gwang-sigs") || "[]")).forEach(s => S.sigs.push({id: ++seq, url: s.url, ar: s.ar, saved: true})); } catch(e){}
+if (S.sigs.length) S.active = S.sigs[S.sigs.length - 1].id;
+sigRender();
+
+$("#sPick").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try {
+    await loadPdfJs();
+    const bytes = new Uint8Array(await f.arrayBuffer());
+    await loadLibPdf(bytes);
+    if (S.pj) S.pj.destroy();
+    S.pj = await pdfjsLib.getDocument({data: bytes.slice()}).promise;
+    Object.assign(S, {bytes, name: f.name, page: 1, n: S.pj.numPages, places: []});
+    $("#sStageCard").hidden = false; sStatus(""); await sDraw();
+  } catch(err){ sStatus("PDF를 열지 못했어요: " + (err.message || "")); $("#sStageCard").hidden = false; }
+};
+let sDrawing = 0;
+async function sDraw(){
+  if (!S.pj) return;
+  const my = ++sDrawing;
+  $("#sPg").textContent = `${S.page} / ${S.n}`;
+  const pg = await S.pj.getPage(S.page);
+  const stage = $("#stage"), cw = stage.parentNode.clientWidth - 36 || 300;
+  const vp0 = pg.getViewport({scale: 1});
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const vp = pg.getViewport({scale: cw / vp0.width * dpr});
+  const c = document.createElement("canvas"); c.width = vp.width; c.height = vp.height;
+  await pg.render({canvasContext: c.getContext("2d"), viewport: vp}).promise;
+  if (my !== sDrawing) return;
+  const old = $("#sCanvas"); c.id = "sCanvas"; old.replaceWith(c);
+  sLayer();
+  $("#sSave").disabled = !S.places.length;
+}
+function sLayer(){
+  const L = $("#layer"); L.innerHTML = "";
+  for (const p of S.places.filter(p => p.page === S.page)){
+    const sig = S.sigs.find(s => s.id === p.sig) || p.sigObj;
+    const el = document.createElement("div"); el.className = "placed";
+    Object.assign(el.style, {left: p.x * 100 + "%", top: p.y * 100 + "%", width: p.w * 100 + "%", height: p.h * 100 + "%"});
+    el.innerHTML = `<img alt=""><span class="rs"></span><button class="rm">×</button>`;
+    el.querySelector("img").src = sig.url;
+    el.querySelector(".rm").onclick = ev => { ev.stopPropagation(); S.places.splice(S.places.indexOf(p), 1); sLayer(); $("#sSave").disabled = !S.places.length; };
+    el.addEventListener("pointerdown", ev => {
+      if (ev.target.classList.contains("rm")) return;
+      ev.preventDefault(); ev.stopPropagation(); el.setPointerCapture(ev.pointerId);
+      const r = L.getBoundingClientRect(), resize = ev.target.classList.contains("rs");
+      const st = {x: ev.clientX, y: ev.clientY, p: {...p}};
+      const mv = e2 => {
+        const dx = (e2.clientX - st.x) / r.width, dy = (e2.clientY - st.y) / r.height;
+        if (resize){
+          p.w = Math.max(.03, Math.min(1 - p.x, st.p.w + dx)); p.h = p.w * r.width / sig.ar / r.height;
+        } else {
+          p.x = Math.max(0, Math.min(1 - p.w, st.p.x + dx)); p.y = Math.max(0, Math.min(1 - p.h, st.p.y + dy));
+        }
+        Object.assign(el.style, {left: p.x * 100 + "%", top: p.y * 100 + "%", width: p.w * 100 + "%", height: p.h * 100 + "%"});
+      };
+      const up = () => { el.removeEventListener("pointermove", mv); el.removeEventListener("pointerup", up); el.removeEventListener("pointercancel", up); };
+      el.addEventListener("pointermove", mv); el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+    });
+    L.appendChild(el);
+  }
+}
+$("#layer").addEventListener("click", e => {
+  if (e.target !== $("#layer")) return;
+  let sig = S.active === "pad" || (S.padDirty && !S.active) ? padToSig() : S.sigs.find(s => s.id === S.active);
+  if (!sig && S.padDirty) sig = padToSig();
+  if (!sig){ sStatus("먼저 위에서 서명을 그리거나 고르세요"); return; }
+  const r = e.currentTarget.getBoundingClientRect();
+  const w = .26, h = w * r.width / sig.ar / r.height;
+  const fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
+  S.places.push({page: S.page, sig: sig.id, sigObj: sig, x: Math.max(0, Math.min(1 - w, fx - w / 2)), y: Math.max(0, Math.min(1 - h, fy - h / 2)), w, h});
+  sStatus(""); sLayer(); $("#sSave").disabled = false;
+});
+$("#sPrev").onclick = () => { if (S.page > 1){ S.page--; sDraw(); } };
+$("#sNext").onclick = () => { if (S.page < S.n){ S.page++; sDraw(); } };
+$("#sSave").onclick = async () => {
+  $("#sSave").disabled = true; sStatus("저장 중…");
+  try {
+    const doc = await loadLibPdf(S.bytes), cache = new Map();
+    for (const p of S.places){
+      const sig = p.sigObj;
+      if (!cache.has(sig)) cache.set(sig, await doc.embedPng(sig.url));
+      const vp = (await S.pj.getPage(p.page)).getViewport({scale: 1});
+      const [ax, ay] = vp.convertToPdfPoint(p.x * vp.width, p.y * vp.height);
+      const [bx, by] = vp.convertToPdfPoint((p.x + p.w) * vp.width, (p.y + p.h) * vp.height);
+      const rot = (vp.rotation || 0) % 360;
+      const opt = {x: Math.min(ax, bx), y: Math.min(ay, by), width: Math.abs(bx - ax), height: Math.abs(by - ay)};
+      if (rot === 90 || rot === 270){ [opt.width, opt.height] = [opt.height, opt.width]; }
+      if (rot === 90){ opt.x = Math.max(ax, bx); opt.rotate = PDFLib.degrees(90); opt.y = Math.min(ay, by); }
+      else if (rot === 180){ opt.x = Math.max(ax, bx); opt.y = Math.max(ay, by); opt.rotate = PDFLib.degrees(180); }
+      else if (rot === 270){ opt.x = Math.min(ax, bx); opt.y = Math.max(ay, by); opt.rotate = PDFLib.degrees(270); }
+      doc.getPage(p.page - 1).drawImage(cache.get(sig), opt);
+    }
+    save(new Blob([await doc.save({useObjectStreams: true})], {type: "application/pdf"}), baseOf(S.name) + "_서명.pdf");
+    sStatus("저장했어요");
+  } catch(err){ console.error(err); sStatus("저장하지 못했어요: " + (err.message || "")); }
+  $("#sSave").disabled = !S.places.length;
+};
+window.addEventListener("resize", () => { if (!$("#t-sign").hidden){ padFit(); if (S.pj) sDraw(); } });
+
+/* ═════════ 사진 → PDF ═════════ */
+const I = {list: [], size: "a4"};
+const iStatus = m => $("#iStatus").textContent = m || "";
+$("#iPick").onchange = e => {
+  for (const f of e.target.files) I.list.push({id: ++seq, file: f, url: URL.createObjectURL(f)});
+  e.target.value = ""; iRender();
+};
+$("#iSize").onclick = e => { const b = e.target.closest("button"); if (!b) return; I.size = b.dataset.v; document.querySelectorAll("#iSize button").forEach(x => x.classList.toggle("on", x === b)); };
+function iRender(){
+  const g = $("#iGrid"), n = I.list.length;
+  $("#iCount").textContent = n ? `${n}장` : ""; $("#iSave").disabled = $("#iClear").disabled = !n;
+  if (!n){ g.innerHTML = '<div class="empty">아직 넣은 사진이 없어요</div>'; return; }
+  g.innerHTML = "";
+  I.list.forEach((it, k) => {
+    const el = document.createElement("div"); el.className = "th";
+    el.innerHTML = `<div class="im"><img alt=""></div><div class="no"><b>${k + 1}</b><span></span></div>
+      <div class="ctl"><button data-a="l">‹</button><button data-a="n">›</button><button data-a="x">×</button></div>`;
+    el.querySelector("img").src = it.url;
+    el.querySelector("img").onerror = function(){ this.replaceWith(Object.assign(document.createElement("span"), {textContent: "미리보기 없음", style: "font-size:11px;color:#808080"})); };
+    const sn = el.querySelector(".no span"); sn.textContent = it.file.name; sn.title = it.file.name;
+    el.onclick = e => {
+      const a = e.target.closest("button") && e.target.closest("button").dataset.a; if (!a) return;
+      const idx = I.list.indexOf(it);
+      if (a === "l") moveIn(I.list, idx, -1); else if (a === "n") moveIn(I.list, idx, 1);
+      else { URL.revokeObjectURL(it.url); I.list.splice(idx, 1); }
+      iRender();
+    };
+    g.appendChild(el);
+  });
+}
+$("#iClear").onclick = () => { I.list.forEach(it => URL.revokeObjectURL(it.url)); I.list = []; iStatus(""); iRender(); };
+$("#iSave").onclick = async () => {
+  $("#iSave").disabled = true;
+  try {
+    const doc = await PDFLib.PDFDocument.create(), lv = LEVELS.mid;
+    const A4 = [595.28, 841.89];
+    for (let k = 0; k < I.list.length; k++){
+      iStatus(`만드는 중… ${k + 1}/${I.list.length}`);
+      const bmp = await decodeBlob(I.list[k].file), [w, h] = fitSize(bmp.width, bmp.height, lv.max);
+      const c = drawTo(bmp, w, h, true); if (bmp.close) bmp.close();
+      const jpg = await doc.embedJpg(new Uint8Array(await (await toBlob(c, "image/jpeg", lv.q)).arrayBuffer()));
+      freeCanvas(c);
+      let pw, ph, m;
+      if (I.size === "fit"){ pw = w * 72 / 150; ph = h * 72 / 150; m = 0; }
+      else { [pw, ph] = w > h ? [A4[1], A4[0]] : A4; m = I.size === "a4" ? 28 : 0; }
+      const s = Math.min((pw - m * 2) / w, (ph - m * 2) / h), dw = w * s, dh = h * s;
+      doc.addPage([pw, ph]).drawImage(jpg, {x: (pw - dw) / 2, y: (ph - dh) / 2, width: dw, height: dh});
+      await tick();
+    }
+    const out = new Blob([await doc.save({useObjectStreams: true})], {type: "application/pdf"});
+    save(out, `사진모음_${today()}.pdf`);
+    iStatus(`저장했어요 · ${I.list.length}쪽 · ${fmt(out.size)}`);
+  } catch(err){ console.error(err); iStatus("만들지 못했어요: " + (err.message || "")); }
+  $("#iSave").disabled = !I.list.length;
+};
 </script>
 </body>
 </html>
