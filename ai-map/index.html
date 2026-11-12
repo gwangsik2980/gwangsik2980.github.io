@@ -4689,9 +4689,30 @@ function mapSvg(){
   const rings = [[118,118],[RX,R],[RX+52,300]].map(([rx,ry])=>`<ellipse class="ring" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`).join("");
   const ticks = Array.from({length:12},(_,i)=>{ const a=(i*30-90)*Math.PI/180, r=300, rx=RX+52; return `<text class="tick" x="${(cx+Math.cos(a)*rx+ (Math.cos(a)>0.3?6:Math.cos(a)<-0.3?-6:0)).toFixed(1)}" y="${(cy+Math.sin(a)*r+ (Math.sin(a)>0.3?12:Math.sin(a)<-0.3?-5:4)).toFixed(1)}" text-anchor="${Math.cos(a)>0.3?"start":Math.cos(a)<-0.3?"end":"middle"}">${String(i*30).padStart(3,"0")}°</text>`; }).join("");
   let links="", nodes="";
-  CATS.forEach((c,i)=>{
-    const a = (i*360/N - 90)*Math.PI/180, x = cx+Math.cos(a)*RX, y = cy+Math.sin(a)*R;
-    const label = SHORT[c.id]||c.name, on = c.id===S.mapCat, w = Math.max(84, label.length*17+40), n = toolsInCat(c.id).length;
+  /* 칸 겹침 막기(2026-11-12, 회장 "칸이 겹치는 부분은 반드시 따로 뗀다"): 글자 폭을 실제로 재서 칸 너비를 정하고, 겹치는 칸은 좌우로 밀어 뗀다 */
+  const mctx = (mapSvg.c || (mapSvg.c = document.createElement("canvas"))).getContext("2d");
+  const tw = (t, f) => { mctx.font = f; return mctx.measureText(t).width; };
+  const bodyF = getComputedStyle(document.body).fontFamily;
+  const monoF = getComputedStyle(document.documentElement).getPropertyValue("--f-mono") || "monospace";
+  const P = CATS.map((c,i)=>{
+    const a = (i*360/N - 90)*Math.PI/180, label = SHORT[c.id]||c.name, n = toolsInCat(c.id).length;
+    const w = Math.ceil(Math.max(84, 26 + Math.max(tw(label, "600 17px "+bodyF), tw(n+" tools", "400 12px "+monoF)) + 18));
+    return {c, a, label, n, w, x: cx+Math.cos(a)*RX, y: cy+Math.sin(a)*R};
+  });
+  const GAP = 10, H = 48;
+  for(let it=0; it<300; it++){
+    let moved = false;
+    for(let i=0;i<P.length;i++) for(let j=i+1;j<P.length;j++){
+      const p = P[i], q = P[j];
+      const ox = (p.w+q.w)/2 + GAP - Math.abs(p.x-q.x), oy = H + GAP - Math.abs(p.y-q.y);
+      if(ox>0 && oy>0){ moved = true; const d = (p.x<q.x?-1:1)*(ox/2+.5); p.x += d; q.x -= d; }
+    }
+    if(!moved) break;
+  }
+  const minX = Math.min(-50, Math.min(...P.map(p=>p.x-p.w/2))-20), maxX = Math.max(690, Math.max(...P.map(p=>p.x+p.w/2))+20);
+  mapSvg.vb = [minX, 0, maxX-minX, 640].map(v=>Math.round(v)).join(" ");
+  P.forEach(({c,a,label,n,w,x,y})=>{
+    const on = c.id===S.mapCat;
     links += `<line class="link ${on?"on":""}" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
     const subs = on ? c.sub.map((s,j)=>{ const sa = a + (j-(c.sub.length-1)/2)*0.085, sr=R+48; return `<circle class="sub-dot" cx="${(cx+Math.cos(sa)*(sr+RX-R)).toFixed(1)}" cy="${(cy+Math.sin(sa)*sr).toFixed(1)}" r="3.5"/>`; }).join("") : "";
     nodes += `${subs}<g class="node ${on?"on":""}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${esc(c.name)} 펼치기" data-act="mapcat" data-id="${c.id}" transform="translate(${x.toFixed(1)},${y.toFixed(1)})">
@@ -4700,12 +4721,14 @@ function mapSvg(){
       <text x="${-w/2+26}" y="0" dominant-baseline="middle" dy="-4">${esc(label)}</text>
       <text class="cnt" x="${-w/2+26}" y="16">${n} tools</text></g>`;
   });
-  return `<svg viewBox="-50 0 740 640" role="group" aria-label="AI 분야 지도"><title>AI 분야 지도</title>
+  return `<svg viewBox="${mapSvg.vb}" role="group" aria-label="AI 분야 지도"><title>AI 분야 지도</title>
     <line x1="${cx}" y1="14" x2="${cx}" y2="626" class="ring"/><line x1="-36" y1="${cy}" x2="676" y2="${cy}" class="ring"/>
     ${rings}${ticks}${links}
     <circle class="core" cx="${cx}" cy="${cy}" r="46"/><text class="core-t" x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central">AI</text>
     ${nodes}</svg>`;
 }
+/* 글꼴이 늦게 오면 칸 폭을 다시 재도록 지도를 한 번 더 그림 */
+if(document.fonts) document.fonts.ready.then(()=>{ if(!document.getElementById("v-map").hidden) renderMap(); });
 function miniPanel(t){
   if(!t) return `<div class="panel"><p class="note">가운데 지도에서 분야를 고르고, 오른쪽 목록의 도구를 누르면 여기에 요약이 열립니다.</p></div>`;
   return `<div class="panel"><div class="card-head">${badge(t)}<div class="card-title"><h3 style="font-family:var(--f-display);font-size:19px">${esc(t.name)}</h3><div class="co note">${esc(t.company)}</div></div></div>
