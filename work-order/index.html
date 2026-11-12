@@ -1,0 +1,514 @@
+<!doctype html><html><head><meta charset=utf8><meta name="robots" content="noindex,nofollow"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#151515;color:#f2f2f0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Claude 작업 의뢰서</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112..125,500..900&display=swap">
+<style>
+/* Layout: GWANG 디자인 시스템(DESIGN.md) — 스투코 벽 헤더 + 숯 배경 서류, 오른쪽은 고정된 의뢰문 미리보기. 다크 단일 테마 */
+:root{
+  --char:#151515; --char-2:#1d1d1d; --panel:#242424; --stucco:#5f5f5b; --stucco-lo:#464643; --ink:#121212;
+  --text:#f2f2f0; --sub:#b4b4b0; --mute:#808080; --line:#2f2f2f; --line-hi:#3d3d3d;
+  --steel:linear-gradient(180deg,#e4e4e2 0%,#b4b4b1 38%,#d8d8d5 55%,#9d9d99 100%);
+  --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --display:"Archivo","Pretendard",sans-serif;
+  --sans:Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--char);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.7;letter-spacing:-.01em;
+  word-break:keep-all;-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:var(--noise);opacity:.16;mix-blend-mode:overlay}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:28px;align-items:start}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}}
+
+header.top{grid-column:1/-1;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:44px max(16px,env(safe-area-inset-left,0px)) 36px;
+  background-color:var(--stucco);
+  background-image:var(--noise),radial-gradient(120% 90% at 15% 0%,rgba(255,255,255,.14),transparent 60%),linear-gradient(180deg,var(--stucco),var(--stucco-lo));
+  background-blend-mode:multiply,normal,normal;border-bottom:1px solid var(--line-hi)}
+@media (min-width:1212px){header.top{margin-inline:calc((1180px - 100vw)/2);padding-inline:calc((100vw - 1180px)/2)}}
+.top-in{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.brand svg{width:22px;height:22px;transition:transform .8s cubic-bezier(.3,.7,.2,1)}
+.brand:hover svg{transform:rotate(60deg)}
+.brand b{font-family:var(--display);font-stretch:125%;font-weight:900;font-size:17px;letter-spacing:.08em}
+.eyebrow{font-family:var(--display);font-stretch:112%;font-weight:700;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#dadad6}
+header.top h1{margin:6px 0 0;font-size:clamp(26px,3.8vw,36px);font-weight:800;letter-spacing:-.035em;line-height:1.35;color:#fff;
+  text-shadow:0 2px 0 rgba(0,0,0,.28);text-wrap:balance}
+header.top p{margin:10px 0 0;color:#dadad6;max-width:60ch}
+.meta{font-family:var(--display);font-stretch:118%;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#9a9a96;
+  text-align:right;line-height:1.9;font-variant-numeric:tabular-nums}
+.meta span,.meta b{color:#fff;font-weight:800}
+
+.sheet{background:var(--char-2);border:1px solid var(--line-hi);border-radius:2px;min-width:0;margin-top:0}
+section.blk{padding:26px;border-top:1px solid var(--line);display:grid;gap:18px}
+section.blk:first-child{border-top:0}
+section.blk[hidden]{display:none!important}
+.blk h2{margin:0;display:grid;gap:8px;font-size:20px;font-weight:800;letter-spacing:-.03em;line-height:1.4;color:#fff}
+.blk h2 .no{display:flex;align-items:center;gap:10px;font-family:var(--display);font-stretch:118%;font-size:12px;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--sub)}
+.blk h2 .no::before{content:"";width:28px;height:3px;background:var(--steel)}
+.blk h2 .tag{justify-self:start;font-family:var(--display);font-stretch:112%;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--mute);border:1px solid var(--line-hi);padding:1px 7px;border-radius:2px}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}
+@media (max-width:560px){.row{grid-template-columns:minmax(0,1fr)}}
+.f{display:grid;gap:7px;min-width:0}
+.f.full{grid-column:1/-1}
+.f>label,.f>.lbl{font-size:13px;font-weight:600;color:#e4e4e1}
+.f .hint{font-weight:400;color:var(--mute);font-size:12px;margin-left:4px}
+.req{color:#fff;margin-left:2px}
+input[type=text],textarea,select{width:100%;font:inherit;font-size:14px;color:var(--text);background:var(--char);
+  border:1px solid var(--line-hi);border-radius:2px;padding:9px 11px;transition:border-color .2s}
+input::placeholder,textarea::placeholder{color:#6a6a68}
+input:hover,textarea:hover,select:hover{border-color:#555}
+textarea{min-height:78px;resize:vertical}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,.chips label:focus-within{outline:1px solid #cfcfcc;outline-offset:1px;border-color:#8a8a86}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips label{position:relative;display:inline-flex;align-items:center;font-size:13px;padding:5px 12px;border:1px solid var(--line-hi);
+  border-radius:2px;cursor:pointer;background:transparent;color:#d0d0cc;user-select:none;transition:background .2s,color .2s}
+.chips label:hover{background:rgba(255,255,255,.05)}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips label:has(input:checked){background:var(--steel);border-color:#8a8a86;color:var(--ink);font-weight:600}
+
+aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:12px;min-width:0}
+@media (max-width:900px){aside{position:static}}
+.out{background:var(--panel);border:1px solid var(--line-hi);border-radius:2px;display:grid}
+.out-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line-hi)}
+.out-head span{font-family:var(--display);font-stretch:118%;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--sub)}
+pre#brief{margin:0;padding:16px;font-family:ui-monospace,Consolas,"D2Coding",monospace;font-size:12.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;
+  max-height:min(62vh,640px);overflow:auto;color:#d0d0cc}
+@media (max-width:900px){pre#brief{max-height:none}}
+.bar{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:13px;border-radius:2px;padding:9px 16px;cursor:pointer;border:1px solid rgba(255,255,255,.6);background:transparent;color:#fff;
+  transition:transform .15s,background .2s}
+button:hover{transform:translateY(-2px);background:rgba(255,255,255,.08)}
+button.primary{background:var(--steel);border-color:#8a8a86;color:var(--ink);font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 10px 24px rgba(0,0,0,.45)}
+button.primary:hover{background:var(--steel)}
+button.warn{border-color:var(--line-hi);color:var(--sub)}
+.progress{font-family:var(--display);font-stretch:118%;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);font-variant-numeric:tabular-nums}
+.progress i{display:block;height:3px;background:var(--line);margin-top:8px;overflow:hidden}
+.progress i b{display:block;height:100%;background:var(--steel);width:0;transition:width .2s}
+.toast{font-size:13px;color:#fff;min-height:1.2em}
+.howto{font-size:13px;color:var(--sub);margin:0;padding:0;list-style:none;display:grid;gap:6px;counter-reset:h}
+.howto li{display:grid;grid-template-columns:24px 1fr;counter-increment:h}
+.howto li::before{content:counter(h,decimal-leading-zero);font-family:var(--display);font-stretch:125%;font-weight:800;font-size:12px;letter-spacing:.1em;color:var(--mute);padding-top:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}button:hover{transform:none}}
+.gw-copy-wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:40px 0 0}.gw-copy{position:relative;display:inline-block;margin:0;padding:4px 0 8px 12px;font-size:12.5px;line-height:1.5;color:var(--mute);border-left:1px solid color-mix(in srgb,var(--mute) 60%,transparent)}.gw-copy::after{content:"";position:absolute;left:-1px;bottom:0;width:10px;border-bottom:1px solid color-mix(in srgb,var(--mute) 60%,transparent)}  /* GWANG 저작권 표기 (DESIGN.md) */
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand" aria-label="GWANG">
+      <svg viewBox="-12 -12 24 24" fill="none" stroke="#f2f2f0" stroke-width="1.4" aria-hidden="true">
+        <path d="M0 0 L0 -10 L5 -6 Z M0 0 L8.66 -5 L8.2 1.3 Z M0 0 L8.66 5 L3.2 7.4 Z M0 0 L0 10 L-5 6 Z M0 0 L-8.66 5 L-8.2 -1.3 Z M0 0 L-8.66 -5 L-3.2 -7.4 Z"/>
+      </svg><b>GWANG</b>
+    </div>
+    <div class="top-in">
+      <div>
+        <div class="eyebrow">Work Order · Brief Form</div>
+        <h1>Claude 작업 의뢰서</h1>
+        <p>만들고 싶은 걸 여기 적어서 대화창에 붙여넣으면, 제가 되묻는 횟수가 줄어듭니다. 모르는 칸은 비워두세요. 비운 칸은 제가 알아서 정하거나 꼭 필요할 때만 묻습니다.</p>
+      </div>
+      <div class="meta">Doc No. <b id="docno">WO-0000</b><br>Date <span id="today"></span></div>
+    </div>
+  </header>
+
+  <form class="sheet" id="form" autocomplete="off">
+    <section class="blk">
+      <h2><span class="no">A — Brief</span>무엇을 만드나요</h2>
+      <div class="row">
+        <div class="f full"><label for="name">이름<span class="req">*</span></label>
+          <input type="text" id="name" data-k="name" placeholder="예: 링크 모음 페이지 리뉴얼"></div>
+        <div class="f full"><label for="what">한 줄 설명<span class="req">*</span></label>
+          <input type="text" id="what" data-k="what" placeholder="예: 인스타 프로필에 걸 링크 페이지를 모바일 위주로 다시 만들기"></div>
+        <div class="f full"><span class="lbl">유형<span class="req">*</span> <span class="hint">하나 고르면 그 유형용 질문이 아래에 열립니다</span></span>
+          <div class="chips" data-k="type" data-single>
+            <label><input type="radio" name="type" id="t-web" value="웹페이지">웹페이지</label>
+            <label><input type="radio" name="type" id="t-app" value="웹앱">웹앱</label>
+            <label><input type="radio" name="type" id="t-biz" value="사업기획">사업기획</label>
+            <label><input type="radio" name="type" id="t-doc" value="문서·글">문서·글</label>
+            <label><input type="radio" name="type" id="t-deck" value="발표자료">발표자료</label>
+            <label><input type="radio" name="type" id="t-data" value="데이터·엑셀">데이터·엑셀</label>
+            <label><input type="radio" name="type" id="t-auto" value="자동화·스크립트">자동화·스크립트</label>
+            <label><input type="radio" name="type" id="t-notion" value="노션 정리">노션 정리</label>
+            <label><input type="radio" name="type" id="t-etc" value="기타">기타</label>
+          </div></div>
+      </div>
+    </section>
+
+    <section class="blk">
+      <h2><span class="no">B — Purpose</span>왜, 누구를 위해</h2>
+      <div class="row">
+        <div class="f full"><label for="why">만드는 이유 <span class="hint">지금 뭐가 불편한지</span></label>
+          <textarea id="why" data-k="why" placeholder="예: 지금 페이지가 PC 기준이라 폰에서 버튼이 너무 작다"></textarea></div>
+        <div class="f"><span class="lbl">누가 보나요</span>
+          <div class="chips" data-k="audience">
+            <label><input type="checkbox" id="au-me" value="나만">나만</label>
+            <label><input type="checkbox" id="au-team" value="팀·지인">팀·지인</label>
+            <label><input type="checkbox" id="au-pub" value="불특정 다수">불특정 다수</label>
+            <label><input type="checkbox" id="au-hr" value="채용 담당자">채용 담당자</label>
+          </div></div>
+        <div class="f"><label for="when">언제·어디서 쓰나요</label>
+          <input type="text" id="when" data-k="when" placeholder="예: 폰으로 인스타 타고 들어옴"></div>
+      </div>
+    </section>
+
+    <section class="blk">
+      <h2><span class="no">C — Output</span>결과물</h2>
+      <div class="row">
+        <div class="f full"><span class="lbl">받고 싶은 형태</span>
+          <div class="chips" data-k="format">
+            <label><input type="checkbox" id="fm-art" value="아티팩트(링크 페이지)">아티팩트(링크 페이지)</label>
+            <label><input type="checkbox" id="fm-code" value="프로젝트 코드·파일">프로젝트 코드·파일</label>
+            <label><input type="checkbox" id="fm-doc" value="Claude 문서">Claude 문서</label>
+            <label><input type="checkbox" id="fm-office" value="docx·pptx·xlsx">docx·pptx·xlsx</label>
+            <label><input type="checkbox" id="fm-pdf" value="PDF">PDF</label>
+            <label><input type="checkbox" id="fm-notion" value="노션 페이지">노션 페이지</label>
+            <label><input type="checkbox" id="fm-chat" value="채팅 답변">채팅 답변</label>
+          </div></div>
+        <div class="f full"><label for="must">꼭 들어가야 할 것 <span class="hint">한 줄에 하나씩</span></label>
+          <textarea id="must" data-k="must" placeholder="예:&#10;프로필 사진과 이름&#10;링크 버튼 5개&#10;다크 모드"></textarea></div>
+        <div class="f"><label for="mustnot">빼야 할 것·하지 말 것</label>
+          <textarea id="mustnot" data-k="mustnot" placeholder="예: 애니메이션 과하게 X, 영어 문구 X"></textarea></div>
+        <div class="f"><label for="where">저장·배포 위치</label>
+          <textarea id="where" data-k="where" placeholder="예: GitHub Pages (gwangsik2980.github.io/links)"></textarea></div>
+      </div>
+    </section>
+
+    <section class="blk" data-for="웹페이지" hidden>
+      <h2><span class="no">C+ — Detail</span>웹페이지 </h2>
+      <div class="row">
+        <div class="f"><span class="lbl">주 사용 기기</span>
+          <div class="chips" data-k="device">
+            <label><input type="checkbox" id="dv-m" value="모바일">모바일</label>
+            <label><input type="checkbox" id="dv-pc" value="PC">PC</label>
+          </div></div>
+        <div class="f"><span class="lbl">페이지 성격</span>
+          <div class="chips" data-k="pagekind" data-single>
+            <label><input type="radio" name="pagekind" id="pk-link" value="링크 모음">링크 모음</label>
+            <label><input type="radio" name="pagekind" id="pk-land" value="소개·랜딩">소개·랜딩</label>
+            <label><input type="radio" name="pagekind" id="pk-port" value="포트폴리오">포트폴리오</label>
+            <label><input type="radio" name="pagekind" id="pk-info" value="정보·안내">정보·안내</label>
+          </div></div>
+        <div class="f full"><label for="sections">페이지 구성 <span class="hint">위에서 아래 순서로, 한 줄에 하나</span></label>
+          <textarea id="sections" data-k="sections" placeholder="예:&#10;프로필(사진, 이름, 한 줄 소개)&#10;링크 버튼&#10;연락처"></textarea></div>
+        <div class="f full"><label for="cta">방문자가 꼭 했으면 하는 행동</label>
+          <input type="text" id="cta" data-k="cta" placeholder="예: 블로그 링크 클릭, 문의하기"></div>
+      </div>
+    </section>
+
+    <section class="blk" data-for="웹앱" hidden>
+      <h2><span class="no">C+ — Detail</span>웹앱 </h2>
+      <div class="row">
+        <div class="f"><span class="lbl">주 사용 기기</span>
+          <div class="chips" data-k="appdevice">
+            <label><input type="checkbox" id="ad-m" value="모바일">모바일</label>
+            <label><input type="checkbox" id="ad-pc" value="PC">PC</label>
+          </div></div>
+        <div class="f"><span class="lbl">데이터 저장</span>
+          <div class="chips" data-k="store" data-single>
+            <label><input type="radio" name="store" id="st-no" value="필요 없음">필요 없음</label>
+            <label><input type="radio" name="store" id="st-me" value="내 브라우저에만">내 브라우저에만</label>
+            <label><input type="radio" name="store" id="st-share" value="여러 사람이 공유">여러 사람 공유</label>
+          </div></div>
+        <div class="f full"><label for="features">핵심 기능 <span class="hint">한 줄에 하나, 중요한 순서로</span></label>
+          <textarea id="features" data-k="features" placeholder="예:&#10;지원한 회사 추가&#10;마감일 순 정렬&#10;상태별 필터"></textarea></div>
+        <div class="f full"><label for="flow">사용 흐름 <span class="hint">처음 열었을 때부터</span></label>
+          <textarea id="flow" data-k="flow" placeholder="예: 목록 화면 → + 버튼 → 회사·마감일 입력 → 목록에 추가"></textarea></div>
+        <div class="f"><span class="lbl">사용자 구분</span>
+          <div class="chips" data-k="users" data-single>
+            <label><input type="radio" name="users" id="us-one" value="나 혼자">나 혼자</label>
+            <label><input type="radio" name="users" id="us-many" value="여러 명, 권한 같음">여러 명</label>
+            <label><input type="radio" name="users" id="us-admin" value="관리자/일반 구분">관리자 구분</label>
+          </div></div>
+        <div class="f"><label for="dataitems">저장할 데이터 항목</label>
+          <input type="text" id="dataitems" data-k="dataitems" placeholder="예: 회사명, 직무, 마감일, 상태, 메모"></div>
+      </div>
+    </section>
+
+    <section class="blk" data-for="사업기획" hidden>
+      <h2><span class="no">C+ — Detail</span>사업기획 </h2>
+      <div class="row">
+        <div class="f full"><label for="item">사업 아이템</label>
+          <input type="text" id="item" data-k="item" placeholder="예: 대학생 대상 중고 전공서적 거래 플랫폼"></div>
+        <div class="f"><span class="lbl">기획서 용도</span>
+          <div class="chips" data-k="bizuse">
+            <label><input type="checkbox" id="bu-contest" value="공모전·지원사업">공모전·지원사업</label>
+            <label><input type="checkbox" id="bu-invest" value="투자 유치">투자 유치</label>
+            <label><input type="checkbox" id="bu-report" value="내부 보고">내부 보고</label>
+            <label><input type="checkbox" id="bu-self" value="내 생각 정리">내 생각 정리</label>
+          </div></div>
+        <div class="f"><label for="bizform">양식·분량</label>
+          <input type="text" id="bizform" data-k="bizform" placeholder="예: 예비창업패키지 양식, 10쪽"></div>
+        <div class="f"><label for="customer">타깃 고객</label>
+          <textarea id="customer" data-k="customer" placeholder="누가, 어떤 상황에서"></textarea></div>
+        <div class="f"><label for="problem">고객의 문제 → 해결 방법</label>
+          <textarea id="problem" data-k="problem" placeholder="예: 새 책이 비싸다 → 학과별 직거래"></textarea></div>
+        <div class="f"><label for="revenue">수익 모델</label>
+          <input type="text" id="revenue" data-k="revenue" placeholder="예: 거래 수수료 5%"></div>
+        <div class="f"><label for="rival">경쟁사·대체재</label>
+          <input type="text" id="rival" data-k="rival" placeholder="예: 에브리타임 장터, 당근"></div>
+        <div class="f"><label for="budget">예산·자원·팀</label>
+          <input type="text" id="budget" data-k="budget" placeholder="예: 1인, 초기 자금 300만 원"></div>
+        <div class="f"><label for="numbers">가진 숫자·근거 자료</label>
+          <input type="text" id="numbers" data-k="numbers" placeholder="예: 설문 120명, 시장 규모 자료 없음"></div>
+      </div>
+    </section>
+
+    <section class="blk" data-for="문서·글" hidden>
+      <h2><span class="no">C+ — Detail</span>문서·글 </h2>
+      <div class="row">
+        <div class="f"><label for="length">분량</label>
+          <input type="text" id="length" data-k="length" placeholder="예: 문항당 700자 이내"></div>
+        <div class="f"><label for="submit">제출처·읽는 사람</label>
+          <input type="text" id="submit" data-k="submit" placeholder="예: OO기업 구매직무 자소서"></div>
+        <div class="f full"><label for="prompts">문항·목차</label>
+          <textarea id="prompts" data-k="prompts" placeholder="문항이나 목차를 그대로 붙여넣기"></textarea></div>
+      </div>
+    </section>
+
+    <section class="blk" data-for="발표자료" hidden>
+      <h2><span class="no">C+ — Detail</span>발표자료 </h2>
+      <div class="row">
+        <div class="f"><label for="slides">장수·발표 시간</label>
+          <input type="text" id="slides" data-k="slides" placeholder="예: 10장, 5분"></div>
+        <div class="f"><label for="listener">청중</label>
+          <input type="text" id="listener" data-k="listener" placeholder="예: 면접관 3명"></div>
+        <div class="f full"><label for="storyline">흐름·핵심 메시지</label>
+          <textarea id="storyline" data-k="storyline" placeholder="예: 문제 → 분석 → 제안 → 기대효과"></textarea></div>
+      </div>
+    </section>
+
+    <section class="blk" data-for="데이터·엑셀" hidden>
+      <h2><span class="no">C+ — Detail</span>데이터·엑셀 </h2>
+      <div class="row">
+        <div class="f"><label for="datasrc">원본 데이터</label>
+          <input type="text" id="datasrc" data-k="datasrc" placeholder="예: 바탕화면/가계부.xlsx"></div>
+        <div class="f"><label for="dataout">원하는 결과</label>
+          <input type="text" id="dataout" data-k="dataout" placeholder="예: 월별 합계 표 + 막대 차트"></div>
+      </div>
+    </section>
+
+    <section class="blk" data-for="자동화·스크립트" hidden>
+      <h2><span class="no">C+ — Detail</span>자동화·스크립트 </h2>
+      <div class="row">
+        <div class="f"><label for="trigger">언제 실행</label>
+          <input type="text" id="trigger" data-k="trigger" placeholder="예: 평일 아침 8시마다 / 내가 누를 때"></div>
+        <div class="f"><label for="io">입력 → 출력</label>
+          <input type="text" id="io" data-k="io" placeholder="예: 메일 → 노션 DB에 한 줄 추가"></div>
+      </div>
+    </section>
+
+    <section class="blk" data-for="노션 정리" hidden>
+      <h2><span class="no">C+ — Detail</span>노션 정리 </h2>
+      <div class="row">
+        <div class="f"><label for="ntarget">대상 페이지·DB</label>
+          <input type="text" id="ntarget" data-k="ntarget" placeholder="예: 취준관리 DB"></div>
+        <div class="f"><label for="nprops">추가·변경할 속성</label>
+          <input type="text" id="nprops" data-k="nprops" placeholder="예: 마감일, 상태, 로고"></div>
+      </div>
+    </section>
+
+    <section class="blk">
+      <h2><span class="no">D — Style</span>스타일과 참고</h2>
+      <div class="row">
+        <div class="f"><label for="mood">분위기 키워드</label>
+          <input type="text" id="mood" data-k="mood" placeholder="예: 어두운 톤, 깔끔, 내 마스코트 유지"></div>
+        <div class="f"><label for="tone">말투</label>
+          <select id="tone" data-k="tone">
+            <option value="">상관없음</option><option>격식체(합니다)</option><option>부드러운 존댓말(해요)</option><option>반말·캐주얼</option>
+          </select></div>
+        <div class="f full"><label for="refs">참고 자료 <span class="hint">링크, 파일 경로, "이런 느낌"</span></label>
+          <textarea id="refs" data-k="refs" placeholder="예: https://...  /  바탕화면/로고.png"></textarea></div>
+        <div class="f full"><span class="lbl">제가 열어봐도 되는 곳</span>
+          <div class="chips" data-k="access">
+            <label><input type="checkbox" id="ac-files" value="이 폴더 파일">이 폴더 파일</label>
+            <label><input type="checkbox" id="ac-notion" value="노션">노션</label>
+            <label><input type="checkbox" id="ac-gmail" value="지메일">지메일</label>
+            <label><input type="checkbox" id="ac-cal" value="캘린더">캘린더</label>
+            <label><input type="checkbox" id="ac-drive" value="구글 드라이브">구글 드라이브</label>
+            <label><input type="checkbox" id="ac-web" value="웹 검색">웹 검색</label>
+          </div></div>
+      </div>
+    </section>
+
+    <section class="blk">
+      <h2><span class="no">E — Process</span>진행 방식</h2>
+      <div class="row">
+        <div class="f"><label for="due">마감</label>
+          <input type="text" id="due" data-k="due" placeholder="예: 오늘 안 / 10월 25일"></div>
+        <div class="f"><span class="lbl">우선순위</span>
+          <div class="chips" data-k="priority" data-single>
+            <label><input type="radio" name="priority" id="pr-fast" value="빠른 초안 먼저">빠른 초안 먼저</label>
+            <label><input type="radio" name="priority" id="pr-done" value="한 번에 완성도 있게">한 번에 완성도</label>
+          </div></div>
+        <div class="f full"><span class="lbl">질문은 어떻게 할까요</span>
+          <div class="chips" data-k="ask" data-single>
+            <label><input type="radio" name="ask" id="as-auto" value="알아서 판단하고 끝에 정리해서 알려줘">알아서 판단</label>
+            <label><input type="radio" name="ask" id="as-key" value="중요한 갈림길만 물어봐">중요한 것만 질문</label>
+            <label><input type="radio" name="ask" id="as-all" value="시작 전에 애매한 건 다 물어봐">시작 전 전부 질문</label>
+          </div></div>
+        <div class="f full"><label for="done">완료 기준 <span class="hint">이렇게 되면 끝</span></label>
+          <textarea id="done" data-k="done" placeholder="예: 폰에서 열었을 때 버튼이 한눈에 보이고, 링크가 다 동작함"></textarea></div>
+        <div class="f full"><label for="etc">기타 메모</label>
+          <textarea id="etc" data-k="etc" placeholder="자유롭게"></textarea></div>
+      </div>
+    </section>
+  </form>
+
+  <aside>
+    <div class="progress"><span id="prog">필수 0/3 · 전체 0칸</span><i><b id="progbar"></b></i></div>
+    <div class="out">
+      <div class="out-head"><span>대화창에 붙여넣을 의뢰문</span>
+        <button type="button" class="primary" id="copy">복사</button></div>
+      <pre id="brief"></pre>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
+    <div class="bar">
+      <button type="button" id="sample">예시로 채워보기</button>
+      <button type="button" class="warn" id="reset">전부 지우기</button>
+    </div>
+    <ol class="howto">
+      <li>아는 칸만 채웁니다. 작성 중인 내용은 이 브라우저에 자동 저장됩니다.</li>
+      <li>복사 버튼을 눌러 Claude 대화창에 붙여넣습니다.</li>
+      <li>제가 빈 칸 중 꼭 필요한 것만 확인하고 바로 시작합니다.</li>
+    </ol>
+  </aside>
+</div>
+<div class="gw-copy-wrap"><p class="gw-copy">© 2026 GWANG. All rights reserved.</p></div>
+
+<script>
+(function(){
+  var KEY='claude-work-order-v1';
+  var form=document.getElementById('form');
+  var briefEl=document.getElementById('brief');
+  var toast=document.getElementById('toast');
+  var now=new Date();
+  var ymd=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  document.getElementById('today').textContent=ymd;
+  document.getElementById('docno').textContent='WO-'+ymd.slice(2).replace(/-/g,'');
+
+  var LABELS={name:'이름',what:'한 줄 설명',type:'유형',why:'만드는 이유',audience:'보는 사람',when:'사용 상황',
+    format:'결과물 형태',must:'꼭 들어갈 것',mustnot:'빼야 할 것',where:'저장·배포 위치',
+    device:'주 사용 기기',pagekind:'페이지 성격',sections:'페이지 구성',cta:'유도할 행동',
+    appdevice:'주 사용 기기',store:'데이터 저장',features:'핵심 기능',flow:'사용 흐름',users:'사용자 구분',dataitems:'저장할 데이터',
+    item:'사업 아이템',bizuse:'기획서 용도',bizform:'양식·분량',customer:'타깃 고객',problem:'문제 → 해결',
+    revenue:'수익 모델',rival:'경쟁사·대체재',budget:'예산·자원·팀',numbers:'숫자·근거 자료',
+    length:'분량',submit:'제출처·독자',prompts:'문항·목차',
+    slides:'장수·시간',listener:'청중',storyline:'흐름·핵심 메시지',
+    datasrc:'원본 데이터',dataout:'원하는 결과',trigger:'실행 시점',io:'입력 → 출력',
+    ntarget:'대상 페이지·DB',nprops:'추가·변경 속성',
+    mood:'분위기',tone:'말투',refs:'참고 자료',access:'열어봐도 되는 곳',
+    due:'마감',priority:'우선순위',ask:'질문 방식',done:'완료 기준',etc:'기타 메모'};
+  var GROUPS=[
+    ['개요',['name','what','type']],
+    ['목적',['why','audience','when']],
+    ['결과물',['format','must','mustnot','where']],
+    ['유형별 상세',['device','pagekind','sections','cta','appdevice','store','features','flow','users','dataitems',
+      'item','bizuse','bizform','customer','problem','revenue','rival','budget','numbers','length','submit','prompts','slides','listener','storyline','datasrc','dataout','trigger','io','ntarget','nprops']],
+    ['스타일·참고',['mood','tone','refs','access']],
+    ['진행 방식',['due','priority','done','etc']]
+  ];
+
+  function read(){
+    var d={};
+    form.querySelectorAll('[data-k]').forEach(function(el){
+      var k=el.dataset.k;
+      if(el.classList.contains('chips')){
+        var v=[].map.call(el.querySelectorAll('input:checked'),function(i){return i.value});
+        d[k]=el.hasAttribute('data-single')?(v[0]||''):v;
+      } else d[k]=el.value.trim();
+    });
+    return d;
+  }
+  function write(d){
+    form.querySelectorAll('[data-k]').forEach(function(el){
+      var k=el.dataset.k,v=d[k];
+      if(el.classList.contains('chips')){
+        var arr=Array.isArray(v)?v:(v?[v]:[]);
+        el.querySelectorAll('input').forEach(function(i){i.checked=arr.indexOf(i.value)>-1});
+      } else el.value=v||'';
+    });
+  }
+  function empty(v){return Array.isArray(v)?!v.length:!v}
+  function activeKeys(type){
+    var keys={};
+    form.querySelectorAll('section.blk[data-for]').forEach(function(s){
+      s.hidden=s.dataset.for!==type;
+      if(!s.hidden) s.querySelectorAll('[data-k]').forEach(function(el){keys[el.dataset.k]=1});
+    });
+    return keys;
+  }
+  function fmt(v){
+    if(Array.isArray(v)) return v.join(', ');
+    if(v.indexOf('\n')>-1) return '\n'+v.split('\n').filter(Boolean).map(function(l){return '  - '+l.trim()}).join('\n');
+    return v;
+  }
+  function render(){
+    var d=read();
+    var typeKeys=activeKeys(d.type);
+    var out=['# 작업 의뢰서'+(d.name?': '+d.name:''),''];
+    var filled=0,total=0;
+    GROUPS.forEach(function(g){
+      var lines=[];
+      g[1].forEach(function(k){
+        if(g[0]==='유형별 상세'&&!typeKeys[k]) return;
+        total++;
+        if(empty(d[k])) return;
+        filled++;
+        lines.push('- '+LABELS[k]+': '+fmt(d[k]));
+      });
+      if(lines.length){out.push('## '+g[0]);out=out.concat(lines);out.push('');}
+    });
+    if(!empty(d.ask)) filled++; total++;
+    out.push('---');
+    out.push('이 의뢰서대로 진행해줘. 비어 있는 항목은 '+(d.ask?'아래 방식대로 처리해줘.':'네가 합리적으로 정하고, 정한 내용은 끝에 알려줘.'));
+    if(d.ask) out.push('질문 방식: '+d.ask);
+    briefEl.textContent=out.join('\n');
+    var req=['name','what','type'].filter(function(k){return !empty(d[k])}).length;
+    document.getElementById('prog').textContent='필수 '+req+'/3 · 전체 '+filled+'/'+total+'칸';
+    document.getElementById('progbar').style.width=Math.round(filled/total*100)+'%';
+    try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}
+  }
+
+  try{var saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved)write(saved)}catch(e){}
+  form.addEventListener('input',render);
+  form.addEventListener('change',render);
+  form.addEventListener('submit',function(e){e.preventDefault()});
+
+  function say(t){toast.textContent=t;clearTimeout(say.t);say.t=setTimeout(function(){toast.textContent=''},2600)}
+
+  document.getElementById('copy').addEventListener('click',function(){
+    var text=briefEl.textContent;
+    function fallback(){
+      var r=document.createRange();r.selectNodeContents(briefEl);
+      var s=getSelection();s.removeAllRanges();s.addRange(r);
+      say('자동 복사가 막혀 있어 내용을 선택해 두었습니다. Ctrl+C로 복사하세요.');
+    }
+    try{
+      navigator.clipboard.writeText(text).then(function(){say('복사했습니다. 대화창에 붙여넣으세요.')},fallback);
+    }catch(e){fallback()}
+  });
+
+  document.getElementById('sample').addEventListener('click',function(){
+    write({name:'링크 모음 페이지 리뉴얼',what:'인스타 프로필에 걸어둘 링크 페이지를 모바일 위주로 다시 만들기',type:'웹페이지',
+      why:'지금 페이지는 PC 기준이라 폰에서 버튼이 작고 스크롤이 길다',audience:['불특정 다수'],when:'폰으로 인스타 프로필을 타고 들어옴',
+      format:['프로젝트 코드·파일'],must:'마스코트 이미지와 이름\n링크 버튼 5개\n다크 모드',mustnot:'기존 브랜드 느낌을 바꾸지 말 것',
+      where:'GitHub Pages',device:['모바일'],pagekind:'링크 모음',sections:'마스코트와 이름\n링크 버튼\n연락처',cta:'링크 버튼 클릭',
+      mood:'어두운 질감, 워드마크 유지',tone:'',refs:'현재 페이지 주소',access:['이 폴더 파일'],
+      due:'이번 주',priority:'빠른 초안 먼저',ask:'중요한 갈림길만 물어봐',done:'폰에서 버튼이 한 화면에 다 보이고 링크가 모두 동작함',etc:''});
+    render();say('예시를 채웠습니다. 내 내용으로 바꿔 쓰면 됩니다.');
+  });
+
+  var resetBtn=document.getElementById('reset'),armed=false;
+  resetBtn.addEventListener('click',function(){
+    if(!armed){armed=true;resetBtn.textContent='한 번 더 누르면 지워집니다';
+      setTimeout(function(){armed=false;resetBtn.textContent='전부 지우기'},3000);return;}
+    armed=false;resetBtn.textContent='전부 지우기';write({});render();say('모두 지웠습니다.');
+  });
+
+  render();
+})();
+</script>
+
+</body></html>
