@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#151515">
+<title>용량 줄이기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112..125,500..900&display=swap" rel="stylesheet">
+<style>
+/* GWANG 앱 화면 규칙(DESIGN.md 11절): 무채색, 강조는 흰 단색, 카드 12px·버튼 8px */
+:root{
+  --char:#151515;--panel:#202020;--panel-2:#262626;--ink:#121212;
+  --text:#f2f2f0;--sub:#b4b4b0;--mute:#808080;--line:#2f2f2f;--line-hi:#3d3d3d;
+  --white:#f2f2f0;--white-hi:#fff;
+  --display:"Archivo","Pretendard",sans-serif;
+  --r:12px;--r-sm:8px;--r-xs:6px;
+  --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --spring:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
+html,body{margin:0;background:var(--char);color:var(--text)}
+body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;letter-spacing:-.01em;min-height:100vh;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.18;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:28px 16px 64px}
+header .eyebrow{font-family:var(--display);font-stretch:125%;font-weight:800;font-size:11px;letter-spacing:.28em;color:var(--mute);text-transform:uppercase}
+header .eyebrow::before{content:"";display:block;width:22px;height:3px;background:var(--white);margin-bottom:12px}
+h1{font-size:28px;font-weight:800;letter-spacing:-.03em;margin:8px 0 6px}
+.lead{color:var(--sub);font-size:14px;line-height:1.6;margin:0}
+.card{background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,0) 45%),var(--panel);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 8px 24px rgba(0,0,0,.28);padding:18px;margin-top:18px}
+.label{font-family:var(--display);font-stretch:125%;font-weight:700;font-size:10.5px;letter-spacing:.22em;color:var(--mute);text-transform:uppercase;margin-bottom:10px}
+
+/* 파일 넣는 곳 */
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:150px;border:1px dashed var(--line-hi);border-radius:var(--r-sm);text-align:center;padding:20px;cursor:pointer;transition:border-color .25s,background .25s}
+.drop:hover,.drop.over{border-color:var(--white);background:rgba(255,255,255,.03)}
+.drop b{font-size:16px}
+.drop span{color:var(--mute);font-size:12.5px;line-height:1.5}
+.drop svg{width:28px;height:28px;stroke:var(--sub)}
+input[type=file]{display:none}
+
+/* 강도 */
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg button{appearance:none;border:1px solid var(--line-hi);background:transparent;color:var(--text);border-radius:var(--r-sm);padding:10px 6px;font:inherit;cursor:pointer;transition:background .2s,border-color .2s,color .2s;text-align:center}
+.seg button small{display:block;color:var(--mute);font-size:11.5px;margin-top:2px}
+.seg button.on{background:var(--white);border-color:var(--white);color:var(--ink)}
+.seg button.on small{color:#555}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:13.5px;color:var(--sub)}
+.row input[type=number]{width:96px;background:var(--char);border:1px solid var(--line-hi);color:var(--text);border-radius:var(--r-sm);padding:8px 10px;font:inherit}
+.hint{font-size:12px;color:var(--mute);line-height:1.55;margin-top:10px}
+
+/* 버튼 */
+.btn{appearance:none;border:1px solid var(--line-hi);background:transparent;color:var(--text);border-radius:var(--r-sm);padding:9px 14px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .2s,border-color .2s;white-space:nowrap}
+.btn:hover{border-color:var(--sub)}
+.btn.white{background:var(--white);border-color:var(--white);color:var(--ink)}
+.btn.white:hover{background:var(--white-hi)}
+.btn:disabled{opacity:.4;cursor:default}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.actions .btn.white{flex:1;min-width:160px;padding:12px}
+
+/* 파일 목록 */
+.list{display:flex;flex-direction:column;gap:8px}
+.item{border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;background:rgba(0,0,0,.18)}
+.item .top{display:flex;gap:10px;align-items:center;min-width:0}
+.badge{flex:none;font-family:var(--display);font-stretch:112%;font-weight:800;font-size:10px;letter-spacing:.08em;border:1px solid var(--line-hi);border-radius:var(--r-xs);padding:3px 6px;color:var(--sub);min-width:42px;text-align:center}
+.name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:14px}
+.x{flex:none;appearance:none;background:none;border:0;color:var(--mute);font-size:18px;cursor:pointer;padding:0 4px;line-height:1}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums}
+.meta .res b{color:var(--text)}
+.pct{display:inline-block;background:var(--white);color:var(--ink);border-radius:var(--r-xs);padding:1px 6px;font-weight:700;font-size:12px;margin-left:6px}
+.pct.none{background:transparent;color:var(--mute);border:1px solid var(--line-hi)}
+.bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:9px}
+.bar i{display:block;height:100%;width:0;background:var(--white);transition:width .3s var(--spring)}
+.status{font-size:12px;color:var(--mute);margin-top:6px;line-height:1.5}
+.status.err{color:#d9d9d6}
+.item .btns{display:flex;gap:6px}
+.item .btns .btn{padding:6px 10px;font-size:12.5px}
+.empty{color:var(--mute);font-size:13px;text-align:center;padding:6px 0}
+.total{display:flex;justify-content:space-between;font-size:13.5px;color:var(--sub);margin-top:12px;font-variant-numeric:tabular-nums}
+.total b{color:var(--text)}
+
+/* 비교 보기 */
+.modal{position:fixed;inset:0;z-index:10;background:var(--char);display:none;flex-direction:column}
+.modal.open{display:flex}
+.mhead{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.mhead .t{flex:1;min-width:0;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mhead .pg{font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums}
+.mbody{flex:1;overflow:auto;padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+.mbody.zoom{grid-template-columns:1fr}
+.pane .cap{font-family:var(--display);font-stretch:125%;font-weight:700;font-size:10.5px;letter-spacing:.2em;color:var(--mute);margin-bottom:6px;text-transform:uppercase}
+.pane .cap b{font-family:Pretendard,sans-serif;letter-spacing:0;color:var(--sub);font-weight:600;margin-left:6px}
+.pane canvas,.pane img{display:block;width:100%;height:auto;background:#fff;border-radius:2px}
+.mfoot{padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
+@media (max-width:560px){h1{font-size:24px}.mbody{grid-template-columns:1fr}}
+.foot{margin-top:28px;color:var(--mute);font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">GWANG · SHRINK</div>
+    <h1>용량 줄이기</h1>
+    <p class="lead">PDF · 사진 · 워드/PPT/엑셀 · 한글(HWPX) 파일 안의 그림만 다시 압축합니다. 글자는 건드리지 않아요.<br>파일은 이 기기 밖으로 나가지 않습니다.</p>
+  </header>
+
+  <section class="card">
+    <label class="drop" id="drop" for="pick">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4m0 0L8 8m4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      <b>파일 고르기</b>
+      <span>여기를 누르거나 파일을 끌어 놓으세요 · 여러 개 가능<br>PDF, JPG, PNG, WebP, HEIC, DOCX, PPTX, XLSX, HWPX</span>
+    </label>
+    <input type="file" id="pick" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,.heif,.docx,.pptx,.xlsx,.hwpx,application/pdf,image/*">
+  </section>
+
+  <section class="card">
+    <div class="label">강도</div>
+    <div class="seg" id="seg">
+      <button data-lv="low">약<small>화질 우선</small></button>
+      <button data-lv="mid" class="on">중<small>추천</small></button>
+      <button data-lv="high">강<small>최대한 작게</small></button>
+    </div>
+    <div class="row">
+      <span>사진 목표 용량</span>
+      <input type="number" id="target" min="20" step="10" placeholder="예: 500" inputmode="numeric"> KB
+    </div>
+    <div class="hint">목표 용량은 사진 파일에만 씁니다(지원서 증명사진 제한 등). 비워 두면 위 강도대로 줄여요.<br>스캔 PDF는 ‘강’에서 글자가 흐려질 수 있으니 ‘비교’로 확인하고 저장하세요.</div>
+  </section>
+
+  <section class="card">
+    <div class="label">파일</div>
+    <div class="list" id="list"><div class="empty">아직 넣은 파일이 없어요</div></div>
+    <div class="total" id="total" hidden></div>
+    <div class="actions">
+      <button class="btn white" id="go" disabled>줄이기</button>
+      <button class="btn" id="saveAll" hidden>전부 ZIP으로 저장</button>
+      <button class="btn" id="clear" hidden>비우기</button>
+    </div>
+  </section>
+
+  <p class="foot">줄인 결과가 원본보다 크거나 같으면 원본을 그대로 둡니다. 암호 걸린 PDF, 옛 한글(HWP), 동영상은 아직 지원하지 않아요.</p>
+</div>
+
+<div class="modal" id="modal">
+  <div class="mhead">
+    <div class="t" id="mtitle"></div>
+    <span class="pg" id="mpg"></span>
+    <button class="btn" id="mprev">이전</button>
+    <button class="btn" id="mnext">다음</button>
+    <button class="btn" id="mzoom">크게</button>
+    <button class="btn white" id="mclose">닫기</button>
+  </div>
+  <div class="mbody" id="mbody">
+    <div class="pane"><div class="cap">BEFORE<b id="capA"></b></div><div id="paneA"></div></div>
+    <div class="pane"><div class="cap">AFTER<b id="capB"></b></div><div id="paneB"></div></div>
+  </div>
+  <div class="mfoot">글자가 읽히는지 ‘크게’로 확인해 보세요.</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+"use strict";
+/* ───────── 설정 ───────── */
+const LEVELS = {
+  low:  {q:.82, max:2600},   // 화질 우선
+  mid:  {q:.70, max:1900},   // 추천 (A4 스캔 기준 약 200dpi)
+  high: {q:.55, max:1400},   // 최대한 작게 (약 150dpi)
+};
+let level = "mid";
+const items = []; // {id, file, kind, out, outName, state, el}
+let seq = 0, busy = false;
+
+const $ = s => document.querySelector(s);
+const fmt = b => b < 1024 ? b + " B" : b < 1048576 ? (b/1024).toFixed(b < 10240 ? 1 : 0) + " KB" : (b/1048576).toFixed(b < 10485760 ? 2 : 1) + " MB";
+const extOf = n => (n.match(/\.([^.]+)$/) || [,""])[1].toLowerCase();
+const tick = () => new Promise(r => setTimeout(r, 0));
+
+function kindOf(file){
+  const e = extOf(file.name);
+  if (e === "pdf" || file.type === "application/pdf") return "pdf";
+  if (["jpg","jpeg","png","webp","heic","heif"].includes(e) || /^image\//.test(file.type)) return "img";
+  if (["docx","pptx","xlsx"].includes(e)) return "ooxml";
+  if (e === "hwpx") return "hwpx";
+  return null;
+}
+
+/* ───────── 그림 공통: 디코드 → 축소 → 인코드 ───────── */
+async function decodeBlob(blob){
+  try { return await createImageBitmap(blob, {imageOrientation:"from-image"}); }
+  catch(e){
+    // 일부 브라우저(HEIC 등)는 <img>로만 열림
+    const url = URL.createObjectURL(blob);
+    try {
+      const img = new Image(); img.src = url; await img.decode(); return img;
+    } finally { URL.revokeObjectURL(url); }
+  }
+}
+function fitSize(w, h, max){
+  const s = Math.min(1, max / Math.max(w, h));
+  return [Math.max(1, Math.round(w*s)), Math.max(1, Math.round(h*s))];
+}
+function drawTo(src, w, h, whiteBg){
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const g = c.getContext("2d");
+  if (whiteBg){ g.fillStyle = "#fff"; g.fillRect(0,0,w,h); }
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+  g.drawImage(src, 0, 0, w, h);
+  return c;
+}
+const toBlob = (c, type, q) => new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error("인코딩 실패")), type, q));
+function hasAlpha(c){
+  const d = c.getContext("2d").getImageData(0,0,c.width,c.height).data;
+  for (let i = 3; i < d.length; i += 4) if (d[i] < 250) return true;
+  return false;
+}
+function freeCanvas(c){ c.width = c.height = 0; }
+
+/* ───────── 사진 파일 ───────── */
+async function shrinkImage(file, lv, targetKB, onProg){
+  const bmp = await decodeBlob(file);
+  const W = bmp.width, H = bmp.height;
+  const base = file.name.replace(/\.[^.]+$/, "");
+  // 투명한 PNG는 PNG로(투명 유지), 나머지는 JPG
+  let probe = drawTo(bmp, ...fitSize(W, H, 400));
+  const keepPng = extOf(file.name) === "png" && hasAlpha(probe);
+  freeCanvas(probe);
+  let best;
+  if (keepPng){
+    const c = drawTo(bmp, ...fitSize(W, H, lv.max));
+    best = await toBlob(c, "image/png"); freeCanvas(c);
+    return {blob: best, name: base + "_줄임.png", note: "투명 배경이라 PNG로 유지"};
+  }
+  if (targetKB){
+    const goal = targetKB * 1024;
+    let max = Math.max(W, H), tries = 0;
+    while (true){
+      const c = drawTo(bmp, ...fitSize(W, H, max), true);
+      let lo = .35, hi = .92, found = null;
+      for (let i = 0; i < 7; i++){
+        const q = (lo + hi) / 2, b = await toBlob(c, "image/jpeg", q);
+        if (b.size <= goal){ found = b; lo = q; } else hi = q;
+        onProg && onProg(Math.min(.95, (tries*7 + i + 1) / 40));
+      }
+      if (!found){ const b = await toBlob(c, "image/jpeg", .35); if (b.size <= goal) found = b; }
+      const [cw, ch] = [c.width, c.height]; freeCanvas(c);
+      if (found){ best = found; var note = `${cw}×${ch}px`; break; }
+      max = Math.round(max * .82); tries++;
+      if (max < 200){ best = await toBlob(drawTo(bmp, ...fitSize(W, H, 200), true), "image/jpeg", .35); note = "목표까지는 못 줄임"; break; }
+    }
+    if (bmp.close) bmp.close();
+    return {blob: best, name: base + "_줄임.jpg", note};
+  }
+  const [w, h] = fitSize(W, H, lv.max);
+  const c = drawTo(bmp, w, h, true);
+  best = await toBlob(c, "image/jpeg", lv.q); freeCanvas(c);
+  if (bmp.close) bmp.close();
+  return {blob: best, name: base + "_줄임.jpg", note: `${w}×${h}px`};
+}
+
+/* ───────── PDF ───────── */
+const N = n => PDFLib.PDFName.of(n);
+const nameStr = v => v instanceof PDFLib.PDFName ? v.asString().replace(/^\//, "") : null;
+const numVal = v => v instanceof PDFLib.PDFNumber ? v.asNumber() : null;
+
+function colorInfo(doc, cs){
+  // 반환: 채널 수(1|3) 또는 null(다루지 않음)
+  if (cs instanceof PDFLib.PDFRef) cs = doc.context.lookup(cs);
+  const n = nameStr(cs);
+  if (n === "DeviceRGB" || n === "CalRGB") return 3;
+  if (n === "DeviceGray" || n === "CalGray") return 1;
+  if (cs instanceof PDFLib.PDFArray && cs.size() >= 2){
+    const kind = nameStr(cs.lookup(0));
+    if (kind === "ICCBased"){
+      const st = cs.lookup(1); const nn = st && st.dict ? numVal(st.dict.lookup(N("N"))) : null;
+      return nn === 3 || nn === 1 ? nn : null;
+    }
+    if (kind === "CalRGB") return 3;
+    if (kind === "CalGray") return 1;
+  }
+  return null; // CMYK, Indexed, Separation 등은 건드리지 않음
+}
+
+function pngUnpredict(data, colors, bpc, cols){
+  const bpp = Math.max(1, (colors * bpc) >> 3), row = (colors * bpc * cols + 7) >> 3;
+  const rows = Math.floor(data.length / (row + 1)), out = new Uint8Array(rows * row);
+  let prev = new Uint8Array(row);
+  for (let y = 0; y < rows; y++){
+    const t = data[y*(row+1)], src = data.subarray(y*(row+1)+1, (y+1)*(row+1)), cur = out.subarray(y*row, (y+1)*row);
+    for (let x = 0; x < row; x++){
+      const a = x >= bpp ? cur[x-bpp] : 0, b = prev[x], c = x >= bpp ? prev[x-bpp] : 0;
+      let v = src[x];
+      if (t === 1) v += a; else if (t === 2) v += b; else if (t === 3) v += (a + b) >> 1;
+      else if (t === 4){ const p = a + b - c, pa = Math.abs(p-a), pb = Math.abs(p-b), pc = Math.abs(p-c); v += (pa <= pb && pa <= pc) ? a : pb <= pc ? b : c; }
+      cur[x] = v & 255;
+    }
+    prev = cur;
+  }
+  return out;
+}
+
+async function shrinkPdf(file, lv, onProg){
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const doc = await PDFLib.PDFDocument.load(bytes, {ignoreEncryption:true, updateMetadata:false});
+  if (doc.isEncrypted) throw new Error("암호 걸린 PDF는 줄일 수 없어요");
+  const ctx = doc.context;
+  const all = ctx.enumerateIndirectObjects();
+  // 다른 그림의 투명 마스크(SMask)로 쓰이는 그림은 건드리지 않음
+  const maskRefs = new Set();
+  for (const [, o] of all){
+    if (o instanceof PDFLib.PDFRawStream || (o && o.dict)){
+      const sm = o.dict && o.dict.get(N("SMask")); if (sm instanceof PDFLib.PDFRef) maskRefs.add(sm.toString());
+      const mk = o.dict && o.dict.get(N("Mask")); if (mk instanceof PDFLib.PDFRef) maskRefs.add(mk.toString());
+    }
+  }
+  const imgs = all.filter(([ref, o]) => o instanceof PDFLib.PDFRawStream && nameStr(o.dict.get(N("Subtype"))) === "Image" && !maskRefs.has(ref.toString()));
+  let done = 0, changed = 0, skipped = 0;
+  for (const [ref, st] of imgs){
+    done++; onProg && onProg(done / imgs.length * .9, `그림 ${done}/${imgs.length}`);
+    try {
+      const r = await recompressPdfImage(doc, st, lv);
+      if (r){ ctx.assign(ref, r); changed++; } else skipped++;
+    } catch(e){ skipped++; }
+    if (done % 4 === 0) await tick();
+  }
+  onProg && onProg(.95, "저장 중");
+  const out = await doc.save({useObjectStreams:true, addDefaultPage:false});
+  // 결과가 다시 열리는지 확인
+  await PDFLib.PDFDocument.load(out, {ignoreEncryption:true, updateMetadata:false});
+  return {blob: new Blob([out], {type:"application/pdf"}), name: file.name.replace(/\.pdf$/i, "") + "_줄임.pdf",
+          note: imgs.length ? `그림 ${imgs.length}개 중 ${changed}개 압축` : "그림이 없는 PDF(글자 위주)"};
+}
+
+async function recompressPdfImage(doc, st, lv){
+  const d = st.dict;
+  if (d.get(N("ImageMask"))) return null;
+  if (d.get(N("Decode"))) return null;
+  const W = numVal(d.lookup(N("Width"))), H = numVal(d.lookup(N("Height")));
+  const bpc = numVal(d.lookup(N("BitsPerComponent")));
+  if (!W || !H || W*H < 40000) return null;            // 작은 그림은 이득이 없음
+  if (st.contents.length < 20000) return null;
+  const ch = colorInfo(doc, d.get(N("ColorSpace")));
+  if (!ch) return null;
+  let f = d.lookup(N("Filter")), parms = d.lookup(N("DecodeParms"));
+  if (f instanceof PDFLib.PDFArray){
+    if (f.size() !== 1) return null;
+    f = f.lookup(0);
+    if (parms instanceof PDFLib.PDFArray) parms = parms.lookup(0);
+  }
+  const filter = nameStr(f);
+  let src;
+  if (filter === "DCTDecode"){
+    src = await decodeBlob(new Blob([st.contents], {type:"image/jpeg"}));
+  } else if (filter === "FlateDecode" && bpc === 8){
+    let raw = pako.inflate(st.contents);
+    const pred = parms && parms.lookup ? numVal(parms.lookup(N("Predictor"))) : null;
+    if (pred && pred >= 10) raw = pngUnpredict(raw, ch, 8, W);
+    else if (pred && pred !== 1) return null;
+    if (raw.length < W*H*ch) return null;
+    const id = new ImageData(W, H), px = id.data;
+    if (ch === 3) for (let i = 0, j = 0; i < W*H; i++, j += 3){ px[i*4]=raw[j]; px[i*4+1]=raw[j+1]; px[i*4+2]=raw[j+2]; px[i*4+3]=255; }
+    else for (let i = 0; i < W*H; i++){ const v = raw[i]; px[i*4]=px[i*4+1]=px[i*4+2]=v; px[i*4+3]=255; }
+    const c = document.createElement("canvas"); c.width = W; c.height = H; c.getContext("2d").putImageData(id, 0, 0);
+    src = c;
+  } else return null; // JPX·JBIG2·CCITT 등은 이미 작거나 다루기 어려움
+
+  const [w, h] = fitSize(W, H, lv.max);
+  const c = drawTo(src, w, h, true);
+  if (src.close) src.close(); else if (src.width) freeCanvas(src);
+  let jpg = new Uint8Array(await (await toBlob(c, "image/jpeg", lv.q)).arrayBuffer());
+  freeCanvas(c);
+  if (jpg.length >= st.contents.length * .95) return null;    // 줄지 않으면 그대로
+  const nd = d.clone(doc.context);
+  for (const k of ["Filter","DecodeParms","Length","ColorSpace","BitsPerComponent","Width","Height"]) nd.delete(N(k));
+  nd.set(N("Filter"), N("DCTDecode"));
+  nd.set(N("ColorSpace"), N("DeviceRGB"));
+  nd.set(N("BitsPerComponent"), doc.context.obj(8));
+  nd.set(N("Width"), doc.context.obj(w));
+  nd.set(N("Height"), doc.context.obj(h));
+  nd.set(N("Length"), doc.context.obj(jpg.length));
+  return PDFLib.PDFRawStream.of(nd, jpg);
+}
+
+/* ───────── 워드·PPT·엑셀·HWPX (ZIP 안 그림) ───────── */
+async function shrinkZipDoc(file, lv, kind, onProg){
+  const zip = await JSZip.loadAsync(file);
+  const isOoxml = kind === "ooxml";
+  const media = Object.keys(zip.files).filter(p => !zip.files[p].dir && /(^|\/)(media|BinData)\/[^/]+\.(jpe?g|png)$/i.test(p));
+  let ctTypes = isOoxml && zip.file("[Content_Types].xml") ? await zip.file("[Content_Types].xml").async("string") : null;
+  const renames = []; // [옛 이름, 새 이름]
+  let changed = 0, i = 0;
+  for (const p of media){
+    i++; onProg && onProg(i / media.length * .85, `그림 ${i}/${media.length}`);
+    try {
+      const data = await zip.file(p).async("uint8array");
+      if (data.length < 30000) continue;
+      const isPng = /\.png$/i.test(p);
+      const bmp = await decodeBlob(new Blob([data], {type: isPng ? "image/png" : "image/jpeg"}));
+      const [w, h] = fitSize(bmp.width, bmp.height, lv.max);
+      let c = drawTo(bmp, w, h, false);
+      if (bmp.close) bmp.close();
+      let out, newPath = p;
+      if (!isPng){
+        const c2 = drawTo(c, w, h, true); freeCanvas(c); c = c2;
+        out = await toBlob(c, "image/jpeg", lv.q);
+      } else {
+        const alpha = hasAlpha(c);
+        const fname = p.split("/").pop();
+        const overridden = ctTypes && ctTypes.includes(p.replace(/^/, "/") + '"');
+        if (isOoxml && !alpha && !overridden){
+          // 투명하지 않은 PNG → JPG로 바꾸고 연결(rels) 고침
+          let np = p.replace(/\.png$/i, ".jpeg"); let k = 1;
+          while (zip.file(np)) np = p.replace(/\.png$/i, `_${k++}.jpeg`);
+          const c2 = drawTo(c, w, h, true); freeCanvas(c); c = c2;
+          out = await toBlob(c, "image/jpeg", lv.q);
+          if (out.size < data.length * .9) newPath = np;
+        } else {
+          out = await toBlob(c, "image/png");
+        }
+      }
+      freeCanvas(c);
+      if (out.size < data.length * .9){
+        const buf = new Uint8Array(await out.arrayBuffer());
+        if (newPath !== p){
+          zip.remove(p); zip.file(newPath, buf, {createFolders:false});
+          renames.push([p.split("/").pop(), newPath.split("/").pop()]);
+        } else zip.file(p, buf, {createFolders:false});
+        changed++;
+      }
+    } catch(e){ /* 이 그림은 그대로 둠 */ }
+    if (i % 3 === 0) await tick();
+  }
+  if (renames.length){
+    const rels = Object.keys(zip.files).filter(p => /\.rels$/i.test(p));
+    for (const r of rels){
+      let s = await zip.file(r).async("string"), s0 = s;
+      for (const [a, b] of renames) s = s.split("media/" + a + '"').join("media/" + b + '"');
+      if (s !== s0) zip.file(r, s, {createFolders:false});
+    }
+    if (ctTypes && !/Extension="jpeg"/i.test(ctTypes)){
+      ctTypes = ctTypes.replace(/<Types([^>]*)>/, '<Types$1><Default Extension="jpeg" ContentType="image/jpeg"/>');
+      zip.file("[Content_Types].xml", ctTypes, {createFolders:false});
+    }
+  }
+  if (zip.file("mimetype")){ // HWPX: mimetype은 압축하지 않고 맨 앞에
+    const m = await zip.file("mimetype").async("uint8array"); zip.file("mimetype", m, {compression:"STORE"});
+  }
+  onProg && onProg(.92, "저장 중");
+  const blob = await zip.generateAsync({type:"blob", compression:"DEFLATE", compressionOptions:{level:9},
+    mimeType: file.type || "application/octet-stream"});
+  const ext = extOf(file.name);
+  return {blob, name: file.name.replace(/\.[^.]+$/, "") + "_줄임." + ext,
+          note: media.length ? `그림 ${media.length}개 중 ${changed}개 압축` : "안에 그림이 없음"};
+}
+
+/* ───────── 화면 ───────── */
+function addFiles(files){
+  for (const f of files){
+    const kind = kindOf(f);
+    const it = {id: ++seq, file: f, kind, out: null, state: kind ? "ready" : "bad"};
+    items.push(it);
+  }
+  render();
+}
+const BADGE = {pdf:"PDF", img:"IMG", ooxml:"DOC", hwpx:"HWPX"};
+function render(){
+  const list = $("#list");
+  if (!items.length){ list.innerHTML = '<div class="empty">아직 넣은 파일이 없어요</div>'; }
+  else {
+    list.innerHTML = "";
+    for (const it of items){
+      const el = document.createElement("div"); el.className = "item"; it.el = el;
+      const e = extOf(it.file.name).toUpperCase();
+      el.innerHTML = `<div class="top"><span class="badge">${e || "?"}</span><span class="name" title=""></span><button class="x" title="빼기">×</button></div>
+        <div class="meta"><span class="res"></span><span class="btns"></span></div>
+        <div class="bar"><i></i></div><div class="status"></div>`;
+      el.querySelector(".name").textContent = it.file.name;
+      el.querySelector(".name").title = it.file.name;
+      el.querySelector(".x").onclick = () => { if (busy) return; items.splice(items.indexOf(it), 1); render(); };
+      list.appendChild(el);
+      paint(it);
+    }
+  }
+  const ready = items.some(it => it.state === "ready");
+  $("#go").disabled = busy || !ready;
+  $("#clear").hidden = !items.length;
+  const outs = items.filter(it => it.out);
+  $("#saveAll").hidden = outs.length < 2;
+  const tot = $("#total");
+  if (outs.length){
+    const a = outs.reduce((s, it) => s + it.file.size, 0), b = outs.reduce((s, it) => s + it.out.blob.size, 0);
+    tot.hidden = false;
+    tot.innerHTML = `<span>합계</span><span>${fmt(a)} → <b>${fmt(b)}</b> (${Math.round((1 - b/a)*100)}% 줄임)</span>`;
+  } else tot.hidden = true;
+}
+function paint(it, prog, msg){
+  const el = it.el; if (!el) return;
+  const res = el.querySelector(".res"), st = el.querySelector(".status"), bar = el.querySelector(".bar i"), btns = el.querySelector(".btns");
+  st.classList.remove("err");
+  if (it.state === "bad"){ res.textContent = fmt(it.file.size); st.textContent = "지원하지 않는 파일 형식이에요"; st.classList.add("err"); bar.parentNode.hidden = true; return; }
+  if (it.state === "ready"){ res.textContent = fmt(it.file.size); st.textContent = "대기 중"; bar.style.width = "0"; return; }
+  if (it.state === "work"){ res.textContent = fmt(it.file.size); bar.style.width = ((prog || 0) * 100) + "%"; st.textContent = msg || "줄이는 중…"; return; }
+  if (it.state === "err"){ res.textContent = fmt(it.file.size); st.textContent = it.err; st.classList.add("err"); bar.style.width = "0"; return; }
+  if (it.state === "done"){
+    bar.style.width = "100%";
+    const a = it.file.size, b = it.out.blob.size, p = Math.round((1 - b/a) * 100);
+    res.innerHTML = it.out.same
+      ? `${fmt(a)} <span class="pct none">그대로</span>`
+      : `${fmt(a)} → <b>${fmt(b)}</b><span class="pct">−${p}%</span>`;
+    st.textContent = it.out.same ? "더 줄일 수 있는 부분이 없어서 원본 그대로예요" + (it.out.note ? " · " + it.out.note : "") : (it.out.note || "");
+    btns.innerHTML = "";
+    if (!it.out.same && (it.kind === "pdf" || it.kind === "img")){
+      const v = document.createElement("button"); v.className = "btn"; v.textContent = "비교"; v.onclick = () => openCompare(it); btns.appendChild(v);
+    }
+    const s = document.createElement("button"); s.className = "btn white"; s.textContent = "저장"; s.onclick = () => save(it.out.blob, it.out.name); btns.appendChild(s);
+  }
+}
+
+async function runAll(){
+  if (busy) return; busy = true; render();
+  const lv = LEVELS[level];
+  const targetKB = parseInt($("#target").value, 10) || 0;
+  for (const it of items){
+    if (it.state !== "ready" && it.state !== "done" && it.state !== "err") continue;
+    it.state = "work"; it.out = null; paint(it, .02);
+    await tick();
+    try {
+      const prog = (p, m) => paint(it, p, m);
+      let r;
+      if (it.kind === "pdf") r = await shrinkPdf(it.file, lv, prog);
+      else if (it.kind === "img") r = await shrinkImage(it.file, lv, targetKB, prog);
+      else r = await shrinkZipDoc(it.file, lv, it.kind, prog);
+      const forced = it.kind === "img" && targetKB;     // 목표 용량은 형식 변환이 목적일 수 있음
+      if (r.blob.size >= it.file.size && !forced){ r = {blob: it.file, name: it.file.name, same: true, note: r.note}; }
+      it.out = r; it.state = "done";
+    } catch(e){
+      console.error(e);
+      it.state = "err"; it.err = "줄이지 못했어요: " + (e && e.message ? e.message : "알 수 없는 오류");
+    }
+    paint(it);
+  }
+  busy = false; render();
+}
+
+function save(blob, name){
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+}
+async function saveAll(){
+  const z = new JSZip();
+  const used = new Set();
+  for (const it of items) if (it.out){
+    let n = it.out.name, k = 1; while (used.has(n)) n = it.out.name.replace(/(\.[^.]+)$/, `(${k++})$1`);
+    used.add(n); z.file(n, it.out.blob, {compression:"STORE"});
+  }
+  save(await z.generateAsync({type:"blob"}), "줄인파일.zip");
+}
+
+/* ───────── 비교 보기 ───────── */
+let cmp = null;
+function loadPdfJs(){
+  if (window.pdfjsLib) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    s.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; res(); };
+    s.onerror = () => rej(new Error("미리보기 도구를 불러오지 못했어요"));
+    document.head.appendChild(s);
+  });
+}
+async function openCompare(it){
+  $("#modal").classList.add("open"); document.body.style.overflow = "hidden";
+  $("#mtitle").textContent = it.file.name;
+  $("#capA").textContent = fmt(it.file.size); $("#capB").textContent = fmt(it.out.blob.size);
+  $("#paneA").innerHTML = $("#paneB").innerHTML = "";
+  if (it.kind === "img"){
+    $("#mpg").textContent = ""; $("#mprev").hidden = $("#mnext").hidden = true;
+    for (const [pane, blob] of [["#paneA", it.file], ["#paneB", it.out.blob]]){
+      const img = new Image(); img.src = URL.createObjectURL(blob); $(pane).appendChild(img);
+    }
+    cmp = {kind:"img"}; return;
+  }
+  $("#mprev").hidden = $("#mnext").hidden = false;
+  $("#mpg").textContent = "불러오는 중…";
+  try {
+    await loadPdfJs();
+    const [a, b] = await Promise.all([it.file, it.out.blob].map(async x => pdfjsLib.getDocument({data: new Uint8Array(await x.arrayBuffer())}).promise));
+    cmp = {kind:"pdf", a, b, page:1, n:a.numPages};
+    await drawPages();
+  } catch(e){ $("#mpg").textContent = e.message || "미리보기 실패"; }
+}
+async function drawPages(){
+  if (!cmp || cmp.kind !== "pdf") return;
+  $("#mpg").textContent = `${cmp.page} / ${cmp.n}`;
+  const zoom = $("#mbody").classList.contains("zoom");
+  for (const [doc, pane] of [[cmp.a, "#paneA"], [cmp.b, "#paneB"]]){
+    const pg = await doc.getPage(cmp.page);
+    const box = $(pane).parentNode.clientWidth || 300;
+    const vp0 = pg.getViewport({scale:1});
+    const scale = Math.min(4, box / vp0.width * Math.min(2, window.devicePixelRatio || 1) * (zoom ? 1.5 : 1));
+    const vp = pg.getViewport({scale});
+    const c = document.createElement("canvas"); c.width = vp.width; c.height = vp.height;
+    await pg.render({canvasContext: c.getContext("2d"), viewport: vp}).promise;
+    $(pane).innerHTML = ""; $(pane).appendChild(c);
+  }
+}
+function closeCompare(){
+  $("#modal").classList.remove("open"); document.body.style.overflow = "";
+  if (cmp && cmp.kind === "pdf"){ cmp.a.destroy(); cmp.b.destroy(); }
+  document.querySelectorAll("#modal img").forEach(i => URL.revokeObjectURL(i.src));
+  $("#paneA").innerHTML = $("#paneB").innerHTML = ""; cmp = null;
+}
+
+/* ───────── 연결 ───────── */
+$("#pick").onchange = e => { addFiles(e.target.files); e.target.value = ""; };
+const drop = $("#drop");
+["dragenter","dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => addFiles(e.dataTransfer.files));
+$("#seg").onclick = e => {
+  const b = e.target.closest("button"); if (!b || busy) return;
+  level = b.dataset.lv;
+  document.querySelectorAll("#seg button").forEach(x => x.classList.toggle("on", x === b));
+  items.forEach(it => { if (it.state === "done" || it.state === "err"){ it.state = "ready"; it.out = null; } });
+  render();
+};
+$("#target").oninput = () => { items.forEach(it => { if (it.kind === "img" && (it.state === "done" || it.state === "err")){ it.state = "ready"; it.out = null; } }); render(); };
+$("#go").onclick = runAll;
+$("#saveAll").onclick = saveAll;
+$("#clear").onclick = () => { if (busy) return; items.length = 0; render(); };
+$("#mclose").onclick = closeCompare;
+$("#mprev").onclick = () => { if (cmp && cmp.page > 1){ cmp.page--; drawPages(); } };
+$("#mnext").onclick = () => { if (cmp && cmp.page < cmp.n){ cmp.page++; drawPages(); } };
+$("#mzoom").onclick = () => { $("#mbody").classList.toggle("zoom"); $("#mzoom").textContent = $("#mbody").classList.contains("zoom") ? "작게" : "크게"; drawPages(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#modal").classList.contains("open")) closeCompare(); });
+</script>
+</body>
+</html>
