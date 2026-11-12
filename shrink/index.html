@@ -137,6 +137,8 @@ input[type=file]{display:none}
 .placed .rs{position:absolute;right:-9px;bottom:-9px;width:18px;height:18px;background:var(--white);border:1px solid #555;border-radius:50%;cursor:nwse-resize;touch-action:none}
 .placed .rm{position:absolute;right:-9px;top:-9px;width:18px;height:18px;background:#222;color:#fff;border:0;border-radius:50%;font-size:11px;line-height:18px;padding:0;cursor:pointer}
 
+.gw-copy{position:relative;display:inline-block;margin:32px 0 0;padding:4px 0 8px 12px;font-size:12.5px;color:var(--mute);border-left:1px solid color-mix(in srgb,var(--mute) 60%,transparent)}
+.gw-copy::after{content:"";position:absolute;left:-1px;bottom:0;width:10px;border-bottom:1px solid color-mix(in srgb,var(--mute) 60%,transparent)}
 .foot{margin-top:28px;color:var(--mute);font-size:12px;line-height:1.6}
 </style>
 </head>
@@ -269,6 +271,7 @@ input[type=file]{display:none}
       <div class="status" id="iStatus"></div>
     </section>
   </div>
+  <p class="gw-copy">© 2026 GWANG. All rights reserved.</p>
 </div>
 
 <div class="modal" id="modal">

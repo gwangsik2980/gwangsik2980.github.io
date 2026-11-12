@@ -41,7 +41,7 @@ p{margin:0}
 .wrap{max-width:1200px;margin:0 auto;padding-inline:16px}
 
 /* 헤더 */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid color-mix(in srgb,var(--muted) 60%,transparent)}
 .top-row{display:flex;align-items:center;gap:16px;padding-block:10px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none}
 .brand-mark{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--accent);display:grid;place-items:center;position:relative}
@@ -98,6 +98,9 @@ main{padding-block:28px 120px}
 .linkish{background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px;font-size:14px}
 .linkish:hover{color:var(--accent);text-decoration-color:var(--accent)}
 .tool-links{display:flex;flex-wrap:wrap;gap:4px 12px}
+/* 역할 칸 도구 이름 사이 구분선 (2026-11-12 회장 요청) */
+.role .tool-links{gap:4px 0;margin-left:-21px;overflow:hidden}   /* 모든 이름 앞에 선 → 줄 맨 앞 선은 왼쪽 21px 밖으로 밀려 가려짐 */
+.role .tool-links .linkish::before{content:"";display:inline-block;width:1px;height:.9em;background:var(--muted);opacity:.55;margin:0 10px;vertical-align:-1px}
 
 /* 카드 */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
@@ -312,6 +315,8 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .pill.free-paid{border-color:var(--line);color:var(--muted)}
 *{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
 @media (prefers-reduced-motion:no-preference){.view:not([hidden]){animation:rise .35s cubic-bezier(.22,1,.36,1)}}
+.gw-copy{position:relative;display:inline-block;margin:32px 0 0;padding:4px 0 8px 12px;font-size:12.5px;color:var(--muted);border-left:1px solid color-mix(in srgb,var(--muted) 60%,transparent)}
+.gw-copy::after{content:"";position:absolute;left:-1px;bottom:0;width:10px;border-bottom:1px solid color-mix(in srgb,var(--muted) 60%,transparent)}
 </style>
 
 <header class="top">
@@ -341,6 +346,7 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
   <section class="view" id="v-favorites" hidden></section>
   <section class="view" id="v-new" hidden></section>
   <div class="footer-note" id="footNote"></div>
+  <p class="gw-copy">© 2026 GWANG. All rights reserved.</p>
 </main>
 
 <div class="tray" id="tray" hidden></div>
