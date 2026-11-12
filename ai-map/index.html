@@ -2,29 +2,26 @@
 <title>AI Tool Map</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112..125,500..900&family=IBM+Plex+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
 /* Layout: 검색창이 지도의 원점. 그 아래로 목적 → 도구 카드가 측량 격자 위에 펼쳐지는 탐색 화면 */
+/* GWANG 디자인(DESIGN.md, 2026-11-12): 무채색, 강조는 흰 단색, 기본 다크. 라이트 = 취업본부 라이트 A(밝은 콘크리트) */
 :root{
-  --bg:#E8ECEF; --surface:#F7F9FA; --surface-2:#DEE4E8; --ink:#13202A; --muted:#55636E; --line:#C4CDD4;
-  --accent:#1B6985; --accent-soft:rgba(27,105,133,.12); --accent-ink:#F3FAFC; --signal:#C2621C; --signal-soft:rgba(194,98,28,.13);
-  --strong:#1C7652; --ok:#8A6A16; --grid:rgba(27,105,133,.07);
-  --cat-l:.6; --cat-c:.12;
-  --f-display:"Bricolage Grotesque","IBM Plex Sans KR",system-ui,sans-serif;
-  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --bg:#151515; --surface:#202020; --surface-2:#262626; --ink:#f2f2f0; --muted:#9a9a96; --line:#2f2f2f;
+  --accent:#f2f2f0; --accent-soft:rgba(255,255,255,.08); --accent-ink:#121212; --signal:#d9d9d6; --signal-soft:rgba(255,255,255,.055);
+  --strong:#f2f2f0; --ok:#a8a8a4; --grid:rgba(255,255,255,.022);
+  --cat-l:.78; --cat-c:0;
+  --f-display:"Archivo","Pretendard",sans-serif;
+  --f-body:Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
-  --r:10px; --shadow:0 1px 0 rgba(19,32,42,.04),0 8px 24px -16px rgba(19,32,42,.25);
+  --r:12px; --shadow:inset 0 1px 0 rgba(255,255,255,.06),0 8px 24px rgba(0,0,0,.28); color-scheme:dark;
+  --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0D1317; --surface:#141D23; --surface-2:#1B262E; --ink:#E0E7EB; --muted:#8C9AA5; --line:#293640;
-  --accent:#5CB2D0; --accent-soft:rgba(92,178,208,.14); --accent-ink:#05212B; --signal:#EE9A52; --signal-soft:rgba(238,154,82,.15);
-  --strong:#5CC895; --ok:#D8B35A; --grid:rgba(92,178,208,.06); --cat-l:.75; --cat-c:.11;
-  --shadow:0 1px 0 rgba(0,0,0,.2),0 10px 28px -18px rgba(0,0,0,.7); color-scheme:dark }}
-:root[data-theme="dark"]{
-  --bg:#0D1317; --surface:#141D23; --surface-2:#1B262E; --ink:#E0E7EB; --muted:#8C9AA5; --line:#293640;
-  --accent:#5CB2D0; --accent-soft:rgba(92,178,208,.14); --accent-ink:#05212B; --signal:#EE9A52; --signal-soft:rgba(238,154,82,.15);
-  --strong:#5CC895; --ok:#D8B35A; --grid:rgba(92,178,208,.06); --cat-l:.75; --cat-c:.11;
-  --shadow:0 1px 0 rgba(0,0,0,.2),0 10px 28px -18px rgba(0,0,0,.7); color-scheme:dark }
+:root[data-theme="light"]{
+  --bg:#e4e3df; --surface:#edece8; --surface-2:#e9e8e4; --ink:#161616; --muted:#55554f; --line:#d3d2ce;
+  --accent:#1c1c1b; --accent-soft:rgba(0,0,0,.07); --accent-ink:#f2f2f0; --signal:#2a2a29; --signal-soft:rgba(0,0,0,.05);
+  --strong:#1c1c1b; --ok:#6a6a68; --grid:rgba(0,0,0,.035); --cat-l:.42; --cat-c:0;
+  --shadow:0 1px 0 rgba(0,0,0,.04),0 8px 24px -16px rgba(0,0,0,.25); color-scheme:light }
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -283,6 +280,38 @@ pre.schema{max-width:100%;background:var(--surface);border:1px solid var(--line)
   .view:not([hidden]){animation:rise .22s ease-out}
   @keyframes rise{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
 }
+
+/* ── GWANG 손질 (DESIGN.md 5·6·7·9·11절) ── */
+body{letter-spacing:-.01em}
+body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.16;pointer-events:none;z-index:0}
+:root[data-theme="light"] body::before{opacity:.08}
+.top,main,.tray,.toast{position:relative;z-index:1}
+.top{position:sticky;background:var(--bg);backdrop-filter:none;z-index:20}
+.tray{position:fixed;z-index:30}.toast{position:fixed;z-index:40}
+.brand-name,.hero h1,.card-title h3,.detail-head h1,.cmp thead th,.step-tool b{font-family:var(--f-display);font-stretch:112%}
+.brand-name{font-stretch:125%;font-weight:800;letter-spacing:.02em;text-transform:uppercase;font-size:16px}
+.hero h1 .ko{letter-spacing:-.045em}
+.eyebrow,.mini-h,.purpose h3 .mono,.cmp tr.group th,.step-body .label{font-family:var(--display,"Archivo"),"Pretendard",sans-serif;font-stretch:125%;font-weight:700;letter-spacing:.2em}
+.eyebrow::before{content:"";display:inline-block;width:18px;height:2px;background:var(--accent);vertical-align:middle;margin-right:10px}
+.nav a,.chip,.seg,.seg button,.pill,.search .go,.btn,.tray .go,.leaf,.layer-item,.cat-item,.wf-list button,.step-tool{border-radius:8px}
+.pill,.lvl,.interp .tag,.badge{border-radius:6px}
+.search{border-radius:12px;border-color:var(--line)}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.detail-head .badge{border-radius:8px}
+.toast{border-radius:8px}
+.card,.purpose,.panel,.route-card,.layer-col,.tree,.map-canvas,.table-wrap{background:linear-gradient(160deg,rgba(255,255,255,.04),rgba(255,255,255,0) 45%),var(--surface)}
+:root[data-theme="light"] .card,:root[data-theme="light"] .purpose,:root[data-theme="light"] .panel,:root[data-theme="light"] .route-card,:root[data-theme="light"] .layer-col,:root[data-theme="light"] .tree,:root[data-theme="light"] .map-canvas,:root[data-theme="light"] .table-wrap{background:var(--surface)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.badge{color:var(--accent-ink)}
+.reason{border:1px solid var(--line)}
+.edge{border-left-color:var(--accent)}
+.lvl.s{background:var(--accent);color:var(--accent-ink)}
+.lvl.o{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.fitmeter b,.edge .mini-h,.unverified{color:var(--ink)}
+.pill.free-free,.pill.free-open,.pill.free-freemium{border-color:var(--ink);color:var(--ink)}
+.pill.free-paid{border-color:var(--line);color:var(--muted)}
+*{scrollbar-width:thin;scrollbar-color:#3a3a3a transparent}
+@media (prefers-reduced-motion:no-preference){.view:not([hidden]){animation:rise .35s cubic-bezier(.22,1,.36,1)}}
 </style>
 
 <header class="top">
@@ -319,1137 +348,3969 @@ pre.schema{max-width:100%;background:var(--surface);border:1px solid var(--line)
 
 <script>
 /* data.js (아티팩트 원본에서 합침, 2026-11-12) */
-/*
-  AI Tool Map 데이터베이스
-  ─────────────────────────────────────────────
-  UI 코드(index.html)와 분리된 데이터 파일입니다.
-  도구를 추가하려면 TOOLS 배열에 객체 하나를 추가하면 됩니다.
-
-  필드 설명
-  - id            고유 키(영문 소문자, 하이픈)
-  - cat           소속 카테고리 id 배열 (TAXONOMY 참고)
-  - fit           { 하위분야id: 2(강함) | 1(보통) }  검색·비교·지도에 모두 쓰임
-  - layer         model | app | platform | workflow  (모델과 서비스 구분)
-  - role          think | research | create | build | connect | present
-  - free          free | freemium | paid | open | unknown
-  - pricing       가격. 공식 사이트에서 확인하기 전에는 "확인 필요"로 둠
-  - builtOn       공식적으로 알려진 기반 모델 id (MODELS 참고). 모르면 빈 배열
-  - lastVerified  공식 사이트에서 직접 확인한 날짜(YYYY-MM-DD). 미확인이면 null
-
-  현재 데이터 상태
-  - 2026-10-08 작성. Claude의 학습 지식(2026년 6월까지) 기준으로 정리했고,
-    가격과 무료 범위는 공식 사이트에서 아직 확인하지 않았습니다.
-  - 그래서 모든 도구의 lastVerified 값이 null입니다.
-*/
-
 window.AI_DB = {
-  meta: {
-    version: "0.1.0",
-    createdAt: "2026-10-08",
-    basis: "Claude 학습 지식(2026년 6월까지) 기준 정리, 공식 사이트 미확인"
+ "meta": {
+  "version": "0.2.0",
+  "createdAt": "2026-10-08",
+  "basis": "Claude 학습 지식(2026년 6월까지) + 2026-11-12 공식 사이트 접속·서비스 종료 여부 확인(웹 검색). 직접 가입해 써 본 것은 아님"
+ },
+ "TAXONOMY": [
+  {
+   "id": "general",
+   "name": "범용 AI",
+   "en": "General",
+   "sub": [
+    {
+     "id": "chat",
+     "name": "질문·대화"
+    },
+    {
+     "id": "reasoning",
+     "name": "기획·복잡한 사고"
+    },
+    {
+     "id": "multimodal",
+     "name": "이미지·파일 이해"
+    }
+   ]
   },
-
-  TAXONOMY: [
-    { id: "general", name: "범용 AI", en: "General", sub: [
-      { id: "chat", name: "질문·대화" },
-      { id: "reasoning", name: "기획·복잡한 사고" },
-      { id: "multimodal", name: "이미지·파일 이해" } ] },
-    { id: "research", name: "검색·리서치", en: "Research", sub: [
-      { id: "web-search", name: "웹 검색·최신 정보" },
-      { id: "deep-research", name: "심층 리포트" },
-      { id: "paper", name: "논문 찾기" },
-      { id: "source-docs", name: "내 자료 기반 분석" } ] },
-    { id: "image", name: "이미지", en: "Image", sub: [
-      { id: "img-gen", name: "이미지 생성" },
-      { id: "img-edit", name: "이미지 편집" },
-      { id: "photo-retouch", name: "사진 보정" },
-      { id: "character", name: "캐릭터 일관성" },
-      { id: "logo", name: "로고·브랜드" },
-      { id: "product-img", name: "제품 이미지" },
-      { id: "img-text", name: "이미지 속 글자" },
-      { id: "bg-remove", name: "배경 제거" } ] },
-    { id: "video", name: "영상", en: "Video", sub: [
-      { id: "t2v", name: "텍스트 → 영상" },
-      { id: "i2v", name: "이미지 → 영상" },
-      { id: "video-edit", name: "영상 편집" },
-      { id: "avatar", name: "아바타 영상" },
-      { id: "dubbing", name: "더빙·립싱크" },
-      { id: "shortform", name: "숏폼" } ] },
-    { id: "audio", name: "음성·음악", en: "Audio", sub: [
-      { id: "tts", name: "음성 생성" },
-      { id: "voice-clone", name: "음성 복제" },
-      { id: "stt", name: "음성 → 텍스트" },
-      { id: "music", name: "음악 생성" },
-      { id: "audio-clean", name: "음질 개선" } ] },
-    { id: "writing", name: "글쓰기·문서", en: "Writing", sub: [
-      { id: "write", name: "글쓰기" },
-      { id: "summarize", name: "요약" },
-      { id: "translate", name: "번역" },
-      { id: "doc-analysis", name: "문서 분석" },
-      { id: "copy", name: "카피라이팅" },
-      { id: "proofread", name: "교정" },
-      { id: "long-doc", name: "긴 문서 처리" } ] },
-    { id: "design", name: "발표·디자인", en: "Design", sub: [
-      { id: "ppt", name: "PPT·발표자료" },
-      { id: "graphic", name: "그래픽 디자인" },
-      { id: "uiux", name: "UI/UX" },
-      { id: "infographic", name: "인포그래픽·도식" },
-      { id: "poster", name: "포스터·배너" } ] },
-    { id: "coding", name: "코딩·개발", en: "Coding", sub: [
-      { id: "ai-coding", name: "AI 코딩" },
-      { id: "agentic-coding", name: "에이전트 코딩" },
-      { id: "code-review", name: "코드 리뷰" },
-      { id: "website", name: "웹사이트" },
-      { id: "webapp", name: "웹앱" },
-      { id: "mobile-app", name: "모바일 앱" },
-      { id: "prototype", name: "프로토타입" } ] },
-    { id: "automation", name: "자동화·에이전트", en: "Automation", sub: [
-      { id: "workflow", name: "업무 자동화" },
-      { id: "agent-build", name: "AI 에이전트 제작" },
-      { id: "api-connect", name: "앱·API 연결" },
-      { id: "web-auto", name: "웹 자동화" },
-      { id: "rag", name: "문서 기반 챗봇" } ] },
-    { id: "data", name: "데이터·분석", en: "Data", sub: [
-      { id: "data-analysis", name: "데이터 분석" },
-      { id: "excel", name: "엑셀·스프레드시트" },
-      { id: "viz", name: "시각화" } ] },
-    { id: "productivity", name: "회의·생산성", en: "Productivity", sub: [
-      { id: "meeting-record", name: "회의 녹음" },
-      { id: "minutes", name: "회의록" },
-      { id: "email", name: "이메일" },
-      { id: "notes", name: "노트·메모" },
-      { id: "knowledge", name: "지식 관리" } ] },
-    { id: "marketing", name: "마케팅·비즈니스", en: "Business", sub: [
-      { id: "market-research", name: "시장조사" },
-      { id: "competitor", name: "경쟁사 분석" },
-      { id: "ad-creative", name: "광고 소재" },
-      { id: "sns", name: "SNS 콘텐츠" } ] },
-    { id: "learning", name: "교육·학습", en: "Learning", sub: [
-      { id: "study", name: "공부·문제풀이" },
-      { id: "tutor", name: "튜터" },
-      { id: "language", name: "언어 학습" } ] },
-    { id: "3d", name: "3D·게임", en: "3D", sub: [
-      { id: "model3d", name: "3D 모델 생성" },
-      { id: "game-asset", name: "게임 에셋" } ] }
-  ],
-
-  ROLES: [
-    { id: "research", name: "조사하는 AI", desc: "정보를 찾고 출처를 모읍니다" },
-    { id: "think", name: "생각하는 AI", desc: "질문에 답하고 기획과 글을 돕습니다" },
-    { id: "create", name: "만드는 AI", desc: "이미지, 영상, 소리를 만듭니다" },
-    { id: "build", name: "개발하는 AI", desc: "코드와 웹 서비스를 만듭니다" },
-    { id: "connect", name: "연결하는 AI", desc: "앱과 AI를 이어 반복 업무를 맡깁니다" },
-    { id: "present", name: "발표하는 AI", desc: "발표자료와 디자인 결과물을 만듭니다" }
-  ],
-
-  LAYERS: [
-    { id: "model", name: "모델", desc: "다른 서비스가 가져다 쓰는 AI 모델 자체" },
-    { id: "app", name: "애플리케이션", desc: "사람이 바로 쓰는 AI 서비스" },
-    { id: "platform", name: "플랫폼", desc: "여러 모델과 기능을 엮어 만드는 개발·제작 환경" },
-    { id: "workflow", name: "워크플로우·자동화", desc: "앱과 AI를 연결해 일을 자동으로 돌리는 도구" }
-  ],
-
-  /* 공식적으로 공개된 모델 계열만 넣습니다. 관계가 확인되지 않으면 연결하지 않습니다. */
-  MODELS: [
-    { id: "gpt", name: "GPT 계열", company: "OpenAI" },
-    { id: "claude-model", name: "Claude 계열", company: "Anthropic" },
-    { id: "gemini-model", name: "Gemini 계열", company: "Google" },
-    { id: "veo-model", name: "Veo", company: "Google DeepMind" },
-    { id: "grok-model", name: "Grok 계열", company: "xAI" },
-    { id: "deepseek-model", name: "DeepSeek 계열", company: "DeepSeek" },
-    { id: "qwen-model", name: "Qwen 계열", company: "Alibaba" }
-  ],
-
-  TOOLS: [
-    /* ───────── 범용 AI ───────── */
-    { id: "chatgpt", name: "ChatGPT", company: "OpenAI", cat: ["general", "writing"],
-      fit: { chat: 2, reasoning: 2, multimodal: 2, write: 2, summarize: 2, "data-analysis": 1, "img-gen": 1, study: 2, tutor: 1, translate: 1 },
-      layer: "app", role: ["think"],
-      purpose: "질문·글쓰기·분석까지 두루 하는 대화형 AI",
-      desc: "대화로 질문하고 글을 쓰고 파일을 분석하는 범용 AI 서비스입니다. 이미지 생성, 웹 검색, 심층 리서치 같은 기능이 한 앱 안에 모여 있습니다.",
-      bestFor: ["무엇부터 할지 모를 때 첫 질문", "글 초안과 아이디어", "파일 첨부해서 분석"],
-      strengths: ["기능이 한 곳에 모여 있음", "사용자가 많아 활용 자료가 풍부함", "음성 대화와 이미지 기능"],
-      weaknesses: ["사실 확인이 필요한 답을 그럴듯하게 쓸 수 있음", "고급 기능은 유료 플랜 중심"],
-      edge: "여러 종류의 작업을 앱 하나에서 처리하고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지", "파일", "음성"], output: ["텍스트", "이미지", "파일"],
-      tech: "OpenAI GPT 계열 모델", builtOn: ["gpt"], url: "https://chatgpt.com",
-      alt: ["claude", "gemini", "grok"], lastVerified: null },
-
-    { id: "claude", name: "Claude", company: "Anthropic", cat: ["general", "writing"],
-      fit: { chat: 2, reasoning: 2, write: 2, "long-doc": 2, "doc-analysis": 2, summarize: 2, proofread: 1, "ai-coding": 1, multimodal: 1 },
-      layer: "app", role: ["think"],
-      purpose: "긴 글을 읽고 정돈된 글을 쓰는 데 강한 대화형 AI",
-      desc: "긴 문서를 한 번에 읽고 요약하거나 구조를 잡아 글을 쓰는 작업에서 많이 쓰입니다. 아티팩트로 문서, 웹페이지, 간단한 앱을 바로 만들어 볼 수도 있습니다.",
-      bestFor: ["긴 보고서·계약서 읽고 정리", "기획서와 글의 구조 잡기", "자소서·문서 첨삭"],
-      strengths: ["긴 문서 처리", "자연스러운 문장", "아티팩트로 결과물 바로 확인"],
-      weaknesses: ["이미지 생성 기능은 없음", "무료 사용량이 넉넉하지 않을 수 있음"],
-      edge: "긴 자료를 읽고 논리적으로 정리된 글을 받아야 할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지", "PDF", "파일"], output: ["텍스트", "문서", "코드"],
-      tech: "Anthropic Claude 계열 모델", builtOn: ["claude-model"], url: "https://claude.ai",
-      alt: ["chatgpt", "gemini"], lastVerified: null },
-
-    { id: "gemini", name: "Gemini", company: "Google", cat: ["general", "research"],
-      fit: { chat: 2, reasoning: 2, multimodal: 2, "web-search": 1, "deep-research": 1, "img-gen": 1, "img-edit": 1, email: 1 },
-      layer: "app", role: ["think", "research"],
-      purpose: "구글 서비스와 연결되는 대화형 AI",
-      desc: "구글이 만든 대화형 AI로 Gmail, 드라이브, 문서 같은 구글 서비스와 연결해 쓸 수 있습니다. 앱 안에서 이미지 생성(Nano Banana)과 영상 생성(Veo) 기능도 제공됩니다.",
-      bestFor: ["구글 문서·메일 기반 작업", "이미지와 영상까지 한 앱에서", "유튜브·웹 정보 요약"],
-      strengths: ["구글 서비스 연동", "이미지·영상 생성 기능 포함", "긴 입력 처리"],
-      weaknesses: ["기능별로 요금제에 따라 쓸 수 있는 범위가 다름"],
-      edge: "구글 계정의 메일, 문서, 캘린더와 함께 쓰고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지", "파일", "음성", "영상"], output: ["텍스트", "이미지", "영상"],
-      tech: "Google Gemini 계열 모델", builtOn: ["gemini-model", "veo-model"], url: "https://gemini.google.com",
-      alt: ["chatgpt", "claude"], lastVerified: null },
-
-    { id: "grok", name: "Grok", company: "xAI", cat: ["general"],
-      fit: { chat: 2, reasoning: 1, "web-search": 1, "img-gen": 1, sns: 1 },
-      layer: "app", role: ["think"],
-      purpose: "X(트위터) 실시간 게시물과 연결되는 대화형 AI",
-      desc: "xAI가 만든 대화형 AI로 X 플랫폼의 게시물을 참고한 답변을 할 수 있습니다.",
-      bestFor: ["X에서 화제인 이슈 파악", "가벼운 질문과 대화"],
-      strengths: ["X 게시물 기반 실시간 반응 파악"],
-      weaknesses: ["답변 톤과 안전 기준이 다른 서비스와 다를 수 있음", "업무용 연동 기능은 확인 필요"],
-      edge: "지금 X에서 사람들이 어떤 반응을 보이는지 알고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["텍스트", "이미지"],
-      tech: "xAI Grok 계열 모델", builtOn: ["grok-model"], url: "https://grok.com",
-      alt: ["chatgpt", "perplexity"], lastVerified: null },
-
-    { id: "deepseek", name: "DeepSeek", company: "DeepSeek", cat: ["general"],
-      fit: { chat: 2, reasoning: 2, "ai-coding": 1, study: 1 },
-      layer: "app", role: ["think"],
-      purpose: "추론에 강한 오픈 웨이트 모델 기반 대화형 AI",
-      desc: "중국 DeepSeek의 대화형 AI입니다. 모델 가중치가 공개되어 있어 개발자가 직접 내려받아 쓰는 경우도 많습니다.",
-      bestFor: ["수학·논리 문제", "저비용 API로 개발 실험"],
-      strengths: ["추론 성능 대비 비용", "모델 가중치 공개"],
-      weaknesses: ["데이터가 중국 서버에서 처리될 수 있어 회사 자료 입력은 주의", "부가 기능이 적음"],
-      edge: "수학·코딩 추론을 저렴하게 쓰거나 모델을 직접 운영하고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "파일"], output: ["텍스트"],
-      tech: "DeepSeek 계열 모델(오픈 웨이트)", builtOn: ["deepseek-model"], url: "https://chat.deepseek.com",
-      alt: ["qwen", "chatgpt"], lastVerified: null },
-
-    { id: "qwen", name: "Qwen Chat", company: "Alibaba", cat: ["general"],
-      fit: { chat: 2, reasoning: 1, multimodal: 1, translate: 1 },
-      layer: "app", role: ["think"],
-      purpose: "알리바바 Qwen 모델 기반 대화형 AI",
-      desc: "알리바바가 만든 Qwen 모델로 대화하는 서비스입니다. 여러 Qwen 모델이 오픈 웨이트로 공개되어 있습니다.",
-      bestFor: ["오픈 모델 성능 체험", "다국어 대화"],
-      strengths: ["모델 종류가 다양하고 공개 모델이 많음"],
-      weaknesses: ["국내 사용자용 자료가 적음", "회사 자료 입력 전 약관 확인 필요"],
-      edge: "오픈 모델을 써 보거나 직접 배포할 모델을 고를 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지", "파일"], output: ["텍스트", "이미지"],
-      tech: "Alibaba Qwen 계열 모델(일부 오픈 웨이트)", builtOn: ["qwen-model"], url: "https://chat.qwen.ai",
-      alt: ["deepseek", "chatgpt"], lastVerified: null },
-
-    /* ───────── 검색·리서치 ───────── */
-    { id: "perplexity", name: "Perplexity", company: "Perplexity AI", cat: ["research", "marketing"],
-      fit: { "web-search": 2, "deep-research": 1, "market-research": 2, competitor: 2, paper: 1 },
-      layer: "app", role: ["research"],
-      purpose: "출처 링크를 붙여 답하는 AI 검색",
-      desc: "질문하면 웹을 검색해서 답을 정리하고 출처 링크를 함께 보여줍니다. 최신 정보 확인과 빠른 조사에 많이 쓰입니다.",
-      bestFor: ["최신 정보 확인", "출처가 필요한 조사", "경쟁사·시장 빠르게 훑기"],
-      strengths: ["답변마다 출처 표시", "검색 속도", "후속 질문으로 좁혀 가기 쉬움"],
-      weaknesses: ["출처 자체의 품질은 직접 확인해야 함", "긴 분석 글은 범용 AI보다 약할 수 있음"],
-      edge: "답의 근거 링크를 바로 확인하면서 조사하고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "파일"], output: ["텍스트"],
-      tech: "여러 외부 모델과 자체 검색 결합(세부 구성은 요금제마다 다름)", builtOn: [], url: "https://www.perplexity.ai",
-      alt: ["chatgpt-deep-research", "gemini", "liner"], lastVerified: null },
-
-    { id: "chatgpt-deep-research", name: "ChatGPT 심층 리서치", company: "OpenAI", cat: ["research", "marketing"],
-      fit: { "deep-research": 2, "web-search": 2, "market-research": 2, competitor: 2 },
-      layer: "app", role: ["research"],
-      purpose: "수십 개 자료를 읽고 긴 보고서로 정리하는 ChatGPT 기능",
-      desc: "ChatGPT 안의 기능으로, 주제를 주면 여러 웹 자료를 찾아 읽은 뒤 출처가 달린 보고서를 씁니다. 결과가 나오기까지 몇 분 이상 걸립니다.",
-      bestFor: ["시장조사 보고서 초안", "산업·경쟁 구도 정리"],
-      strengths: ["자료를 많이 읽고 긴 보고서로 정리", "출처 표시"],
-      weaknesses: ["시간이 오래 걸림", "사용 횟수가 요금제에 따라 제한됨", "결론은 직접 검증 필요"],
-      edge: "빠른 답보다 정리된 리포트가 필요할 때",
-      free: "unknown", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "파일"], output: ["보고서"],
-      tech: "OpenAI GPT 계열 모델", builtOn: ["gpt"], url: "https://chatgpt.com",
-      alt: ["perplexity", "gemini"], lastVerified: null },
-
-    { id: "notebooklm", name: "NotebookLM", company: "Google", cat: ["research", "learning", "writing"],
-      fit: { "source-docs": 2, summarize: 2, "doc-analysis": 2, study: 2, paper: 1, "long-doc": 1 },
-      layer: "app", role: ["research"],
-      purpose: "내가 올린 자료만 근거로 답하는 리서치 노트",
-      desc: "PDF, 문서, 웹페이지, 유튜브 링크 등을 올리면 그 자료 안에서만 답하고 어느 부분을 참고했는지 표시합니다. 자료를 오디오 대화 형식으로 요약해 주는 기능도 있습니다.",
-      bestFor: ["여러 PDF를 한 번에 공부", "회사·기관 자료 분석", "면접·시험 준비"],
-      strengths: ["답의 근거를 원문 위치로 보여줌", "자료 밖 내용을 지어낼 가능성이 낮은 구조", "오디오 요약"],
-      weaknesses: ["올린 자료 밖의 최신 정보는 찾지 않음"],
-      edge: "인터넷이 아니라 내 자료를 기준으로 정확히 답을 받아야 할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["PDF", "문서", "웹페이지", "유튜브 링크", "오디오"], output: ["텍스트", "오디오 요약"],
-      tech: "Google Gemini 계열 모델", builtOn: ["gemini-model"], url: "https://notebooklm.google.com",
-      alt: ["claude", "chatgpt"], lastVerified: null },
-
-    { id: "elicit", name: "Elicit", company: "Elicit", cat: ["research", "learning"],
-      fit: { paper: 2, "deep-research": 1, summarize: 1 },
-      layer: "app", role: ["research"],
-      purpose: "논문을 찾고 표로 정리하는 연구용 AI",
-      desc: "연구 질문을 입력하면 관련 논문을 찾고 연구 방법, 결과 같은 항목을 표로 뽑아 줍니다.",
-      bestFor: ["선행연구 조사", "여러 논문의 결과 비교"],
-      strengths: ["논문 항목을 표로 정리", "학술 데이터베이스 기반"],
-      weaknesses: ["한국어 논문은 적음", "영어로 질문해야 결과가 좋음"],
-      edge: "논문 여러 편을 같은 기준으로 비교해야 할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["텍스트", "PDF"], output: ["표", "텍스트"],
-      tech: "확인 필요", builtOn: [], url: "https://elicit.com",
-      alt: ["consensus", "notebooklm"], lastVerified: null },
-
-    { id: "consensus", name: "Consensus", company: "Consensus", cat: ["research", "learning"],
-      fit: { paper: 2, "web-search": 1 },
-      layer: "app", role: ["research"],
-      purpose: "질문에 대해 논문들이 뭐라고 하는지 보여주는 검색",
-      desc: "예/아니오로 답할 수 있는 질문을 넣으면 관련 논문들의 결론 경향을 요약하고 논문 목록을 보여줍니다.",
-      bestFor: ["\"이게 효과가 있나?\" 같은 근거 확인", "논문 빠르게 찾기"],
-      strengths: ["논문 결론의 경향을 한눈에 확인", "출처가 학술 논문"],
-      weaknesses: ["연구가 적은 주제는 결과가 빈약함"],
-      edge: "일반 웹이 아니라 논문을 근거로 답을 확인하고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트"], output: ["텍스트", "논문 목록"],
-      tech: "확인 필요", builtOn: [], url: "https://consensus.app",
-      alt: ["elicit", "perplexity"], lastVerified: null },
-
-    { id: "liner", name: "Liner", company: "Liner (한국)", cat: ["research", "learning"],
-      fit: { "web-search": 2, paper: 1, "deep-research": 1, summarize: 1 },
-      layer: "app", role: ["research"],
-      purpose: "신뢰할 만한 출처를 우선하는 AI 검색",
-      desc: "국내 기업이 만든 AI 검색 서비스로, 답변에 출처를 붙이고 학술 자료 검색 기능을 제공합니다.",
-      bestFor: ["과제·리포트용 자료 조사", "출처가 필요한 검색"],
-      strengths: ["출처 표시", "한국어 사용 환경"],
-      weaknesses: ["세부 기능과 요금은 확인 필요"],
-      edge: "한국어로 출처 있는 자료 조사를 하고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "PDF"], output: ["텍스트"],
-      tech: "확인 필요", builtOn: [], url: "https://liner.com",
-      alt: ["perplexity", "consensus"], lastVerified: null },
-
-    /* ───────── 이미지 ───────── */
-    { id: "nano-banana", name: "Nano Banana", company: "Google", cat: ["image"],
-      fit: { "img-edit": 2, character: 2, "img-gen": 2, "product-img": 1, "img-text": 1, "photo-retouch": 1 },
-      layer: "model", role: ["create"],
-      purpose: "말로 지시해서 이미지를 고치는 데 강한 이미지 모델",
-      desc: "구글의 Gemini 이미지 모델 별칭입니다. 사진을 올리고 \"배경만 바꿔줘\"처럼 말하면 나머지는 유지한 채 원하는 부분만 고치는 데 강하고, 같은 인물이나 캐릭터를 여러 장면에서 유지하는 데도 쓰입니다. Gemini 앱과 Google AI Studio에서 쓸 수 있습니다.",
-      bestFor: ["사진 속 일부만 수정", "같은 캐릭터로 여러 장면", "여러 이미지 합성"],
-      strengths: ["대화로 하는 이미지 편집", "인물·캐릭터 일관성", "원본 유지하며 부분 수정"],
-      weaknesses: ["예술적 화풍은 Midjourney만큼 독특하지 않다는 평이 있음", "생성 이미지에 워터마크(SynthID)가 들어감"],
-      edge: "새로 그리기보다 가진 사진을 원하는 대로 고쳐야 할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["이미지"],
-      tech: "Gemini 이미지 모델(Gemini 2.5 Flash Image 등)", builtOn: ["gemini-model"], url: "https://gemini.google.com",
-      alt: ["chatgpt-image", "firefly", "photoshop"], lastVerified: null },
-
-    { id: "midjourney", name: "Midjourney", company: "Midjourney", cat: ["image"],
-      fit: { "img-gen": 2, character: 1, "img-edit": 1, "i2v": 1 },
-      layer: "app", role: ["create"],
-      purpose: "분위기 있는 아트워크와 콘셉트 이미지",
-      desc: "미적 완성도가 높은 이미지를 만드는 서비스로, 콘셉트 아트와 무드보드 작업에 많이 쓰입니다. 이미지를 짧은 영상으로 바꾸는 기능도 있습니다.",
-      bestFor: ["콘셉트 아트", "무드보드", "광고 비주얼 시안"],
-      strengths: ["화풍과 분위기", "스타일 참조 기능", "한 번에 고퀄리티"],
-      weaknesses: ["무료 플랜 없음", "이미지 속 글자 표현은 약한 편", "정확한 부분 수정은 번거로움"],
-      edge: "결과물의 분위기와 예술성이 가장 중요할 때",
-      free: "paid", pricing: "확인 필요", difficulty: "보통",
-      input: ["텍스트", "이미지"], output: ["이미지", "짧은 영상"],
-      tech: "자체 모델", builtOn: [], url: "https://www.midjourney.com",
-      alt: ["flux", "leonardo", "ideogram"], lastVerified: null },
-
-    { id: "flux", name: "FLUX", company: "Black Forest Labs", cat: ["image"],
-      fit: { "img-gen": 2, "img-edit": 1, "img-text": 1, "product-img": 1 },
-      layer: "model", role: ["create"],
-      purpose: "사실적인 이미지 생성 모델(일부 오픈 웨이트)",
-      desc: "Black Forest Labs가 만든 이미지 생성 모델 계열입니다. 일부 버전은 가중치가 공개되어 직접 실행하거나 다른 서비스 안에서 쓰는 경우가 많습니다.",
-      bestFor: ["사실적인 사진풍 이미지", "직접 서버에서 이미지 생성", "다른 앱에 붙일 이미지 엔진"],
-      strengths: ["사실적인 표현", "오픈 웨이트 버전 존재", "여러 서비스에서 선택 가능"],
-      weaknesses: ["직접 쓰려면 API나 실행 환경이 필요", "버전마다 라이선스가 다름"],
-      edge: "모델을 골라 쓰거나 내 서비스에 이미지 생성을 넣고 싶을 때",
-      free: "open", pricing: "확인 필요", difficulty: "어려움",
-      input: ["텍스트", "이미지"], output: ["이미지"],
-      tech: "FLUX 모델 계열(일부 오픈 웨이트)", builtOn: [], url: "https://bfl.ai",
-      alt: ["midjourney", "nano-banana", "leonardo"], lastVerified: null },
-
-    { id: "ideogram", name: "Ideogram", company: "Ideogram", cat: ["image", "design"],
-      fit: { "img-text": 2, poster: 2, logo: 2, "img-gen": 2, graphic: 1 },
-      layer: "app", role: ["create"],
-      purpose: "글자가 들어간 이미지를 정확하게",
-      desc: "이미지 안에 들어가는 글자를 정확하게 그리는 것으로 알려진 이미지 생성 서비스입니다. 포스터, 로고, 썸네일 시안에 잘 맞습니다.",
-      bestFor: ["포스터·전단", "로고 시안", "문구가 들어간 썸네일"],
-      strengths: ["이미지 속 영문 텍스트 표현", "디자인 시안 스타일"],
-      weaknesses: ["한글 텍스트 품질은 직접 확인 필요", "사진풍 품질은 전문 모델보다 약할 수 있음"],
-      edge: "이미지 안에 정확한 문구가 들어가야 할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["이미지"],
-      tech: "자체 모델", builtOn: [], url: "https://ideogram.ai",
-      alt: ["recraft", "canva", "chatgpt-image"], lastVerified: null },
-
-    { id: "firefly", name: "Adobe Firefly", company: "Adobe", cat: ["image", "design"],
-      fit: { "img-gen": 2, "img-edit": 1, "product-img": 2, "ad-creative": 2, graphic: 1 },
-      layer: "app", role: ["create"],
-      purpose: "상업적으로 쓰기 안전한 쪽에 초점을 둔 Adobe의 생성 AI",
-      desc: "Adobe의 생성형 AI로 이미지, 벡터, 영상 생성 기능을 제공합니다. 라이선스가 확인된 데이터로 학습했다고 밝혀 상업용 작업에서 많이 고려됩니다.",
-      bestFor: ["회사 광고·마케팅 이미지", "Adobe 툴과 이어지는 작업"],
-      strengths: ["상업적 사용을 고려한 학습 데이터 정책", "포토샵·일러스트레이터와 연결"],
-      weaknesses: ["생성 크레딧 제한", "실험적인 화풍은 다른 도구가 더 다양할 수 있음"],
-      edge: "저작권 걱정을 줄여야 하는 회사 결과물을 만들 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["이미지", "벡터", "영상"],
-      tech: "Adobe Firefly 모델(일부 기능에서 외부 모델 선택 가능)", builtOn: [], url: "https://firefly.adobe.com",
-      alt: ["photoshop", "nano-banana", "canva"], lastVerified: null },
-
-    { id: "photoshop", name: "Photoshop 생성형 채우기", company: "Adobe", cat: ["image"],
-      fit: { "img-edit": 2, "photo-retouch": 2, "bg-remove": 2, "product-img": 1 },
-      layer: "app", role: ["create"],
-      purpose: "전문 편집 툴 안에서 AI로 사진 고치기",
-      desc: "포토샵 안에서 영역을 선택하고 문장으로 지시하면 내용을 지우거나 채우고 확장하는 기능입니다. 레이어 단위로 세밀하게 손볼 수 있습니다.",
-      bestFor: ["정밀한 사진 수정", "불필요한 물체 제거", "인쇄용 결과물"],
-      strengths: ["레이어·마스크 기반 정밀 편집", "기존 전문 작업과 바로 연결"],
-      weaknesses: ["유료 프로그램", "포토샵 사용법을 알아야 함"],
-      edge: "AI 결과를 픽셀 단위로 직접 다듬어야 할 때",
-      free: "paid", pricing: "확인 필요", difficulty: "어려움",
-      input: ["이미지", "텍스트"], output: ["이미지"],
-      tech: "Adobe Firefly 모델", builtOn: [], url: "https://www.adobe.com/products/photoshop.html",
-      alt: ["nano-banana", "firefly", "photoroom"], lastVerified: null },
-
-    { id: "leonardo", name: "Leonardo AI", company: "Leonardo (Canva)", cat: ["image", "3d"],
-      fit: { "img-gen": 2, character: 1, "game-asset": 2, "img-edit": 1 },
-      layer: "platform", role: ["create"],
-      purpose: "여러 모델과 스타일을 골라 쓰는 이미지 제작 플랫폼",
-      desc: "여러 이미지 모델과 미리 만든 스타일을 골라 쓰는 이미지 생성 플랫폼입니다. 게임 에셋과 캐릭터 작업에 많이 쓰이며 2024년 Canva에 인수되었습니다.",
-      bestFor: ["게임 에셋·캐릭터", "스타일 프리셋으로 빠른 시안"],
-      strengths: ["모델·스타일 선택 폭", "에셋 제작용 기능"],
-      weaknesses: ["옵션이 많아 처음엔 복잡함", "크레딧 단위 과금"],
-      edge: "게임·캐릭터 에셋을 스타일 맞춰 여러 장 뽑을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["텍스트", "이미지"], output: ["이미지", "영상"],
-      tech: "자체 모델과 외부 모델 혼합(확인 필요)", builtOn: [], url: "https://leonardo.ai",
-      alt: ["midjourney", "flux"], lastVerified: null },
-
-    { id: "photoroom", name: "Photoroom", company: "Photoroom", cat: ["image", "marketing"],
-      fit: { "bg-remove": 2, "product-img": 2, "photo-retouch": 1, "ad-creative": 1 },
-      layer: "app", role: ["create"],
-      purpose: "제품 사진 배경 제거와 연출 컷",
-      desc: "제품 사진의 배경을 지우고 새 배경이나 그림자를 넣어 쇼핑몰용 사진을 만드는 앱입니다. 모바일 앱으로도 많이 씁니다.",
-      bestFor: ["쇼핑몰 상품 사진", "누끼 따기", "여러 장 일괄 편집"],
-      strengths: ["배경 제거 속도", "제품 사진 템플릿", "일괄 처리"],
-      weaknesses: ["고급 생성 기능은 유료 플랜 필요 가능성", "인물·예술 이미지는 다른 도구가 나음"],
-      edge: "상품 사진을 빠르게 쇼핑몰용으로 바꿔야 할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["이미지"], output: ["이미지"],
-      tech: "확인 필요", builtOn: [], url: "https://www.photoroom.com",
-      alt: ["firefly", "canva", "nano-banana"], lastVerified: null },
-
-    { id: "chatgpt-image", name: "ChatGPT 이미지 생성", company: "OpenAI", cat: ["image"],
-      fit: { "img-gen": 2, "img-edit": 2, "img-text": 2, character: 1, infographic: 1 },
-      layer: "app", role: ["create"],
-      purpose: "대화하면서 이미지를 만들고 고치기",
-      desc: "ChatGPT 대화창에서 이미지를 만들고 이어서 수정하는 기능입니다. 지시를 잘 따르고 이미지 속 글자도 비교적 잘 그린다는 평가를 받습니다.",
-      bestFor: ["설명 그대로의 이미지", "글자가 들어간 이미지", "스타일 변환"],
-      strengths: ["지시 이행력", "대화로 수정", "텍스트 표현"],
-      weaknesses: ["생성 속도가 느릴 수 있음", "무료 사용량 제한"],
-      edge: "복잡한 요구사항을 문장으로 설명해서 그대로 받고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["이미지"],
-      tech: "OpenAI GPT 이미지 모델", builtOn: ["gpt"], url: "https://chatgpt.com",
-      alt: ["nano-banana", "ideogram"], lastVerified: null },
-
-    { id: "recraft", name: "Recraft", company: "Recraft", cat: ["image", "design"],
-      fit: { logo: 2, graphic: 2, "img-gen": 1, "img-text": 1, poster: 1 },
-      layer: "app", role: ["create", "present"],
-      purpose: "벡터 일러스트와 로고·아이콘 제작",
-      desc: "벡터(SVG) 형식 이미지를 만들 수 있어 로고, 아이콘, 브랜드 그래픽 작업에 맞는 이미지 생성 서비스입니다.",
-      bestFor: ["로고·아이콘", "브랜드 일러스트 세트"],
-      strengths: ["벡터 출력", "브랜드 색상과 스타일 유지"],
-      weaknesses: ["사진풍 이미지는 다른 도구가 나음"],
-      edge: "확대해도 깨지지 않는 벡터 결과물이 필요할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["텍스트", "이미지"], output: ["이미지", "SVG"],
-      tech: "자체 모델", builtOn: [], url: "https://www.recraft.ai",
-      alt: ["ideogram", "canva"], lastVerified: null },
-
-    /* ───────── 영상 ───────── */
-    { id: "kling", name: "Kling AI", company: "Kuaishou", cat: ["video"],
-      fit: { "i2v": 2, t2v: 2, shortform: 1, dubbing: 1 },
-      layer: "app", role: ["create"],
-      purpose: "이미지·텍스트로 자연스러운 움직임의 영상 생성",
-      desc: "중국 콰이쇼우가 만든 영상 생성 서비스로, 사람과 사물의 움직임이 자연스럽다는 평가를 받습니다. 이미지를 넣어 영상으로 만드는 작업에 많이 쓰입니다.",
-      bestFor: ["이미지를 움직이는 영상으로", "광고·홍보 짧은 클립"],
-      strengths: ["움직임 표현", "이미지 → 영상", "비용 대비 품질"],
-      weaknesses: ["긴 영상은 여러 클립을 이어야 함", "생성 대기 시간"],
-      edge: "만들어 둔 이미지를 자연스럽게 움직이게 하고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["영상"],
-      tech: "Kling 영상 모델", builtOn: [], url: "https://klingai.com",
-      alt: ["runway", "veo", "hailuo"], lastVerified: null },
-
-    { id: "runway", name: "Runway", company: "Runway", cat: ["video"],
-      fit: { t2v: 2, "i2v": 2, "video-edit": 2 },
-      layer: "platform", role: ["create"],
-      purpose: "영상 생성과 AI 편집 도구를 함께 쓰는 제작 플랫폼",
-      desc: "영상 생성 모델과 함께 배경 제거, 영상 수정 같은 편집 도구를 제공하는 영상 제작 플랫폼입니다. 영상 제작자와 광고 업계에서 많이 씁니다.",
-      bestFor: ["생성한 영상을 바로 편집", "영상 속 요소 수정", "실험적인 영상 연출"],
-      strengths: ["생성과 편집을 한 곳에서", "카메라·움직임 제어 기능"],
-      weaknesses: ["크레딧 소모가 빠를 수 있음", "기능이 많아 익숙해지는 데 시간"],
-      edge: "생성만이 아니라 영상을 이어서 다듬어야 할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["텍스트", "이미지", "영상"], output: ["영상"],
-      tech: "Runway 자체 영상 모델(Gen 계열)", builtOn: [], url: "https://runwayml.com",
-      alt: ["kling", "veo", "luma"], lastVerified: null },
-
-    { id: "veo", name: "Google Veo", company: "Google DeepMind", cat: ["video"],
-      fit: { t2v: 2, "i2v": 2, shortform: 1 },
-      layer: "model", role: ["create"],
-      purpose: "소리까지 함께 만드는 구글의 영상 생성 모델",
-      desc: "구글 딥마인드의 영상 생성 모델입니다. 영상과 함께 효과음, 대사 같은 소리를 생성할 수 있는 것이 특징이며 Gemini 앱, Flow, Vertex AI 등에서 쓸 수 있습니다.",
-      bestFor: ["소리가 들어간 짧은 영상", "사실적인 장면"],
-      strengths: ["영상과 오디오 동시 생성", "사실적인 장면 표현"],
-      weaknesses: ["쓸 수 있는 곳과 횟수가 요금제마다 다름"],
-      edge: "대사·효과음까지 들어간 클립을 한 번에 만들고 싶을 때",
-      free: "unknown", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["영상", "오디오"],
-      tech: "Google Veo 모델", builtOn: ["veo-model"], url: "https://deepmind.google/models/veo/",
-      alt: ["sora", "kling", "runway"], lastVerified: null },
-
-    { id: "sora", name: "Sora", company: "OpenAI", cat: ["video"],
-      fit: { t2v: 2, "i2v": 1, shortform: 2 },
-      layer: "app", role: ["create"],
-      purpose: "OpenAI의 영상 생성 앱",
-      desc: "OpenAI의 영상 생성 서비스로 텍스트나 이미지로 짧은 영상을 만듭니다. 영상과 소리를 함께 만드는 버전과 숏폼 피드형 앱이 공개되었습니다.",
-      bestFor: ["짧은 아이디어 영상", "숏폼용 재미있는 클립"],
-      strengths: ["장면 이해와 연출", "소리 포함 생성"],
-      weaknesses: ["국가·요금제별 이용 조건이 다름(확인 필요)"],
-      edge: "숏폼 감각의 짧은 클립을 빠르게 만들어 볼 때",
-      free: "unknown", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["영상"],
-      tech: "OpenAI Sora 모델", builtOn: [], url: "https://openai.com/sora/",
-      alt: ["veo", "kling"], lastVerified: null },
-
-    { id: "luma", name: "Luma Dream Machine", company: "Luma AI", cat: ["video", "3d"],
-      fit: { t2v: 2, "i2v": 2, "img-gen": 1 },
-      layer: "app", role: ["create"],
-      purpose: "아이디어를 빠르게 영상으로 시각화",
-      desc: "Luma AI의 영상·이미지 생성 서비스입니다. 대화하듯 장면을 다듬어 가는 방식과 카메라 움직임 표현이 특징입니다.",
-      bestFor: ["영상 콘셉트 시안", "카메라 무빙이 있는 장면"],
-      strengths: ["카메라 움직임", "빠른 시안 반복"],
-      weaknesses: ["세밀한 인물 연기는 다른 도구가 나을 수 있음"],
-      edge: "영상 아이디어를 여러 번 빠르게 시도해 볼 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["영상", "이미지"],
-      tech: "Luma 자체 영상 모델(Ray 계열)", builtOn: [], url: "https://lumalabs.ai",
-      alt: ["runway", "kling", "pika"], lastVerified: null },
-
-    { id: "pika", name: "Pika", company: "Pika Labs", cat: ["video"],
-      fit: { shortform: 2, "i2v": 1, t2v: 1, "video-edit": 1 },
-      layer: "app", role: ["create"],
-      purpose: "재미있는 효과를 넣는 짧은 영상 생성",
-      desc: "짧은 영상에 특수효과나 변형을 넣는 기능으로 알려진 영상 생성 서비스입니다. SNS용 가벼운 콘텐츠에 맞습니다.",
-      bestFor: ["SNS 밈·효과 영상", "가벼운 숏폼"],
-      strengths: ["효과 템플릿", "쉬운 사용"],
-      weaknesses: ["사실적인 장면이나 긴 연출은 다른 도구가 나음"],
-      edge: "재미있는 효과로 눈길 끄는 짧은 클립이 필요할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지", "영상"], output: ["영상"],
-      tech: "자체 모델", builtOn: [], url: "https://pika.art",
-      alt: ["kling", "capcut"], lastVerified: null },
-
-    { id: "hailuo", name: "Hailuo AI", company: "MiniMax", cat: ["video"],
-      fit: { t2v: 2, "i2v": 2 },
-      layer: "app", role: ["create"],
-      purpose: "MiniMax의 영상 생성 서비스",
-      desc: "중국 MiniMax의 영상 생성 서비스입니다. 동작 표현과 가격 경쟁력으로 Kling과 함께 자주 비교됩니다.",
-      bestFor: ["역동적인 동작 장면", "여러 시안 저렴하게"],
-      strengths: ["동작 표현", "비용"],
-      weaknesses: ["국내 자료가 적음", "약관·데이터 처리 확인 필요"],
-      edge: "Kling 대신 비교해 볼 영상 생성 도구가 필요할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["영상"],
-      tech: "MiniMax 영상 모델", builtOn: [], url: "https://hailuoai.video",
-      alt: ["kling", "runway"], lastVerified: null },
-
-    { id: "heygen", name: "HeyGen", company: "HeyGen", cat: ["video"],
-      fit: { avatar: 2, dubbing: 2, shortform: 1 },
-      layer: "app", role: ["create", "present"],
-      purpose: "말하는 아바타 영상과 다국어 더빙",
-      desc: "대본을 넣으면 아바타가 말하는 영상을 만들고, 기존 영상을 다른 언어로 더빙하면서 입 모양까지 맞춰 줍니다.",
-      bestFor: ["얼굴 없이 만드는 설명 영상", "영상 다국어 버전", "내 아바타 만들기"],
-      strengths: ["아바타 자연스러움", "영상 번역·립싱크"],
-      weaknesses: ["유료 플랜 중심", "실제 인물 복제는 동의 필요"],
-      edge: "카메라 앞에 서지 않고 사람이 말하는 영상을 만들 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "영상", "이미지"], output: ["영상"],
-      tech: "확인 필요", builtOn: [], url: "https://www.heygen.com",
-      alt: ["synthesia", "elevenlabs"], lastVerified: null },
-
-    { id: "synthesia", name: "Synthesia", company: "Synthesia", cat: ["video", "learning"],
-      fit: { avatar: 2, dubbing: 1, ppt: 1 },
-      layer: "app", role: ["create", "present"],
-      purpose: "기업 교육·안내용 아바타 영상",
-      desc: "기업 교육 영상, 사내 안내 영상을 아바타로 만드는 데 초점을 둔 서비스입니다. 팀 단위 협업과 브랜드 관리 기능이 있습니다.",
-      bestFor: ["사내 교육 영상", "제품 사용 안내 영상"],
-      strengths: ["기업용 관리 기능", "여러 언어 지원"],
-      weaknesses: ["개인 창작용으로는 비쌀 수 있음"],
-      edge: "회사 교육·안내 영상을 꾸준히 만들어야 할 때",
-      free: "unknown", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "슬라이드"], output: ["영상"],
-      tech: "확인 필요", builtOn: [], url: "https://www.synthesia.io",
-      alt: ["heygen"], lastVerified: null },
-
-    { id: "capcut", name: "CapCut", company: "ByteDance", cat: ["video"],
-      fit: { "video-edit": 2, shortform: 2, stt: 1, tts: 1 },
-      layer: "app", role: ["create"],
-      purpose: "자동 자막과 템플릿으로 숏폼 편집",
-      desc: "모바일과 PC에서 쓰는 영상 편집 앱입니다. 자동 자막, 템플릿, 배경 제거 같은 AI 기능으로 숏폼을 빠르게 편집할 수 있습니다.",
-      bestFor: ["쇼츠·릴스 편집", "자동 자막", "AI로 만든 클립 이어 붙이기"],
-      strengths: ["자동 자막", "숏폼 템플릿", "모바일 편집"],
-      weaknesses: ["일부 기능·소재는 유료", "정교한 편집은 전문 툴이 나음"],
-      edge: "만든 클립에 자막과 음악을 붙여 숏폼으로 마무리할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["영상", "이미지", "오디오"], output: ["영상"],
-      tech: "확인 필요", builtOn: [], url: "https://www.capcut.com",
-      alt: ["descript", "pika"], lastVerified: null },
-
-    { id: "descript", name: "Descript", company: "Descript", cat: ["video", "audio"],
-      fit: { "video-edit": 2, stt: 2, "audio-clean": 2, "voice-clone": 1 },
-      layer: "app", role: ["create"],
-      purpose: "문서를 고치듯 대본으로 영상·팟캐스트 편집",
-      desc: "영상이나 녹음을 글로 받아 적은 뒤, 글에서 문장을 지우면 영상에서도 그 부분이 잘리는 방식의 편집 도구입니다.",
-      bestFor: ["인터뷰·강의 영상 편집", "팟캐스트", "말실수·군더더기 제거"],
-      strengths: ["텍스트 기반 편집", "음성 잡음 제거", "필러 단어 자동 제거"],
-      weaknesses: ["한국어 받아쓰기 정확도는 직접 확인 필요"],
-      edge: "말이 중심인 영상을 대본 보면서 빠르게 자를 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["영상", "오디오"], output: ["영상", "오디오", "텍스트"],
-      tech: "확인 필요", builtOn: [], url: "https://www.descript.com",
-      alt: ["capcut", "adobe-podcast"], lastVerified: null },
-
-    /* ───────── 음성·음악 ───────── */
-    { id: "elevenlabs", name: "ElevenLabs", company: "ElevenLabs", cat: ["audio", "video"],
-      fit: { tts: 2, "voice-clone": 2, dubbing: 2, stt: 1, music: 1 },
-      layer: "platform", role: ["create"],
-      purpose: "사람 같은 AI 음성과 목소리 복제",
-      desc: "텍스트를 자연스러운 음성으로 읽어 주고 목소리 복제, 영상 더빙, 음성 에이전트 제작까지 제공하는 음성 AI 플랫폼입니다.",
-      bestFor: ["영상 내레이션", "오디오북", "내 목소리로 더빙"],
-      strengths: ["음성의 자연스러움", "다국어", "API 제공"],
-      weaknesses: ["사용량에 따라 비용 증가", "타인 목소리 복제는 동의 필요"],
-      edge: "내레이션 품질이 영상 완성도를 좌우할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "오디오"], output: ["오디오"],
-      tech: "자체 음성 모델", builtOn: [], url: "https://elevenlabs.io",
-      alt: ["heygen", "descript"], lastVerified: null },
-
-    { id: "suno", name: "Suno", company: "Suno", cat: ["audio"],
-      fit: { music: 2 },
-      layer: "app", role: ["create"],
-      purpose: "가사와 보컬이 있는 노래 생성",
-      desc: "장르와 분위기를 적거나 가사를 넣으면 보컬이 포함된 노래를 만들어 줍니다.",
-      bestFor: ["영상 BGM", "재미로 노래 만들기", "광고 징글 시안"],
-      strengths: ["보컬 포함 완성곡", "쉬운 사용"],
-      weaknesses: ["상업적 이용 범위는 요금제별로 확인 필요", "음원 저작권 관련 분쟁 이력이 있음"],
-      edge: "악기 연주 없이 완성된 노래가 필요할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "오디오"], output: ["오디오"],
-      tech: "자체 모델", builtOn: [], url: "https://suno.com",
-      alt: ["udio"], lastVerified: null },
-
-    { id: "udio", name: "Udio", company: "Udio", cat: ["audio"],
-      fit: { music: 2 },
-      layer: "app", role: ["create"],
-      purpose: "음악 생성(서비스 방향 변경 중, 확인 필요)",
-      desc: "Suno와 함께 자주 비교되던 음악 생성 서비스입니다. 음반사와의 합의 이후 서비스 형태가 바뀌고 있다는 보도가 있어 현재 기능은 공식 사이트에서 확인해야 합니다.",
-      bestFor: ["음악 생성 비교용"],
-      strengths: ["음질과 장르 표현에 대한 평가가 있었음"],
-      weaknesses: ["현재 제공 기능과 다운로드 정책 확인 필요"],
-      edge: "Suno 결과와 비교해 보고 싶을 때(현재 상태 확인 후)",
-      free: "unknown", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트"], output: ["오디오"],
-      tech: "자체 모델", builtOn: [], url: "https://www.udio.com",
-      alt: ["suno"], lastVerified: null },
-
-    { id: "whisper", name: "Whisper", company: "OpenAI", cat: ["audio"],
-      fit: { stt: 2, translate: 1 },
-      layer: "model", role: ["create"],
-      purpose: "공개된 음성 인식 모델",
-      desc: "OpenAI가 공개한 음성 인식 모델입니다. 직접 설치해 쓰거나 이 모델을 쓰는 다른 앱을 통해 녹음을 텍스트로 바꿀 수 있습니다.",
-      bestFor: ["녹음 파일 받아쓰기를 직접 처리", "개발자가 앱에 STT 넣기"],
-      strengths: ["무료 공개 모델", "다국어 인식", "내 컴퓨터에서 실행 가능"],
-      weaknesses: ["직접 쓰려면 설치와 개발 지식 필요", "화자 구분은 기본 기능이 아님"],
-      edge: "녹음을 외부 서버에 올리지 않고 받아쓰고 싶을 때",
-      free: "open", pricing: "모델 무료(API 이용 시 확인 필요)", difficulty: "어려움",
-      input: ["오디오"], output: ["텍스트"],
-      tech: "Whisper 음성 인식 모델(오픈소스)", builtOn: [], url: "https://github.com/openai/whisper",
-      alt: ["clova-note", "otter"], lastVerified: null },
-
-    { id: "adobe-podcast", name: "Adobe Podcast", company: "Adobe", cat: ["audio"],
-      fit: { "audio-clean": 2, stt: 1 },
-      layer: "app", role: ["create"],
-      purpose: "녹음 음질을 스튜디오처럼 개선",
-      desc: "잡음과 울림이 있는 녹음을 깨끗한 목소리로 바꿔 주는 음성 향상 기능으로 알려진 웹 서비스입니다.",
-      bestFor: ["휴대폰 녹음 음질 개선", "인터뷰·강의 녹음 정리"],
-      strengths: ["원클릭 음성 향상"],
-      weaknesses: ["음악이나 효과음 처리는 목적이 아님"],
-      edge: "이미 녹음한 파일의 음질만 빠르게 살리고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["오디오"], output: ["오디오"],
-      tech: "확인 필요", builtOn: [], url: "https://podcast.adobe.com",
-      alt: ["descript"], lastVerified: null },
-
-    /* ───────── 글쓰기·문서 ───────── */
-    { id: "deepl", name: "DeepL", company: "DeepL", cat: ["writing"],
-      fit: { translate: 2, proofread: 1 },
-      layer: "app", role: ["think"],
-      purpose: "자연스러운 번역과 문서 통번역",
-      desc: "문장과 문서 파일을 번역하는 서비스입니다. 원문 서식을 유지한 채 문서를 번역하는 기능과 문장 다듬기 기능이 있습니다.",
-      bestFor: ["업무 메일·문서 번역", "PDF·워드 파일 통째로 번역"],
-      strengths: ["번역 문장의 자연스러움", "문서 서식 유지"],
-      weaknesses: ["무료 버전은 문서 수·글자 수 제한"],
-      edge: "서식을 유지한 채 문서 전체를 번역해야 할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "문서"], output: ["텍스트", "문서"],
-      tech: "자체 번역 모델", builtOn: [], url: "https://www.deepl.com",
-      alt: ["chatgpt", "claude"], lastVerified: null },
-
-    { id: "grammarly", name: "Grammarly", company: "Grammarly", cat: ["writing"],
-      fit: { proofread: 2, write: 1 },
-      layer: "app", role: ["think"],
-      purpose: "영어 문장 교정과 톤 조정",
-      desc: "영어 글을 쓰는 동안 문법, 어휘, 톤을 실시간으로 고쳐 주는 도구입니다. 브라우저와 여러 앱에서 쓸 수 있습니다.",
-      bestFor: ["영문 이메일", "영문 자소서·에세이 교정"],
-      strengths: ["실시간 교정", "여러 앱에서 동작"],
-      weaknesses: ["한국어는 지원 대상이 아님"],
-      edge: "영어 문장을 쓰는 그 자리에서 바로 고치고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트"], output: ["텍스트"],
-      tech: "확인 필요", builtOn: [], url: "https://www.grammarly.com",
-      alt: ["deepl", "claude"], lastVerified: null },
-
-    { id: "notion-ai", name: "Notion AI", company: "Notion", cat: ["productivity", "writing"],
-      fit: { notes: 2, knowledge: 2, minutes: 1, summarize: 1, write: 1 },
-      layer: "app", role: ["think"],
-      purpose: "노션 안에서 문서를 쓰고 워크스페이스를 검색",
-      desc: "노션 페이지 안에서 글을 쓰고 요약하며, 워크스페이스 전체 문서를 검색해 답을 찾아 주는 기능입니다. 회의 노트 기능도 있습니다.",
-      bestFor: ["노션에 쌓인 자료 찾기", "회의 노트 정리", "문서 초안"],
-      strengths: ["내 노션 자료와 바로 연결", "문서 작업 흐름 안에서 사용"],
-      weaknesses: ["노션을 쓰지 않으면 이점이 적음", "요금 체계 확인 필요"],
-      edge: "이미 노션에 자료를 모으고 있을 때",
-      free: "unknown", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "노션 페이지", "오디오"], output: ["텍스트", "문서"],
-      tech: "외부 모델 사용(구성은 확인 필요)", builtOn: [], url: "https://www.notion.com/product/ai",
-      alt: ["claude", "chatgpt"], lastVerified: null },
-
-    /* ───────── 발표·디자인 ───────── */
-    { id: "gamma", name: "Gamma", company: "Gamma", cat: ["design"],
-      fit: { ppt: 2, website: 1, infographic: 1 },
-      layer: "app", role: ["present"],
-      purpose: "글 한 줄이나 문서로 발표자료 자동 생성",
-      desc: "주제나 문서를 넣으면 디자인된 슬라이드를 자동으로 만들어 줍니다. 결과를 웹페이지처럼 공유하거나 PPT로 내보낼 수 있습니다.",
-      bestFor: ["발표자료 초안", "문서를 슬라이드로 변환", "간단한 소개 페이지"],
-      strengths: ["생성 속도", "디자인 기본값", "웹 공유"],
-      weaknesses: ["세밀한 레이아웃 조정은 제한적", "PPT로 내보내면 일부 디자인이 달라질 수 있음"],
-      edge: "디자인 고민 없이 발표자료 뼈대를 빠르게 만들 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "문서"], output: ["슬라이드", "웹페이지", "PPT"],
-      tech: "외부 모델 사용(구성은 확인 필요)", builtOn: [], url: "https://gamma.app",
-      alt: ["canva", "beautiful-ai"], lastVerified: null },
-
-    { id: "canva", name: "Canva", company: "Canva", cat: ["design", "marketing"],
-      fit: { graphic: 2, poster: 2, ppt: 2, sns: 2, "bg-remove": 1, "ad-creative": 1 },
-      layer: "app", role: ["present"],
-      purpose: "템플릿과 AI 기능으로 누구나 하는 디자인",
-      desc: "템플릿 기반 디자인 도구로 카드뉴스, 포스터, 발표자료, SNS 이미지를 만듭니다. 배경 제거, 이미지 생성, 글쓰기 같은 AI 기능이 들어 있습니다.",
-      bestFor: ["카드뉴스·SNS 이미지", "포스터·배너", "팀 공동 디자인"],
-      strengths: ["템플릿 양", "쉬운 편집", "협업"],
-      weaknesses: ["AI 기능 상당수가 유료", "독창적인 디자인보다 템플릿 느낌"],
-      edge: "디자이너 없이 바로 쓸 수 있는 결과물이 필요할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["이미지", "PDF", "슬라이드", "영상"],
-      tech: "자체 및 외부 모델(Leonardo 인수)", builtOn: [], url: "https://www.canva.com",
-      alt: ["gamma", "figma"], lastVerified: null },
-
-    { id: "figma", name: "Figma", company: "Figma", cat: ["design", "coding"],
-      fit: { uiux: 2, prototype: 2, graphic: 1 },
-      layer: "platform", role: ["present", "build"],
-      purpose: "UI 디자인 협업 툴과 AI 기능",
-      desc: "앱과 웹 화면을 디자인하고 협업하는 표준 도구입니다. 프롬프트로 화면이나 프로토타입을 만드는 AI 기능이 추가되었습니다.",
-      bestFor: ["앱·웹 화면 설계", "디자이너·개발자 협업"],
-      strengths: ["업계 표준 협업", "디자인 시스템 관리"],
-      weaknesses: ["처음 쓰는 사람에겐 학습 필요", "AI 기능 범위는 요금제별로 확인 필요"],
-      edge: "디자인을 개발팀에 넘길 정식 화면 설계가 필요할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["텍스트", "이미지"], output: ["디자인 파일", "프로토타입"],
-      tech: "외부 모델 사용(구성은 확인 필요)", builtOn: [], url: "https://www.figma.com",
-      alt: ["v0", "canva"], lastVerified: null },
-
-    { id: "beautiful-ai", name: "Beautiful.ai", company: "Beautiful.ai", cat: ["design"],
-      fit: { ppt: 2 },
-      layer: "app", role: ["present"],
-      purpose: "레이아웃이 자동 정렬되는 비즈니스 발표자료",
-      desc: "내용을 넣으면 슬라이드 레이아웃이 자동으로 정리되는 발표자료 도구입니다. 회사 템플릿을 일관되게 쓰는 데 초점이 있습니다.",
-      bestFor: ["회사 보고용 슬라이드", "브랜드 템플릿 유지"],
-      strengths: ["자동 정렬 레이아웃"],
-      weaknesses: ["무료 사용 범위 확인 필요", "한국어 폰트 지원 확인 필요"],
-      edge: "슬라이드 정렬에 시간을 쓰기 싫을 때",
-      free: "unknown", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트"], output: ["슬라이드", "PPT"],
-      tech: "확인 필요", builtOn: [], url: "https://www.beautiful.ai",
-      alt: ["gamma", "canva"], lastVerified: null },
-
-    { id: "napkin", name: "Napkin AI", company: "Napkin", cat: ["design"],
-      fit: { infographic: 2, ppt: 1 },
-      layer: "app", role: ["present"],
-      purpose: "글을 도식과 인포그래픽으로 바꾸기",
-      desc: "문단을 붙여 넣으면 그 내용을 다이어그램, 흐름도, 인포그래픽으로 바꿔 줍니다.",
-      bestFor: ["보고서에 넣을 도식", "개념 설명 그림"],
-      strengths: ["글 → 도식 변환", "편집 가능한 결과"],
-      weaknesses: ["복잡한 데이터 차트는 목적이 아님"],
-      edge: "설명 글을 한 장의 그림으로 정리하고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트"], output: ["이미지", "SVG"],
-      tech: "확인 필요", builtOn: [], url: "https://www.napkin.ai",
-      alt: ["gamma", "canva"], lastVerified: null },
-
-    /* ───────── 코딩·개발 ───────── */
-    { id: "claude-code", name: "Claude Code", company: "Anthropic", cat: ["coding", "automation"],
-      fit: { "agentic-coding": 2, "ai-coding": 2, "code-review": 2, webapp: 1, "agent-build": 1 },
-      layer: "app", role: ["build"],
-      purpose: "코드베이스 전체를 읽고 작업하는 에이전트 코딩 도구",
-      desc: "터미널, IDE, 웹, 데스크톱 앱에서 쓰는 에이전트형 코딩 도구입니다. 프로젝트 파일을 읽고 여러 파일을 고치고 명령을 실행하며 작업을 끝까지 진행합니다.",
-      bestFor: ["기존 프로젝트에 기능 추가", "여러 파일에 걸친 수정", "버그 원인 찾기"],
-      strengths: ["코드베이스 이해", "여러 단계 작업을 스스로 진행", "명령 실행·테스트"],
-      weaknesses: ["유료 플랜이나 API 사용 필요", "개발 환경 지식이 있어야 효과가 큼"],
-      edge: "자동완성이 아니라 작업 단위로 코딩을 맡기고 싶을 때",
-      free: "paid", pricing: "확인 필요", difficulty: "어려움",
-      input: ["텍스트", "코드", "이미지"], output: ["코드", "커밋"],
-      tech: "Anthropic Claude 계열 모델", builtOn: ["claude-model"], url: "https://www.anthropic.com/claude-code",
-      alt: ["cursor", "codex", "github-copilot"], lastVerified: null },
-
-    { id: "cursor", name: "Cursor", company: "Anysphere", cat: ["coding"],
-      fit: { "ai-coding": 2, "agentic-coding": 2, "code-review": 1, webapp: 1 },
-      layer: "app", role: ["build"],
-      purpose: "AI가 들어간 코드 에디터",
-      desc: "VS Code 기반의 AI 코드 에디터로 자동완성, 대화형 수정, 에이전트 모드를 제공합니다. 여러 회사의 모델을 골라 쓸 수 있습니다.",
-      bestFor: ["에디터에서 코딩하며 AI 도움", "프로젝트 전체 검색·수정"],
-      strengths: ["익숙한 에디터 환경", "모델 선택", "빠른 자동완성"],
-      weaknesses: ["사용량 많으면 비용 증가", "개발 지식 필요"],
-      edge: "에디터 화면에서 코드를 보면서 AI와 함께 고치고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["텍스트", "코드"], output: ["코드"],
-      tech: "여러 외부 모델과 자체 모델", builtOn: [], url: "https://cursor.com",
-      alt: ["claude-code", "github-copilot"], lastVerified: null },
-
-    { id: "github-copilot", name: "GitHub Copilot", company: "GitHub (Microsoft)", cat: ["coding"],
-      fit: { "ai-coding": 2, "code-review": 2, "agentic-coding": 1 },
-      layer: "app", role: ["build"],
-      purpose: "GitHub와 연결된 AI 코딩 도우미",
-      desc: "VS Code 등 여러 에디터와 GitHub에서 쓰는 AI 코딩 도우미입니다. 자동완성, 채팅, 코드 리뷰, 이슈를 맡기는 에이전트 기능이 있습니다.",
-      bestFor: ["회사 GitHub 환경", "PR 코드 리뷰", "자동완성"],
-      strengths: ["GitHub 연동", "여러 에디터 지원", "기업 관리 기능"],
-      weaknesses: ["무료 버전 사용량 제한"],
-      edge: "팀이 GitHub로 협업하고 있을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["텍스트", "코드"], output: ["코드", "리뷰 코멘트"],
-      tech: "여러 외부 모델 선택", builtOn: [], url: "https://github.com/features/copilot",
-      alt: ["cursor", "claude-code"], lastVerified: null },
-
-    { id: "codex", name: "OpenAI Codex", company: "OpenAI", cat: ["coding"],
-      fit: { "agentic-coding": 2, "ai-coding": 2, "code-review": 1 },
-      layer: "app", role: ["build"],
-      purpose: "OpenAI의 에이전트 코딩 도구",
-      desc: "OpenAI의 코딩 에이전트로 클라우드나 터미널, IDE에서 코딩 작업을 맡길 수 있습니다. ChatGPT 요금제와 연결되어 있습니다.",
-      bestFor: ["코딩 작업 위임", "여러 작업 병렬 진행"],
-      strengths: ["ChatGPT 계정으로 사용", "클라우드 실행"],
-      weaknesses: ["요금제별 사용량 확인 필요"],
-      edge: "ChatGPT를 이미 쓰고 있고 코딩 작업도 맡기고 싶을 때",
-      free: "unknown", pricing: "확인 필요", difficulty: "어려움",
-      input: ["텍스트", "코드"], output: ["코드", "PR"],
-      tech: "OpenAI GPT 계열 모델", builtOn: ["gpt"], url: "https://openai.com/codex/",
-      alt: ["claude-code", "cursor"], lastVerified: null },
-
-    { id: "lovable", name: "Lovable", company: "Lovable", cat: ["coding"],
-      fit: { webapp: 2, website: 2, prototype: 2 },
-      layer: "platform", role: ["build"],
-      purpose: "말로 설명해서 웹앱을 만들고 배포",
-      desc: "만들고 싶은 서비스를 설명하면 화면과 기능을 갖춘 웹앱을 만들고 배포까지 해 줍니다. 로그인, 데이터베이스 같은 백엔드도 연결할 수 있습니다.",
-      bestFor: ["코딩 없이 MVP", "아이디어 검증용 서비스", "내부 업무 도구"],
-      strengths: ["코딩 지식 없이 시작", "배포까지 한 번에", "백엔드 연결"],
-      weaknesses: ["복잡해지면 수정이 꼬일 수 있음", "크레딧 소모"],
-      edge: "개발자 없이 실제로 동작하는 서비스를 띄워 보고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["웹앱", "코드"],
-      tech: "외부 모델 사용(구성은 확인 필요)", builtOn: [], url: "https://lovable.dev",
-      alt: ["bolt", "v0", "replit"], lastVerified: null },
-
-    { id: "bolt", name: "Bolt", company: "StackBlitz", cat: ["coding"],
-      fit: { webapp: 2, website: 2, prototype: 2, "mobile-app": 1 },
-      layer: "platform", role: ["build"],
-      purpose: "브라우저에서 바로 웹앱 생성·실행",
-      desc: "브라우저 안에서 개발 환경을 띄워 설명대로 웹앱을 만들고 바로 실행해 볼 수 있습니다.",
-      bestFor: ["빠른 웹앱 시제품", "코드 보면서 수정"],
-      strengths: ["설치 없이 실행", "코드 직접 수정 가능"],
-      weaknesses: ["큰 프로젝트에선 한계", "토큰 사용량 관리 필요"],
-      edge: "만들어지는 코드를 보면서 웹앱을 빠르게 뽑을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["텍스트", "이미지"], output: ["웹앱", "코드"],
-      tech: "외부 모델 사용(구성은 확인 필요)", builtOn: [], url: "https://bolt.new",
-      alt: ["lovable", "v0", "replit"], lastVerified: null },
-
-    { id: "replit", name: "Replit", company: "Replit", cat: ["coding"],
-      fit: { webapp: 2, "mobile-app": 1, prototype: 2, "ai-coding": 1, "agent-build": 1 },
-      layer: "platform", role: ["build"],
-      purpose: "만들고 실행하고 배포까지 하는 온라인 개발 환경",
-      desc: "브라우저 기반 개발 환경에 AI 에이전트가 붙어 있어 앱을 만들고 호스팅까지 한 곳에서 할 수 있습니다.",
-      bestFor: ["백엔드가 있는 앱", "배포까지 한 곳에서"],
-      strengths: ["실행·호스팅 통합", "여러 언어 지원"],
-      weaknesses: ["사용량 기반 비용", "에이전트 작업이 길어지면 비용 증가"],
-      edge: "서버까지 포함한 앱을 한 서비스 안에서 끝내고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["텍스트", "코드"], output: ["웹앱", "코드"],
-      tech: "외부 모델 사용(구성은 확인 필요)", builtOn: [], url: "https://replit.com",
-      alt: ["lovable", "bolt"], lastVerified: null },
-
-    { id: "v0", name: "v0", company: "Vercel", cat: ["coding", "design"],
-      fit: { uiux: 2, website: 2, webapp: 1, prototype: 2 },
-      layer: "app", role: ["build", "present"],
-      purpose: "웹 화면(UI)을 코드로 빠르게 생성",
-      desc: "Vercel이 만든 도구로 설명이나 스크린샷을 넣으면 React 기반 화면 코드를 만들어 줍니다. Vercel로 바로 배포할 수 있습니다.",
-      bestFor: ["랜딩 페이지", "웹 화면 시안", "디자인을 코드로"],
-      strengths: ["화면 품질", "실제 쓸 수 있는 코드", "Vercel 배포"],
-      weaknesses: ["복잡한 백엔드는 다른 도구가 나음"],
-      edge: "개발에 바로 쓸 수 있는 화면 코드가 필요할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["텍스트", "이미지"], output: ["코드", "웹페이지"],
-      tech: "확인 필요", builtOn: [], url: "https://v0.app",
-      alt: ["lovable", "bolt", "figma"], lastVerified: null },
-
-    /* ───────── 자동화·에이전트 ───────── */
-    { id: "n8n", name: "n8n", company: "n8n", cat: ["automation"],
-      fit: { workflow: 2, "agent-build": 2, "api-connect": 2, "web-auto": 1, rag: 1 },
-      layer: "workflow", role: ["connect"],
-      purpose: "직접 설치도 되는 노드형 업무 자동화",
-      desc: "노드를 연결해 앱과 AI를 잇는 워크플로우 자동화 도구입니다. 직접 서버에 설치해 쓸 수 있고, AI 에이전트 노드로 복잡한 흐름을 만들 수 있습니다.",
-      bestFor: ["AI가 들어간 업무 자동화", "회사 내부 서버에서 운영", "복잡한 분기 흐름"],
-      strengths: ["직접 설치 가능", "유연한 흐름 설계", "AI 에이전트 노드"],
-      weaknesses: ["처음엔 어렵게 느껴짐", "직접 운영하면 서버 관리 필요"],
-      edge: "자동화를 세밀하게 짜고 데이터를 내 서버에 두고 싶을 때",
-      free: "open", pricing: "직접 설치 무료, 클라우드 확인 필요", difficulty: "어려움",
-      input: ["앱 데이터", "API", "웹훅"], output: ["자동화 실행"],
-      tech: "외부 AI 모델 연결형", builtOn: [], url: "https://n8n.io",
-      alt: ["make", "zapier", "dify"], lastVerified: null },
-
-    { id: "make", name: "Make", company: "Make (Celonis)", cat: ["automation"],
-      fit: { workflow: 2, "api-connect": 2, "agent-build": 1 },
-      layer: "workflow", role: ["connect"],
-      purpose: "화면에서 흐름을 그리며 만드는 업무 자동화",
-      desc: "앱들을 시각적인 흐름도로 연결하는 자동화 도구입니다. Zapier보다 복잡한 흐름을 그리기 쉽고 n8n보다 시작이 쉽다는 평가가 많습니다.",
-      bestFor: ["여러 단계의 업무 자동화", "데이터 가공이 있는 흐름"],
-      strengths: ["시각적 설계", "복잡한 분기 처리"],
-      weaknesses: ["실행 횟수 기반 과금"],
-      edge: "코딩 없이 여러 단계로 나뉜 자동화를 만들 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["앱 데이터", "API"], output: ["자동화 실행"],
-      tech: "외부 AI 모델 연결형", builtOn: [], url: "https://www.make.com",
-      alt: ["zapier", "n8n"], lastVerified: null },
-
-    { id: "zapier", name: "Zapier", company: "Zapier", cat: ["automation"],
-      fit: { workflow: 2, "api-connect": 2, "agent-build": 1 },
-      layer: "workflow", role: ["connect"],
-      purpose: "가장 많은 앱과 연결되는 쉬운 자동화",
-      desc: "\"이 일이 생기면 저 일을 해라\" 형태로 앱을 연결하는 자동화 도구입니다. 연결 가능한 앱이 매우 많고 AI 단계와 에이전트 기능도 있습니다.",
-      bestFor: ["간단한 업무 연결", "알림·기록 자동화"],
-      strengths: ["연동 앱 수", "쉬운 시작"],
-      weaknesses: ["단계가 많아지면 비용이 빨리 늘어남"],
-      edge: "자동화를 처음 해 보거나 연결할 앱이 특이할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["앱 데이터"], output: ["자동화 실행"],
-      tech: "외부 AI 모델 연결형", builtOn: [], url: "https://zapier.com",
-      alt: ["make", "n8n"], lastVerified: null },
-
-    { id: "dify", name: "Dify", company: "LangGenius", cat: ["automation"],
-      fit: { "agent-build": 2, rag: 2, workflow: 1 },
-      layer: "platform", role: ["connect", "build"],
-      purpose: "문서 챗봇과 AI 앱을 만드는 오픈소스 플랫폼",
-      desc: "문서를 올려 질문에 답하는 챗봇이나 AI 에이전트를 화면에서 조립해 만드는 오픈소스 플랫폼입니다. 직접 설치하거나 클라우드로 쓸 수 있습니다.",
-      bestFor: ["사내 문서 챗봇", "AI 앱 프로토타입"],
-      strengths: ["문서 검색(RAG) 기능 내장", "여러 모델 연결", "오픈소스"],
-      weaknesses: ["운영하려면 기술 이해 필요"],
-      edge: "내 문서를 아는 챗봇을 직접 만들고 싶을 때",
-      free: "open", pricing: "직접 설치 무료, 클라우드 확인 필요", difficulty: "보통",
-      input: ["문서", "텍스트", "API"], output: ["챗봇", "AI 앱"],
-      tech: "외부 AI 모델 연결형", builtOn: [], url: "https://dify.ai",
-      alt: ["flowise", "n8n"], lastVerified: null },
-
-    { id: "flowise", name: "Flowise", company: "Flowise", cat: ["automation"],
-      fit: { "agent-build": 2, rag: 2 },
-      layer: "platform", role: ["connect", "build"],
-      purpose: "블록을 이어 LLM 앱을 만드는 오픈소스 도구",
-      desc: "LangChain 같은 구성 요소를 화면에서 블록으로 연결해 챗봇과 에이전트를 만드는 오픈소스 도구입니다.",
-      bestFor: ["LLM 앱 구조 실험", "멀티 에이전트 구성"],
-      strengths: ["오픈소스", "구성 요소 단위 조립"],
-      weaknesses: ["개념(임베딩, 벡터DB 등)을 알아야 함"],
-      edge: "AI 앱 구조를 세밀하게 조립해 보고 싶을 때",
-      free: "open", pricing: "직접 설치 무료, 클라우드 확인 필요", difficulty: "어려움",
-      input: ["문서", "API"], output: ["챗봇", "API"],
-      tech: "외부 AI 모델 연결형", builtOn: [], url: "https://flowiseai.com",
-      alt: ["dify", "n8n"], lastVerified: null },
-
-    /* ───────── 데이터·분석 ───────── */
-    { id: "julius", name: "Julius AI", company: "Julius AI", cat: ["data"],
-      fit: { "data-analysis": 2, viz: 2, excel: 1 },
-      layer: "app", role: ["think"],
-      purpose: "엑셀·CSV를 올려 대화로 분석하고 차트 만들기",
-      desc: "데이터 파일을 올리고 질문하면 분석 코드를 돌려 표와 차트로 답하는 데이터 분석 도구입니다.",
-      bestFor: ["엑셀 데이터 분석", "차트 만들기", "통계 기초 분석"],
-      strengths: ["데이터 분석 특화", "차트 출력"],
-      weaknesses: ["회사 데이터 업로드 전 보안 정책 확인 필요"],
-      edge: "분석 코드를 몰라도 데이터에서 숫자와 그래프를 뽑고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["CSV", "엑셀", "텍스트"], output: ["차트", "표", "텍스트"],
-      tech: "외부 모델 사용(구성은 확인 필요)", builtOn: [], url: "https://julius.ai",
-      alt: ["chatgpt", "m365-copilot"], lastVerified: null },
-
-    { id: "m365-copilot", name: "Microsoft 365 Copilot", company: "Microsoft", cat: ["data", "productivity"],
-      fit: { excel: 2, ppt: 1, email: 2, minutes: 1, "data-analysis": 1, write: 1 },
-      layer: "app", role: ["think"],
-      purpose: "엑셀·워드·파워포인트·아웃룩 안의 AI",
-      desc: "오피스 프로그램 안에서 엑셀 수식과 분석, 워드 초안, PPT 생성, 메일 요약, Teams 회의 요약을 돕는 AI입니다.",
-      bestFor: ["엑셀 수식·분석", "회사 오피스 문서 작업", "Teams 회의 요약"],
-      strengths: ["오피스 파일 안에서 바로 사용", "회사 계정·보안 정책 연동"],
-      weaknesses: ["회사 라이선스 필요", "개인 요금제 범위는 확인 필요"],
-      edge: "회사가 Microsoft 365를 쓰고 있을 때",
-      free: "paid", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["오피스 문서", "메일", "회의"], output: ["문서", "표", "슬라이드"],
-      tech: "OpenAI 모델 등 외부 모델 사용", builtOn: [], url: "https://www.microsoft.com/microsoft-365/copilot",
-      alt: ["julius", "gemini", "chatgpt"], lastVerified: null },
-
-    /* ───────── 회의·생산성 ───────── */
-    { id: "clova-note", name: "CLOVA Note", company: "NAVER", cat: ["productivity", "audio"],
-      fit: { "meeting-record": 2, minutes: 2, stt: 2 },
-      layer: "app", role: ["think"],
-      purpose: "한국어 회의 녹음 받아쓰기와 요약",
-      desc: "네이버의 음성 기록 서비스로 녹음하면 말한 사람별로 나눠 받아 적고 요약해 줍니다. 한국어 인식에 강점이 있습니다.",
-      bestFor: ["한국어 회의록", "강의·인터뷰 녹음 정리"],
-      strengths: ["한국어 인식", "화자 구분", "모바일 앱"],
-      weaknesses: ["무료 사용 시간 제한(확인 필요)"],
-      edge: "한국어 대화를 정확하게 받아 적어야 할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["오디오"], output: ["텍스트", "요약"],
-      tech: "NAVER 음성 인식 기술", builtOn: [], url: "https://clovanote.naver.com",
-      alt: ["otter", "fireflies", "whisper"], lastVerified: null },
-
-    { id: "otter", name: "Otter.ai", company: "Otter.ai", cat: ["productivity", "audio"],
-      fit: { "meeting-record": 2, minutes: 2, stt: 2 },
-      layer: "app", role: ["think"],
-      purpose: "영어 화상회의 자동 기록",
-      desc: "Zoom, Google Meet 같은 화상회의에 참석해 실시간으로 기록하고 요약과 할 일을 정리합니다.",
-      bestFor: ["영어 회의", "화상회의 자동 기록"],
-      strengths: ["실시간 기록", "회의 앱 연동"],
-      weaknesses: ["한국어 지원 범위 확인 필요"],
-      edge: "영어 화상회의를 놓치지 않고 기록하고 싶을 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["오디오", "화상회의"], output: ["텍스트", "요약"],
-      tech: "확인 필요", builtOn: [], url: "https://otter.ai",
-      alt: ["fireflies", "clova-note"], lastVerified: null },
-
-    { id: "fireflies", name: "Fireflies.ai", company: "Fireflies", cat: ["productivity"],
-      fit: { "meeting-record": 2, minutes: 2, knowledge: 1, "api-connect": 1 },
-      layer: "app", role: ["think", "connect"],
-      purpose: "회의 기록을 업무 도구에 자동으로 넘기기",
-      desc: "화상회의를 기록하고 요약한 뒤 CRM, 슬랙, 노션 같은 업무 도구로 내용을 넘길 수 있는 회의 도우미입니다.",
-      bestFor: ["영업·고객 미팅 기록", "회의 내용을 업무 도구로 전달"],
-      strengths: ["업무 도구 연동", "회의 검색"],
-      weaknesses: ["한국어 정확도는 직접 확인 필요"],
-      edge: "회의 내용을 CRM이나 협업 툴로 바로 보내야 할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "쉬움",
-      input: ["오디오", "화상회의"], output: ["텍스트", "요약"],
-      tech: "확인 필요", builtOn: [], url: "https://fireflies.ai",
-      alt: ["otter", "clova-note"], lastVerified: null },
-
-    /* ───────── 3D ───────── */
-    { id: "meshy", name: "Meshy", company: "Meshy", cat: ["3d"],
-      fit: { model3d: 2, "game-asset": 2 },
-      layer: "app", role: ["create"],
-      purpose: "텍스트·이미지로 3D 모델 만들기",
-      desc: "글이나 이미지를 넣으면 텍스처가 입혀진 3D 모델을 만들어 줍니다. 게임 엔진이나 3D 프린팅용으로 내보낼 수 있습니다.",
-      bestFor: ["게임 소품", "3D 프린팅 시안", "3D 목업"],
-      strengths: ["3D 생성 특화", "여러 파일 형식 내보내기"],
-      weaknesses: ["복잡한 형태는 후작업 필요"],
-      edge: "모델링 없이 3D 오브젝트가 필요할 때",
-      free: "freemium", pricing: "확인 필요", difficulty: "보통",
-      input: ["텍스트", "이미지"], output: ["3D 모델"],
-      tech: "자체 모델", builtOn: [], url: "https://www.meshy.ai",
-      alt: ["leonardo"], lastVerified: null }
-  ],
-
-  /* 여러 AI를 이어서 쓰는 추천 루트. 순서와 조합은 예시이며 대체 도구를 함께 적었습니다. */
-  WORKFLOWS: [
-    { id: "brand-video", name: "브랜드 홍보영상 만들기", tags: ["t2v", "i2v", "ad-creative", "tts", "video-edit"],
-      summary: "아이디어부터 내레이션이 들어간 30초 홍보영상까지",
-      steps: [
-        { label: "아이디어·대본", tool: "claude", alt: ["chatgpt"], note: "타깃, 메시지, 장면별 대본을 정리합니다" },
-        { label: "핵심 장면 이미지", tool: "nano-banana", alt: ["midjourney", "firefly"], note: "같은 제품·인물이 여러 장면에 나오도록 맞춥니다" },
-        { label: "이미지 → 영상", tool: "kling", alt: ["veo", "runway"], note: "장면별 3~10초 클립을 만듭니다" },
-        { label: "내레이션", tool: "elevenlabs", alt: ["capcut"], note: "대본을 음성으로 만듭니다" },
-        { label: "편집·자막", tool: "capcut", alt: ["descript"], note: "클립을 잇고 자막과 음악을 넣습니다" } ] },
-    { id: "market-report", name: "시장조사 보고서 쓰기", tags: ["market-research", "competitor", "deep-research", "ppt"],
-      summary: "자료 수집 → 리포트 → 검증 → 발표자료",
-      steps: [
-        { label: "빠른 현황 파악", tool: "perplexity", alt: ["liner"], note: "출처 링크를 보며 시장 규모와 주요 기업을 훑습니다" },
-        { label: "심층 리포트", tool: "chatgpt-deep-research", alt: ["gemini"], note: "경쟁 구도와 트렌드를 긴 보고서로 받습니다" },
-        { label: "내 자료로 검증", tool: "notebooklm", alt: ["claude"], note: "공시·보고서 PDF를 올려 수치를 원문과 대조합니다" },
-        { label: "발표자료", tool: "gamma", alt: ["canva"], note: "핵심만 추려 슬라이드로 만듭니다" } ] },
-    { id: "shorts", name: "유튜브 쇼츠 만들기", tags: ["shortform", "t2v", "music", "video-edit"],
-      summary: "대본 한 장으로 BGM 들어간 쇼츠 완성",
-      steps: [
-        { label: "기획·대본", tool: "chatgpt", alt: ["claude"], note: "첫 2초 훅과 장면 구성을 정합니다" },
-        { label: "영상 클립", tool: "veo", alt: ["kling", "sora"], note: "세로 비율로 클립을 만듭니다" },
-        { label: "BGM", tool: "suno", alt: [], note: "분위기에 맞는 배경음을 만듭니다(상업 이용 조건 확인)" },
-        { label: "편집·자막", tool: "capcut", alt: [], note: "자동 자막과 컷 편집으로 마무리합니다" } ] },
-    { id: "web-mvp", name: "웹 서비스 MVP 만들기", tags: ["webapp", "website", "prototype", "uiux"],
-      summary: "아이디어를 실제로 동작하는 웹앱으로",
-      steps: [
-        { label: "기능 정의", tool: "claude", alt: ["chatgpt"], note: "핵심 기능과 화면 목록을 정리합니다" },
-        { label: "화면 시안", tool: "v0", alt: ["figma"], note: "주요 화면을 먼저 만들어 봅니다" },
-        { label: "앱 생성·배포", tool: "lovable", alt: ["bolt", "replit"], note: "로그인, 데이터 저장까지 붙여 배포합니다" },
-        { label: "코드 다듬기", tool: "claude-code", alt: ["cursor"], note: "커지면 코드를 내려받아 직접 고칩니다" } ] },
-    { id: "meeting-flow", name: "회의 내용 → 할 일 정리", tags: ["meeting-record", "minutes", "workflow", "notes"],
-      summary: "녹음부터 담당자별 할 일 공유까지",
-      steps: [
-        { label: "녹음·받아쓰기", tool: "clova-note", alt: ["otter", "fireflies"], note: "화자별로 기록합니다" },
-        { label: "결정사항 요약", tool: "claude", alt: ["chatgpt"], note: "결정사항, 할 일, 담당자, 기한으로 나눕니다" },
-        { label: "기록 보관", tool: "notion-ai", alt: [], note: "회의록 페이지로 저장합니다" },
-        { label: "알림 자동화", tool: "zapier", alt: ["make", "n8n"], note: "담당자에게 메신저 알림을 보냅니다" } ] },
-    { id: "product-page", name: "쇼핑몰 상세페이지 만들기", tags: ["product-img", "bg-remove", "copy", "graphic"],
-      summary: "상품 사진 한 장에서 상세페이지 이미지까지",
-      steps: [
-        { label: "배경 제거", tool: "photoroom", alt: ["canva"], note: "상품만 깔끔하게 남깁니다" },
-        { label: "연출 컷", tool: "nano-banana", alt: ["firefly"], note: "사용 장면이나 배경을 합성합니다" },
-        { label: "상세 문구", tool: "chatgpt", alt: ["claude"], note: "특징, 사용법, 구매 이유를 문구로 씁니다" },
-        { label: "페이지 레이아웃", tool: "canva", alt: [], note: "템플릿에 사진과 문구를 배치합니다" } ] },
-    { id: "paper-review", name: "논문 조사·정리", tags: ["paper", "summarize", "source-docs"],
-      summary: "논문 찾기부터 요약 노트까지",
-      steps: [
-        { label: "논문 찾기", tool: "elicit", alt: ["consensus"], note: "연구 질문으로 관련 논문을 모읍니다" },
-        { label: "내용 이해", tool: "notebooklm", alt: ["claude"], note: "PDF를 올려 핵심과 한계를 질문합니다" },
-        { label: "정리·글쓰기", tool: "claude", alt: ["chatgpt"], note: "비교표와 요약 노트를 만듭니다" } ] },
-    { id: "doc-bot", name: "사내 문서 챗봇 만들기", tags: ["rag", "agent-build", "api-connect"],
-      summary: "회사 문서를 아는 질문 답변 봇",
-      steps: [
-        { label: "문서 정리", tool: "notion-ai", alt: ["claude"], note: "규정·매뉴얼을 최신본으로 모읍니다" },
-        { label: "챗봇 구축", tool: "dify", alt: ["flowise"], note: "문서를 올리고 답변 규칙을 정합니다" },
-        { label: "메신저 연결", tool: "n8n", alt: ["make"], note: "슬랙 같은 사내 메신저로 질문을 받습니다" } ] }
-  ],
-
-  /* New / Trending
-     실제 최신 소식은 공식 발표를 확인한 뒤에만 아래 형식으로 추가합니다.
-     { date: "YYYY-MM-DD", type: "new" | "update" | "model", tool: "도구 id 또는 이름",
-       title: "한 줄 요약", source: "공식 발표 URL" } */
-  UPDATES: []
+  {
+   "id": "research",
+   "name": "검색·리서치",
+   "en": "Research",
+   "sub": [
+    {
+     "id": "web-search",
+     "name": "웹 검색·최신 정보"
+    },
+    {
+     "id": "deep-research",
+     "name": "심층 리포트"
+    },
+    {
+     "id": "paper",
+     "name": "논문 찾기"
+    },
+    {
+     "id": "source-docs",
+     "name": "내 자료 기반 분석"
+    }
+   ]
+  },
+  {
+   "id": "image",
+   "name": "이미지",
+   "en": "Image",
+   "sub": [
+    {
+     "id": "img-gen",
+     "name": "이미지 생성"
+    },
+    {
+     "id": "img-edit",
+     "name": "이미지 편집"
+    },
+    {
+     "id": "photo-retouch",
+     "name": "사진 보정"
+    },
+    {
+     "id": "character",
+     "name": "캐릭터 일관성"
+    },
+    {
+     "id": "logo",
+     "name": "로고·브랜드"
+    },
+    {
+     "id": "product-img",
+     "name": "제품 이미지"
+    },
+    {
+     "id": "img-text",
+     "name": "이미지 속 글자"
+    },
+    {
+     "id": "bg-remove",
+     "name": "배경 제거"
+    }
+   ]
+  },
+  {
+   "id": "video",
+   "name": "영상",
+   "en": "Video",
+   "sub": [
+    {
+     "id": "t2v",
+     "name": "텍스트 → 영상"
+    },
+    {
+     "id": "i2v",
+     "name": "이미지 → 영상"
+    },
+    {
+     "id": "video-edit",
+     "name": "영상 편집"
+    },
+    {
+     "id": "avatar",
+     "name": "아바타 영상"
+    },
+    {
+     "id": "dubbing",
+     "name": "더빙·립싱크"
+    },
+    {
+     "id": "shortform",
+     "name": "숏폼"
+    }
+   ]
+  },
+  {
+   "id": "audio",
+   "name": "음성·음악",
+   "en": "Audio",
+   "sub": [
+    {
+     "id": "tts",
+     "name": "음성 생성"
+    },
+    {
+     "id": "voice-clone",
+     "name": "음성 복제"
+    },
+    {
+     "id": "stt",
+     "name": "음성 → 텍스트"
+    },
+    {
+     "id": "music",
+     "name": "음악 생성"
+    },
+    {
+     "id": "audio-clean",
+     "name": "음질 개선"
+    }
+   ]
+  },
+  {
+   "id": "writing",
+   "name": "글쓰기·문서",
+   "en": "Writing",
+   "sub": [
+    {
+     "id": "write",
+     "name": "글쓰기"
+    },
+    {
+     "id": "summarize",
+     "name": "요약"
+    },
+    {
+     "id": "translate",
+     "name": "번역"
+    },
+    {
+     "id": "doc-analysis",
+     "name": "문서 분석"
+    },
+    {
+     "id": "copy",
+     "name": "카피라이팅"
+    },
+    {
+     "id": "proofread",
+     "name": "교정"
+    },
+    {
+     "id": "long-doc",
+     "name": "긴 문서 처리"
+    }
+   ]
+  },
+  {
+   "id": "design",
+   "name": "발표·디자인",
+   "en": "Design",
+   "sub": [
+    {
+     "id": "ppt",
+     "name": "PPT·발표자료"
+    },
+    {
+     "id": "graphic",
+     "name": "그래픽 디자인"
+    },
+    {
+     "id": "uiux",
+     "name": "UI/UX"
+    },
+    {
+     "id": "infographic",
+     "name": "인포그래픽·도식"
+    },
+    {
+     "id": "poster",
+     "name": "포스터·배너"
+    }
+   ]
+  },
+  {
+   "id": "coding",
+   "name": "코딩·개발",
+   "en": "Coding",
+   "sub": [
+    {
+     "id": "ai-coding",
+     "name": "AI 코딩"
+    },
+    {
+     "id": "agentic-coding",
+     "name": "에이전트 코딩"
+    },
+    {
+     "id": "code-review",
+     "name": "코드 리뷰"
+    },
+    {
+     "id": "website",
+     "name": "웹사이트"
+    },
+    {
+     "id": "webapp",
+     "name": "웹앱"
+    },
+    {
+     "id": "mobile-app",
+     "name": "모바일 앱"
+    },
+    {
+     "id": "prototype",
+     "name": "프로토타입"
+    }
+   ]
+  },
+  {
+   "id": "automation",
+   "name": "자동화·에이전트",
+   "en": "Automation",
+   "sub": [
+    {
+     "id": "workflow",
+     "name": "업무 자동화"
+    },
+    {
+     "id": "agent-build",
+     "name": "AI 에이전트 제작"
+    },
+    {
+     "id": "api-connect",
+     "name": "앱·API 연결"
+    },
+    {
+     "id": "web-auto",
+     "name": "웹 자동화"
+    },
+    {
+     "id": "rag",
+     "name": "문서 기반 챗봇"
+    }
+   ]
+  },
+  {
+   "id": "data",
+   "name": "데이터·분석",
+   "en": "Data",
+   "sub": [
+    {
+     "id": "data-analysis",
+     "name": "데이터 분석"
+    },
+    {
+     "id": "excel",
+     "name": "엑셀·스프레드시트"
+    },
+    {
+     "id": "viz",
+     "name": "시각화"
+    }
+   ]
+  },
+  {
+   "id": "productivity",
+   "name": "회의·생산성",
+   "en": "Productivity",
+   "sub": [
+    {
+     "id": "meeting-record",
+     "name": "회의 녹음"
+    },
+    {
+     "id": "minutes",
+     "name": "회의록"
+    },
+    {
+     "id": "email",
+     "name": "이메일"
+    },
+    {
+     "id": "notes",
+     "name": "노트·메모"
+    },
+    {
+     "id": "knowledge",
+     "name": "지식 관리"
+    }
+   ]
+  },
+  {
+   "id": "marketing",
+   "name": "마케팅·비즈니스",
+   "en": "Business",
+   "sub": [
+    {
+     "id": "market-research",
+     "name": "시장조사"
+    },
+    {
+     "id": "competitor",
+     "name": "경쟁사 분석"
+    },
+    {
+     "id": "ad-creative",
+     "name": "광고 소재"
+    },
+    {
+     "id": "sns",
+     "name": "SNS 콘텐츠"
+    }
+   ]
+  },
+  {
+   "id": "learning",
+   "name": "교육·학습",
+   "en": "Learning",
+   "sub": [
+    {
+     "id": "study",
+     "name": "공부·문제풀이"
+    },
+    {
+     "id": "tutor",
+     "name": "튜터"
+    },
+    {
+     "id": "language",
+     "name": "언어 학습"
+    }
+   ]
+  },
+  {
+   "id": "3d",
+   "name": "3D·게임",
+   "en": "3D",
+   "sub": [
+    {
+     "id": "model3d",
+     "name": "3D 모델 생성"
+    },
+    {
+     "id": "game-asset",
+     "name": "게임 에셋"
+    }
+   ]
+  }
+ ],
+ "ROLES": [
+  {
+   "id": "research",
+   "name": "조사하는 AI",
+   "desc": "정보를 찾고 출처를 모읍니다"
+  },
+  {
+   "id": "think",
+   "name": "생각하는 AI",
+   "desc": "질문에 답하고 기획과 글을 돕습니다"
+  },
+  {
+   "id": "create",
+   "name": "만드는 AI",
+   "desc": "이미지, 영상, 소리를 만듭니다"
+  },
+  {
+   "id": "build",
+   "name": "개발하는 AI",
+   "desc": "코드와 웹 서비스를 만듭니다"
+  },
+  {
+   "id": "connect",
+   "name": "연결하는 AI",
+   "desc": "앱과 AI를 이어 반복 업무를 맡깁니다"
+  },
+  {
+   "id": "present",
+   "name": "발표하는 AI",
+   "desc": "발표자료와 디자인 결과물을 만듭니다"
+  }
+ ],
+ "LAYERS": [
+  {
+   "id": "model",
+   "name": "모델",
+   "desc": "다른 서비스가 가져다 쓰는 AI 모델 자체"
+  },
+  {
+   "id": "app",
+   "name": "애플리케이션",
+   "desc": "사람이 바로 쓰는 AI 서비스"
+  },
+  {
+   "id": "platform",
+   "name": "플랫폼",
+   "desc": "여러 모델과 기능을 엮어 만드는 개발·제작 환경"
+  },
+  {
+   "id": "workflow",
+   "name": "워크플로우·자동화",
+   "desc": "앱과 AI를 연결해 일을 자동으로 돌리는 도구"
+  }
+ ],
+ "MODELS": [
+  {
+   "id": "gpt",
+   "name": "GPT 계열",
+   "company": "OpenAI"
+  },
+  {
+   "id": "claude-model",
+   "name": "Claude 계열",
+   "company": "Anthropic"
+  },
+  {
+   "id": "gemini-model",
+   "name": "Gemini 계열",
+   "company": "Google"
+  },
+  {
+   "id": "veo-model",
+   "name": "Veo",
+   "company": "Google DeepMind"
+  },
+  {
+   "id": "grok-model",
+   "name": "Grok 계열",
+   "company": "xAI"
+  },
+  {
+   "id": "deepseek-model",
+   "name": "DeepSeek 계열",
+   "company": "DeepSeek"
+  },
+  {
+   "id": "qwen-model",
+   "name": "Qwen 계열",
+   "company": "Alibaba"
+  }
+ ],
+ "TOOLS": [
+  {
+   "id": "chatgpt",
+   "name": "ChatGPT",
+   "company": "OpenAI",
+   "cat": [
+    "general",
+    "writing"
+   ],
+   "fit": {
+    "chat": 2,
+    "reasoning": 2,
+    "multimodal": 2,
+    "write": 2,
+    "summarize": 2,
+    "data-analysis": 1,
+    "img-gen": 2,
+    "study": 2,
+    "tutor": 1,
+    "translate": 1,
+    "deep-research": 2,
+    "web-search": 2,
+    "market-research": 2,
+    "competitor": 2,
+    "img-edit": 2,
+    "img-text": 2,
+    "character": 1,
+    "infographic": 1
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "질문·글쓰기·분석까지 두루 하는 대화형 AI",
+   "desc": "대화로 질문하고 글을 쓰고 파일을 분석하는 범용 AI 서비스입니다. 이미지 생성, 웹 검색, 심층 리서치 같은 기능이 한 앱 안에 모여 있습니다.",
+   "bestFor": [
+    "무엇부터 할지 모를 때 첫 질문",
+    "글 초안과 아이디어",
+    "파일 첨부해서 분석",
+    "심층 리서치 모드로 긴 조사 보고서",
+    "이미지 생성·편집(앱 안 기능)"
+   ],
+   "strengths": [
+    "기능이 한 곳에 모여 있음",
+    "사용자가 많아 활용 자료가 풍부함",
+    "음성 대화와 이미지 기능"
+   ],
+   "weaknesses": [
+    "사실 확인이 필요한 답을 그럴듯하게 쓸 수 있음",
+    "고급 기능은 유료 플랜 중심"
+   ],
+   "edge": "여러 종류의 작업을 앱 하나에서 처리하고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지",
+    "파일",
+    "음성"
+   ],
+   "output": [
+    "텍스트",
+    "이미지",
+    "파일"
+   ],
+   "tech": "OpenAI GPT 계열 모델",
+   "builtOn": [
+    "gpt"
+   ],
+   "url": "https://chatgpt.com",
+   "alt": [
+    "claude",
+    "gemini",
+    "grok"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "claude",
+   "name": "Claude",
+   "company": "Anthropic",
+   "cat": [
+    "general",
+    "writing"
+   ],
+   "fit": {
+    "chat": 2,
+    "reasoning": 2,
+    "write": 2,
+    "long-doc": 2,
+    "doc-analysis": 2,
+    "summarize": 2,
+    "proofread": 1,
+    "ai-coding": 1,
+    "multimodal": 1
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "긴 글을 읽고 정돈된 글을 쓰는 데 강한 대화형 AI",
+   "desc": "긴 문서를 한 번에 읽고 요약하거나 구조를 잡아 글을 쓰는 작업에서 많이 쓰입니다. 아티팩트로 문서, 웹페이지, 간단한 앱을 바로 만들어 볼 수도 있습니다.",
+   "bestFor": [
+    "긴 보고서·계약서 읽고 정리",
+    "기획서와 글의 구조 잡기",
+    "자소서·문서 첨삭"
+   ],
+   "strengths": [
+    "긴 문서 처리",
+    "자연스러운 문장",
+    "아티팩트로 결과물 바로 확인"
+   ],
+   "weaknesses": [
+    "이미지 생성 기능은 없음",
+    "무료 사용량이 넉넉하지 않을 수 있음"
+   ],
+   "edge": "긴 자료를 읽고 논리적으로 정리된 글을 받아야 할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지",
+    "PDF",
+    "파일"
+   ],
+   "output": [
+    "텍스트",
+    "문서",
+    "코드"
+   ],
+   "tech": "Anthropic Claude 계열 모델",
+   "builtOn": [
+    "claude-model"
+   ],
+   "url": "https://claude.ai",
+   "alt": [
+    "chatgpt",
+    "gemini"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "gemini",
+   "name": "Gemini",
+   "company": "Google",
+   "cat": [
+    "general",
+    "research"
+   ],
+   "fit": {
+    "chat": 2,
+    "reasoning": 2,
+    "multimodal": 2,
+    "web-search": 1,
+    "deep-research": 1,
+    "img-gen": 1,
+    "img-edit": 1,
+    "email": 1
+   },
+   "layer": "app",
+   "role": [
+    "think",
+    "research"
+   ],
+   "purpose": "구글 서비스와 연결되는 대화형 AI",
+   "desc": "구글이 만든 대화형 AI로 Gmail, 드라이브, 문서 같은 구글 서비스와 연결해 쓸 수 있습니다. 앱 안에서 이미지 생성(Nano Banana)과 영상 생성(Veo) 기능도 제공됩니다.",
+   "bestFor": [
+    "구글 문서·메일 기반 작업",
+    "이미지와 영상까지 한 앱에서",
+    "유튜브·웹 정보 요약"
+   ],
+   "strengths": [
+    "구글 서비스 연동",
+    "이미지·영상 생성 기능 포함",
+    "긴 입력 처리"
+   ],
+   "weaknesses": [
+    "기능별로 요금제에 따라 쓸 수 있는 범위가 다름"
+   ],
+   "edge": "구글 계정의 메일, 문서, 캘린더와 함께 쓰고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지",
+    "파일",
+    "음성",
+    "영상"
+   ],
+   "output": [
+    "텍스트",
+    "이미지",
+    "영상"
+   ],
+   "tech": "Google Gemini 계열 모델",
+   "builtOn": [
+    "gemini-model",
+    "veo-model"
+   ],
+   "url": "https://gemini.google.com",
+   "alt": [
+    "chatgpt",
+    "claude"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "grok",
+   "name": "Grok",
+   "company": "xAI",
+   "cat": [
+    "general"
+   ],
+   "fit": {
+    "chat": 2,
+    "reasoning": 1,
+    "web-search": 1,
+    "img-gen": 1,
+    "sns": 1
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "X(트위터) 실시간 게시물과 연결되는 대화형 AI",
+   "desc": "xAI가 만든 대화형 AI로 X 플랫폼의 게시물을 참고한 답변을 할 수 있습니다.",
+   "bestFor": [
+    "X에서 화제인 이슈 파악",
+    "가벼운 질문과 대화"
+   ],
+   "strengths": [
+    "X 게시물 기반 실시간 반응 파악"
+   ],
+   "weaknesses": [
+    "답변 톤과 안전 기준이 다른 서비스와 다를 수 있음",
+    "업무용 연동 기능은 확인 필요"
+   ],
+   "edge": "지금 X에서 사람들이 어떤 반응을 보이는지 알고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "텍스트",
+    "이미지"
+   ],
+   "tech": "xAI Grok 계열 모델",
+   "builtOn": [
+    "grok-model"
+   ],
+   "url": "https://grok.com",
+   "alt": [
+    "chatgpt",
+    "perplexity"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "deepseek",
+   "name": "DeepSeek",
+   "company": "DeepSeek",
+   "cat": [
+    "general"
+   ],
+   "fit": {
+    "chat": 2,
+    "reasoning": 2,
+    "ai-coding": 1,
+    "study": 1
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "추론에 강한 오픈 웨이트 모델 기반 대화형 AI",
+   "desc": "중국 DeepSeek의 대화형 AI입니다. 모델 가중치가 공개되어 있어 개발자가 직접 내려받아 쓰는 경우도 많습니다.",
+   "bestFor": [
+    "수학·논리 문제",
+    "저비용 API로 개발 실험"
+   ],
+   "strengths": [
+    "추론 성능 대비 비용",
+    "모델 가중치 공개"
+   ],
+   "weaknesses": [
+    "데이터가 중국 서버에서 처리될 수 있어 회사 자료 입력은 주의",
+    "부가 기능이 적음"
+   ],
+   "edge": "수학·코딩 추론을 저렴하게 쓰거나 모델을 직접 운영하고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "파일"
+   ],
+   "output": [
+    "텍스트"
+   ],
+   "tech": "DeepSeek 계열 모델(오픈 웨이트)",
+   "builtOn": [
+    "deepseek-model"
+   ],
+   "url": "https://chat.deepseek.com",
+   "alt": [
+    "qwen",
+    "chatgpt"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "qwen",
+   "name": "Qwen Chat",
+   "company": "Alibaba",
+   "cat": [
+    "general"
+   ],
+   "fit": {
+    "chat": 2,
+    "reasoning": 1,
+    "multimodal": 1,
+    "translate": 1
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "알리바바 Qwen 모델 기반 대화형 AI",
+   "desc": "알리바바가 만든 Qwen 모델로 대화하는 서비스입니다. 여러 Qwen 모델이 오픈 웨이트로 공개되어 있습니다.",
+   "bestFor": [
+    "오픈 모델 성능 체험",
+    "다국어 대화"
+   ],
+   "strengths": [
+    "모델 종류가 다양하고 공개 모델이 많음"
+   ],
+   "weaknesses": [
+    "국내 사용자용 자료가 적음",
+    "회사 자료 입력 전 약관 확인 필요"
+   ],
+   "edge": "오픈 모델을 써 보거나 직접 배포할 모델을 고를 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지",
+    "파일"
+   ],
+   "output": [
+    "텍스트",
+    "이미지"
+   ],
+   "tech": "Alibaba Qwen 계열 모델(일부 오픈 웨이트)",
+   "builtOn": [
+    "qwen-model"
+   ],
+   "url": "https://chat.qwen.ai",
+   "alt": [
+    "deepseek",
+    "chatgpt"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "perplexity",
+   "name": "Perplexity",
+   "company": "Perplexity AI",
+   "cat": [
+    "research",
+    "marketing"
+   ],
+   "fit": {
+    "web-search": 2,
+    "deep-research": 1,
+    "market-research": 2,
+    "competitor": 2,
+    "paper": 1
+   },
+   "layer": "app",
+   "role": [
+    "research"
+   ],
+   "purpose": "출처 링크를 붙여 답하는 AI 검색",
+   "desc": "질문하면 웹을 검색해서 답을 정리하고 출처 링크를 함께 보여줍니다. 최신 정보 확인과 빠른 조사에 많이 쓰입니다.",
+   "bestFor": [
+    "최신 정보 확인",
+    "출처가 필요한 조사",
+    "경쟁사·시장 빠르게 훑기"
+   ],
+   "strengths": [
+    "답변마다 출처 표시",
+    "검색 속도",
+    "후속 질문으로 좁혀 가기 쉬움"
+   ],
+   "weaknesses": [
+    "출처 자체의 품질은 직접 확인해야 함",
+    "긴 분석 글은 범용 AI보다 약할 수 있음"
+   ],
+   "edge": "답의 근거 링크를 바로 확인하면서 조사하고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "파일"
+   ],
+   "output": [
+    "텍스트"
+   ],
+   "tech": "여러 외부 모델과 자체 검색 결합(세부 구성은 요금제마다 다름)",
+   "builtOn": [],
+   "url": "https://www.perplexity.ai",
+   "alt": [
+    "gemini",
+    "liner"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "notebooklm",
+   "name": "Gemini Notebook",
+   "company": "Google",
+   "cat": [
+    "research",
+    "learning",
+    "writing"
+   ],
+   "fit": {
+    "source-docs": 2,
+    "summarize": 2,
+    "doc-analysis": 2,
+    "study": 2,
+    "paper": 1,
+    "long-doc": 1
+   },
+   "layer": "app",
+   "role": [
+    "research"
+   ],
+   "purpose": "내가 올린 자료만 근거로 답하는 리서치 노트",
+   "desc": "2026년 7월 NotebookLM에서 이름이 바뀌었습니다(옛 주소도 넘어감). PDF, 문서, 웹페이지, 유튜브 링크 등을 올리면 그 자료 안에서만 답하고 어느 부분을 참고했는지 표시합니다. 자료를 오디오 대화 형식으로 요약해 주는 기능도 있습니다.",
+   "bestFor": [
+    "여러 PDF를 한 번에 공부",
+    "회사·기관 자료 분석",
+    "면접·시험 준비"
+   ],
+   "strengths": [
+    "답의 근거를 원문 위치로 보여줌",
+    "자료 밖 내용을 지어낼 가능성이 낮은 구조",
+    "오디오 요약"
+   ],
+   "weaknesses": [
+    "올린 자료 밖의 최신 정보는 찾지 않음"
+   ],
+   "edge": "인터넷이 아니라 내 자료를 기준으로 정확히 답을 받아야 할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "PDF",
+    "문서",
+    "웹페이지",
+    "유튜브 링크",
+    "오디오"
+   ],
+   "output": [
+    "텍스트",
+    "오디오 요약"
+   ],
+   "tech": "Google Gemini 계열 모델",
+   "builtOn": [
+    "gemini-model"
+   ],
+   "url": "https://notebook.google.com",
+   "alt": [
+    "claude",
+    "chatgpt"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "elicit",
+   "name": "Elicit",
+   "company": "Elicit",
+   "cat": [
+    "research",
+    "learning"
+   ],
+   "fit": {
+    "paper": 2,
+    "deep-research": 1,
+    "summarize": 1
+   },
+   "layer": "app",
+   "role": [
+    "research"
+   ],
+   "purpose": "논문을 찾고 표로 정리하는 연구용 AI",
+   "desc": "연구 질문을 입력하면 관련 논문을 찾고 연구 방법, 결과 같은 항목을 표로 뽑아 줍니다.",
+   "bestFor": [
+    "선행연구 조사",
+    "여러 논문의 결과 비교"
+   ],
+   "strengths": [
+    "논문 항목을 표로 정리",
+    "학술 데이터베이스 기반"
+   ],
+   "weaknesses": [
+    "한국어 논문은 적음",
+    "영어로 질문해야 결과가 좋음"
+   ],
+   "edge": "논문 여러 편을 같은 기준으로 비교해야 할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "텍스트",
+    "PDF"
+   ],
+   "output": [
+    "표",
+    "텍스트"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://elicit.com",
+   "alt": [
+    "consensus",
+    "notebooklm"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "consensus",
+   "name": "Consensus",
+   "company": "Consensus",
+   "cat": [
+    "research",
+    "learning"
+   ],
+   "fit": {
+    "paper": 2,
+    "web-search": 1
+   },
+   "layer": "app",
+   "role": [
+    "research"
+   ],
+   "purpose": "질문에 대해 논문들이 뭐라고 하는지 보여주는 검색",
+   "desc": "예/아니오로 답할 수 있는 질문을 넣으면 관련 논문들의 결론 경향을 요약하고 논문 목록을 보여줍니다.",
+   "bestFor": [
+    "\"이게 효과가 있나?\" 같은 근거 확인",
+    "논문 빠르게 찾기"
+   ],
+   "strengths": [
+    "논문 결론의 경향을 한눈에 확인",
+    "출처가 학술 논문"
+   ],
+   "weaknesses": [
+    "연구가 적은 주제는 결과가 빈약함"
+   ],
+   "edge": "일반 웹이 아니라 논문을 근거로 답을 확인하고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트"
+   ],
+   "output": [
+    "텍스트",
+    "논문 목록"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://consensus.app",
+   "alt": [
+    "elicit",
+    "perplexity"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "liner",
+   "name": "Liner",
+   "company": "Liner (한국)",
+   "cat": [
+    "research",
+    "learning"
+   ],
+   "fit": {
+    "web-search": 2,
+    "paper": 1,
+    "deep-research": 1,
+    "summarize": 1
+   },
+   "layer": "app",
+   "role": [
+    "research"
+   ],
+   "purpose": "신뢰할 만한 출처를 우선하는 AI 검색",
+   "desc": "국내 기업이 만든 AI 검색 서비스로, 답변에 출처를 붙이고 학술 자료 검색 기능을 제공합니다.",
+   "bestFor": [
+    "과제·리포트용 자료 조사",
+    "출처가 필요한 검색"
+   ],
+   "strengths": [
+    "출처 표시",
+    "한국어 사용 환경"
+   ],
+   "weaknesses": [
+    "세부 기능과 요금은 확인 필요"
+   ],
+   "edge": "한국어로 출처 있는 자료 조사를 하고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "PDF"
+   ],
+   "output": [
+    "텍스트"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://liner.com",
+   "alt": [
+    "perplexity",
+    "consensus"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "nano-banana",
+   "name": "Nano Banana",
+   "company": "Google",
+   "cat": [
+    "image"
+   ],
+   "fit": {
+    "img-edit": 2,
+    "character": 2,
+    "img-gen": 2,
+    "product-img": 1,
+    "img-text": 1,
+    "photo-retouch": 1
+   },
+   "layer": "model",
+   "role": [
+    "create"
+   ],
+   "purpose": "말로 지시해서 이미지를 고치는 데 강한 이미지 모델",
+   "desc": "구글의 Gemini 이미지 모델 별칭입니다. 사진을 올리고 \"배경만 바꿔줘\"처럼 말하면 나머지는 유지한 채 원하는 부분만 고치는 데 강하고, 같은 인물이나 캐릭터를 여러 장면에서 유지하는 데도 쓰입니다. Gemini 앱과 Google AI Studio에서 쓸 수 있습니다.",
+   "bestFor": [
+    "사진 속 일부만 수정",
+    "같은 캐릭터로 여러 장면",
+    "여러 이미지 합성"
+   ],
+   "strengths": [
+    "대화로 하는 이미지 편집",
+    "인물·캐릭터 일관성",
+    "원본 유지하며 부분 수정"
+   ],
+   "weaknesses": [
+    "예술적 화풍은 Midjourney만큼 독특하지 않다는 평이 있음",
+    "생성 이미지에 워터마크(SynthID)가 들어감"
+   ],
+   "edge": "새로 그리기보다 가진 사진을 원하는 대로 고쳐야 할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "이미지"
+   ],
+   "tech": "Gemini 이미지 모델(Gemini 2.5 Flash Image 등)",
+   "builtOn": [
+    "gemini-model"
+   ],
+   "url": "https://gemini.google.com",
+   "alt": [
+    "firefly",
+    "photoshop"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "midjourney",
+   "name": "Midjourney",
+   "company": "Midjourney",
+   "cat": [
+    "image"
+   ],
+   "fit": {
+    "img-gen": 2,
+    "character": 1,
+    "img-edit": 1,
+    "i2v": 1
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "분위기 있는 아트워크와 콘셉트 이미지",
+   "desc": "미적 완성도가 높은 이미지를 만드는 서비스로, 콘셉트 아트와 무드보드 작업에 많이 쓰입니다. 이미지를 짧은 영상으로 바꾸는 기능도 있습니다.",
+   "bestFor": [
+    "콘셉트 아트",
+    "무드보드",
+    "광고 비주얼 시안"
+   ],
+   "strengths": [
+    "화풍과 분위기",
+    "스타일 참조 기능",
+    "한 번에 고퀄리티"
+   ],
+   "weaknesses": [
+    "무료 플랜 없음",
+    "이미지 속 글자 표현은 약한 편",
+    "정확한 부분 수정은 번거로움"
+   ],
+   "edge": "결과물의 분위기와 예술성이 가장 중요할 때",
+   "free": "paid",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "이미지",
+    "짧은 영상"
+   ],
+   "tech": "자체 모델",
+   "builtOn": [],
+   "url": "https://www.midjourney.com",
+   "alt": [
+    "flux",
+    "leonardo",
+    "ideogram"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "flux",
+   "name": "FLUX",
+   "company": "Black Forest Labs",
+   "cat": [
+    "image"
+   ],
+   "fit": {
+    "img-gen": 2,
+    "img-edit": 1,
+    "img-text": 1,
+    "product-img": 1
+   },
+   "layer": "model",
+   "role": [
+    "create"
+   ],
+   "purpose": "사실적인 이미지 생성 모델(일부 오픈 웨이트)",
+   "desc": "Black Forest Labs가 만든 이미지 생성 모델 계열입니다. 일부 버전은 가중치가 공개되어 직접 실행하거나 다른 서비스 안에서 쓰는 경우가 많습니다.",
+   "bestFor": [
+    "사실적인 사진풍 이미지",
+    "직접 서버에서 이미지 생성",
+    "다른 앱에 붙일 이미지 엔진"
+   ],
+   "strengths": [
+    "사실적인 표현",
+    "오픈 웨이트 버전 존재",
+    "여러 서비스에서 선택 가능"
+   ],
+   "weaknesses": [
+    "직접 쓰려면 API나 실행 환경이 필요",
+    "버전마다 라이선스가 다름"
+   ],
+   "edge": "모델을 골라 쓰거나 내 서비스에 이미지 생성을 넣고 싶을 때",
+   "free": "open",
+   "pricing": "확인 필요",
+   "difficulty": "어려움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "이미지"
+   ],
+   "tech": "FLUX 모델 계열(일부 오픈 웨이트)",
+   "builtOn": [],
+   "url": "https://bfl.ai",
+   "alt": [
+    "midjourney",
+    "nano-banana",
+    "leonardo"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "ideogram",
+   "name": "Ideogram",
+   "company": "Ideogram",
+   "cat": [
+    "image",
+    "design"
+   ],
+   "fit": {
+    "img-text": 2,
+    "poster": 2,
+    "logo": 2,
+    "img-gen": 2,
+    "graphic": 1
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "글자가 들어간 이미지를 정확하게",
+   "desc": "이미지 안에 들어가는 글자를 정확하게 그리는 것으로 알려진 이미지 생성 서비스입니다. 포스터, 로고, 썸네일 시안에 잘 맞습니다.",
+   "bestFor": [
+    "포스터·전단",
+    "로고 시안",
+    "문구가 들어간 썸네일"
+   ],
+   "strengths": [
+    "이미지 속 영문 텍스트 표현",
+    "디자인 시안 스타일"
+   ],
+   "weaknesses": [
+    "한글 텍스트 품질은 직접 확인 필요",
+    "사진풍 품질은 전문 모델보다 약할 수 있음"
+   ],
+   "edge": "이미지 안에 정확한 문구가 들어가야 할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "이미지"
+   ],
+   "tech": "자체 모델",
+   "builtOn": [],
+   "url": "https://ideogram.ai",
+   "alt": [
+    "recraft",
+    "canva"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "firefly",
+   "name": "Adobe Firefly",
+   "company": "Adobe",
+   "cat": [
+    "image",
+    "design"
+   ],
+   "fit": {
+    "img-gen": 2,
+    "img-edit": 1,
+    "product-img": 2,
+    "ad-creative": 2,
+    "graphic": 1
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "상업적으로 쓰기 안전한 쪽에 초점을 둔 Adobe의 생성 AI",
+   "desc": "Adobe의 생성형 AI로 이미지, 벡터, 영상 생성 기능을 제공합니다. 라이선스가 확인된 데이터로 학습했다고 밝혀 상업용 작업에서 많이 고려됩니다.",
+   "bestFor": [
+    "회사 광고·마케팅 이미지",
+    "Adobe 툴과 이어지는 작업"
+   ],
+   "strengths": [
+    "상업적 사용을 고려한 학습 데이터 정책",
+    "포토샵·일러스트레이터와 연결"
+   ],
+   "weaknesses": [
+    "생성 크레딧 제한",
+    "실험적인 화풍은 다른 도구가 더 다양할 수 있음"
+   ],
+   "edge": "저작권 걱정을 줄여야 하는 회사 결과물을 만들 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "이미지",
+    "벡터",
+    "영상"
+   ],
+   "tech": "Adobe Firefly 모델(일부 기능에서 외부 모델 선택 가능)",
+   "builtOn": [],
+   "url": "https://firefly.adobe.com",
+   "alt": [
+    "photoshop",
+    "nano-banana",
+    "canva"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "photoshop",
+   "name": "Photoshop 생성형 채우기",
+   "company": "Adobe",
+   "cat": [
+    "image"
+   ],
+   "fit": {
+    "img-edit": 2,
+    "photo-retouch": 2,
+    "bg-remove": 2,
+    "product-img": 1
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "전문 편집 툴 안에서 AI로 사진 고치기",
+   "desc": "포토샵 안에서 영역을 선택하고 문장으로 지시하면 내용을 지우거나 채우고 확장하는 기능입니다. 레이어 단위로 세밀하게 손볼 수 있습니다.",
+   "bestFor": [
+    "정밀한 사진 수정",
+    "불필요한 물체 제거",
+    "인쇄용 결과물"
+   ],
+   "strengths": [
+    "레이어·마스크 기반 정밀 편집",
+    "기존 전문 작업과 바로 연결"
+   ],
+   "weaknesses": [
+    "유료 프로그램",
+    "포토샵 사용법을 알아야 함"
+   ],
+   "edge": "AI 결과를 픽셀 단위로 직접 다듬어야 할 때",
+   "free": "paid",
+   "pricing": "확인 필요",
+   "difficulty": "어려움",
+   "input": [
+    "이미지",
+    "텍스트"
+   ],
+   "output": [
+    "이미지"
+   ],
+   "tech": "Adobe Firefly 모델",
+   "builtOn": [],
+   "url": "https://www.adobe.com/products/photoshop.html",
+   "alt": [
+    "nano-banana",
+    "firefly",
+    "photoroom"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "leonardo",
+   "name": "Leonardo AI",
+   "company": "Leonardo (Canva)",
+   "cat": [
+    "image",
+    "3d"
+   ],
+   "fit": {
+    "img-gen": 2,
+    "character": 1,
+    "game-asset": 2,
+    "img-edit": 1
+   },
+   "layer": "platform",
+   "role": [
+    "create"
+   ],
+   "purpose": "여러 모델과 스타일을 골라 쓰는 이미지 제작 플랫폼",
+   "desc": "여러 이미지 모델과 미리 만든 스타일을 골라 쓰는 이미지 생성 플랫폼입니다. 게임 에셋과 캐릭터 작업에 많이 쓰이며 2024년 Canva에 인수되었습니다.",
+   "bestFor": [
+    "게임 에셋·캐릭터",
+    "스타일 프리셋으로 빠른 시안"
+   ],
+   "strengths": [
+    "모델·스타일 선택 폭",
+    "에셋 제작용 기능"
+   ],
+   "weaknesses": [
+    "옵션이 많아 처음엔 복잡함",
+    "크레딧 단위 과금"
+   ],
+   "edge": "게임·캐릭터 에셋을 스타일 맞춰 여러 장 뽑을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "이미지",
+    "영상"
+   ],
+   "tech": "자체 모델과 외부 모델 혼합(확인 필요)",
+   "builtOn": [],
+   "url": "https://leonardo.ai",
+   "alt": [
+    "midjourney",
+    "flux"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "photoroom",
+   "name": "Photoroom",
+   "company": "Photoroom",
+   "cat": [
+    "image",
+    "marketing"
+   ],
+   "fit": {
+    "bg-remove": 2,
+    "product-img": 2,
+    "photo-retouch": 1,
+    "ad-creative": 1
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "제품 사진 배경 제거와 연출 컷",
+   "desc": "제품 사진의 배경을 지우고 새 배경이나 그림자를 넣어 쇼핑몰용 사진을 만드는 앱입니다. 모바일 앱으로도 많이 씁니다.",
+   "bestFor": [
+    "쇼핑몰 상품 사진",
+    "누끼 따기",
+    "여러 장 일괄 편집"
+   ],
+   "strengths": [
+    "배경 제거 속도",
+    "제품 사진 템플릿",
+    "일괄 처리"
+   ],
+   "weaknesses": [
+    "고급 생성 기능은 유료 플랜 필요 가능성",
+    "인물·예술 이미지는 다른 도구가 나음"
+   ],
+   "edge": "상품 사진을 빠르게 쇼핑몰용으로 바꿔야 할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "이미지"
+   ],
+   "output": [
+    "이미지"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://www.photoroom.com",
+   "alt": [
+    "firefly",
+    "canva",
+    "nano-banana"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "recraft",
+   "name": "Recraft",
+   "company": "Recraft",
+   "cat": [
+    "image",
+    "design"
+   ],
+   "fit": {
+    "logo": 2,
+    "graphic": 2,
+    "img-gen": 1,
+    "img-text": 1,
+    "poster": 1
+   },
+   "layer": "app",
+   "role": [
+    "create",
+    "present"
+   ],
+   "purpose": "벡터 일러스트와 로고·아이콘 제작",
+   "desc": "벡터(SVG) 형식 이미지를 만들 수 있어 로고, 아이콘, 브랜드 그래픽 작업에 맞는 이미지 생성 서비스입니다.",
+   "bestFor": [
+    "로고·아이콘",
+    "브랜드 일러스트 세트"
+   ],
+   "strengths": [
+    "벡터 출력",
+    "브랜드 색상과 스타일 유지"
+   ],
+   "weaknesses": [
+    "사진풍 이미지는 다른 도구가 나음"
+   ],
+   "edge": "확대해도 깨지지 않는 벡터 결과물이 필요할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "이미지",
+    "SVG"
+   ],
+   "tech": "자체 모델",
+   "builtOn": [],
+   "url": "https://www.recraft.ai",
+   "alt": [
+    "ideogram",
+    "canva"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "kling",
+   "name": "Kling AI",
+   "company": "Kuaishou",
+   "cat": [
+    "video"
+   ],
+   "fit": {
+    "i2v": 2,
+    "t2v": 2,
+    "shortform": 1,
+    "dubbing": 1
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "이미지·텍스트로 자연스러운 움직임의 영상 생성",
+   "desc": "중국 콰이쇼우가 만든 영상 생성 서비스로, 사람과 사물의 움직임이 자연스럽다는 평가를 받습니다. 이미지를 넣어 영상으로 만드는 작업에 많이 쓰입니다.",
+   "bestFor": [
+    "이미지를 움직이는 영상으로",
+    "광고·홍보 짧은 클립"
+   ],
+   "strengths": [
+    "움직임 표현",
+    "이미지 → 영상",
+    "비용 대비 품질"
+   ],
+   "weaknesses": [
+    "긴 영상은 여러 클립을 이어야 함",
+    "생성 대기 시간"
+   ],
+   "edge": "만들어 둔 이미지를 자연스럽게 움직이게 하고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "영상"
+   ],
+   "tech": "Kling 영상 모델",
+   "builtOn": [],
+   "url": "https://kling.ai",
+   "alt": [
+    "runway",
+    "veo",
+    "hailuo"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "runway",
+   "name": "Runway",
+   "company": "Runway",
+   "cat": [
+    "video"
+   ],
+   "fit": {
+    "t2v": 2,
+    "i2v": 2,
+    "video-edit": 2
+   },
+   "layer": "platform",
+   "role": [
+    "create"
+   ],
+   "purpose": "영상 생성과 AI 편집 도구를 함께 쓰는 제작 플랫폼",
+   "desc": "영상 생성 모델과 함께 배경 제거, 영상 수정 같은 편집 도구를 제공하는 영상 제작 플랫폼입니다. 영상 제작자와 광고 업계에서 많이 씁니다.",
+   "bestFor": [
+    "생성한 영상을 바로 편집",
+    "영상 속 요소 수정",
+    "실험적인 영상 연출"
+   ],
+   "strengths": [
+    "생성과 편집을 한 곳에서",
+    "카메라·움직임 제어 기능"
+   ],
+   "weaknesses": [
+    "크레딧 소모가 빠를 수 있음",
+    "기능이 많아 익숙해지는 데 시간"
+   ],
+   "edge": "생성만이 아니라 영상을 이어서 다듬어야 할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "텍스트",
+    "이미지",
+    "영상"
+   ],
+   "output": [
+    "영상"
+   ],
+   "tech": "Runway 자체 영상 모델(Gen 계열)",
+   "builtOn": [],
+   "url": "https://runway.com",
+   "alt": [
+    "kling",
+    "veo",
+    "luma"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "veo",
+   "name": "Google Veo",
+   "company": "Google DeepMind",
+   "cat": [
+    "video"
+   ],
+   "fit": {
+    "t2v": 2,
+    "i2v": 2,
+    "shortform": 1
+   },
+   "layer": "model",
+   "role": [
+    "create"
+   ],
+   "purpose": "소리까지 함께 만드는 구글의 영상 생성 모델",
+   "desc": "구글 딥마인드의 영상 생성 모델입니다. 영상과 함께 효과음, 대사 같은 소리를 생성할 수 있는 것이 특징이며 Gemini 앱, Flow, Vertex AI 등에서 쓸 수 있습니다.",
+   "bestFor": [
+    "소리가 들어간 짧은 영상",
+    "사실적인 장면"
+   ],
+   "strengths": [
+    "영상과 오디오 동시 생성",
+    "사실적인 장면 표현"
+   ],
+   "weaknesses": [
+    "쓸 수 있는 곳과 횟수가 요금제마다 다름"
+   ],
+   "edge": "대사·효과음까지 들어간 클립을 한 번에 만들고 싶을 때",
+   "free": "unknown",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "영상",
+    "오디오"
+   ],
+   "tech": "Google Veo 모델",
+   "builtOn": [
+    "veo-model"
+   ],
+   "url": "https://deepmind.google/models/veo/",
+   "alt": [
+    "kling",
+    "runway"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "luma",
+   "name": "Luma Dream Machine",
+   "company": "Luma AI",
+   "cat": [
+    "video",
+    "3d"
+   ],
+   "fit": {
+    "t2v": 2,
+    "i2v": 2,
+    "img-gen": 1
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "아이디어를 빠르게 영상으로 시각화",
+   "desc": "Luma AI의 영상·이미지 생성 서비스입니다. 대화하듯 장면을 다듬어 가는 방식과 카메라 움직임 표현이 특징입니다.",
+   "bestFor": [
+    "영상 콘셉트 시안",
+    "카메라 무빙이 있는 장면"
+   ],
+   "strengths": [
+    "카메라 움직임",
+    "빠른 시안 반복"
+   ],
+   "weaknesses": [
+    "세밀한 인물 연기는 다른 도구가 나을 수 있음"
+   ],
+   "edge": "영상 아이디어를 여러 번 빠르게 시도해 볼 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "영상",
+    "이미지"
+   ],
+   "tech": "Luma 자체 영상 모델(Ray 계열)",
+   "builtOn": [],
+   "url": "https://lumalabs.ai",
+   "alt": [
+    "runway",
+    "kling"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "hailuo",
+   "name": "Hailuo AI",
+   "company": "MiniMax",
+   "cat": [
+    "video"
+   ],
+   "fit": {
+    "t2v": 2,
+    "i2v": 2
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "MiniMax의 영상 생성 서비스",
+   "desc": "중국 MiniMax의 영상 생성 서비스입니다. 동작 표현과 가격 경쟁력으로 Kling과 함께 자주 비교됩니다.",
+   "bestFor": [
+    "역동적인 동작 장면",
+    "여러 시안 저렴하게"
+   ],
+   "strengths": [
+    "동작 표현",
+    "비용"
+   ],
+   "weaknesses": [
+    "국내 자료가 적음",
+    "약관·데이터 처리 확인 필요"
+   ],
+   "edge": "Kling 대신 비교해 볼 영상 생성 도구가 필요할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "영상"
+   ],
+   "tech": "MiniMax 영상 모델",
+   "builtOn": [],
+   "url": "https://hailuoai.video",
+   "alt": [
+    "kling",
+    "runway"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "heygen",
+   "name": "HeyGen",
+   "company": "HeyGen",
+   "cat": [
+    "video"
+   ],
+   "fit": {
+    "avatar": 2,
+    "dubbing": 2,
+    "shortform": 1
+   },
+   "layer": "app",
+   "role": [
+    "create",
+    "present"
+   ],
+   "purpose": "말하는 아바타 영상과 다국어 더빙",
+   "desc": "대본을 넣으면 아바타가 말하는 영상을 만들고, 기존 영상을 다른 언어로 더빙하면서 입 모양까지 맞춰 줍니다.",
+   "bestFor": [
+    "얼굴 없이 만드는 설명 영상",
+    "영상 다국어 버전",
+    "내 아바타 만들기"
+   ],
+   "strengths": [
+    "아바타 자연스러움",
+    "영상 번역·립싱크"
+   ],
+   "weaknesses": [
+    "유료 플랜 중심",
+    "실제 인물 복제는 동의 필요"
+   ],
+   "edge": "카메라 앞에 서지 않고 사람이 말하는 영상을 만들 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "영상",
+    "이미지"
+   ],
+   "output": [
+    "영상"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://www.heygen.com",
+   "alt": [
+    "synthesia",
+    "elevenlabs"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "synthesia",
+   "name": "Synthesia",
+   "company": "Synthesia",
+   "cat": [
+    "video",
+    "learning"
+   ],
+   "fit": {
+    "avatar": 2,
+    "dubbing": 1,
+    "ppt": 1
+   },
+   "layer": "app",
+   "role": [
+    "create",
+    "present"
+   ],
+   "purpose": "기업 교육·안내용 아바타 영상",
+   "desc": "기업 교육 영상, 사내 안내 영상을 아바타로 만드는 데 초점을 둔 서비스입니다. 팀 단위 협업과 브랜드 관리 기능이 있습니다.",
+   "bestFor": [
+    "사내 교육 영상",
+    "제품 사용 안내 영상"
+   ],
+   "strengths": [
+    "기업용 관리 기능",
+    "여러 언어 지원"
+   ],
+   "weaknesses": [
+    "개인 창작용으로는 비쌀 수 있음"
+   ],
+   "edge": "회사 교육·안내 영상을 꾸준히 만들어야 할 때",
+   "free": "unknown",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "슬라이드"
+   ],
+   "output": [
+    "영상"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://www.synthesia.io",
+   "alt": [
+    "heygen"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "capcut",
+   "name": "CapCut",
+   "company": "ByteDance",
+   "cat": [
+    "video"
+   ],
+   "fit": {
+    "video-edit": 2,
+    "shortform": 2,
+    "stt": 1,
+    "tts": 1
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "자동 자막과 템플릿으로 숏폼 편집",
+   "desc": "모바일과 PC에서 쓰는 영상 편집 앱입니다. 자동 자막, 템플릿, 배경 제거 같은 AI 기능으로 숏폼을 빠르게 편집할 수 있습니다.",
+   "bestFor": [
+    "쇼츠·릴스 편집",
+    "자동 자막",
+    "AI로 만든 클립 이어 붙이기"
+   ],
+   "strengths": [
+    "자동 자막",
+    "숏폼 템플릿",
+    "모바일 편집"
+   ],
+   "weaknesses": [
+    "일부 기능·소재는 유료",
+    "정교한 편집은 전문 툴이 나음"
+   ],
+   "edge": "만든 클립에 자막과 음악을 붙여 숏폼으로 마무리할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "영상",
+    "이미지",
+    "오디오"
+   ],
+   "output": [
+    "영상"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://www.capcut.com",
+   "alt": [
+    "descript"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "descript",
+   "name": "Descript",
+   "company": "Descript",
+   "cat": [
+    "video",
+    "audio"
+   ],
+   "fit": {
+    "video-edit": 2,
+    "stt": 2,
+    "audio-clean": 2,
+    "voice-clone": 1
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "문서를 고치듯 대본으로 영상·팟캐스트 편집",
+   "desc": "영상이나 녹음을 글로 받아 적은 뒤, 글에서 문장을 지우면 영상에서도 그 부분이 잘리는 방식의 편집 도구입니다.",
+   "bestFor": [
+    "인터뷰·강의 영상 편집",
+    "팟캐스트",
+    "말실수·군더더기 제거"
+   ],
+   "strengths": [
+    "텍스트 기반 편집",
+    "음성 잡음 제거",
+    "필러 단어 자동 제거"
+   ],
+   "weaknesses": [
+    "한국어 받아쓰기 정확도는 직접 확인 필요"
+   ],
+   "edge": "말이 중심인 영상을 대본 보면서 빠르게 자를 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "영상",
+    "오디오"
+   ],
+   "output": [
+    "영상",
+    "오디오",
+    "텍스트"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://www.descript.com",
+   "alt": [
+    "capcut",
+    "adobe-podcast"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "elevenlabs",
+   "name": "ElevenLabs",
+   "company": "ElevenLabs",
+   "cat": [
+    "audio",
+    "video"
+   ],
+   "fit": {
+    "tts": 2,
+    "voice-clone": 2,
+    "dubbing": 2,
+    "stt": 1,
+    "music": 1
+   },
+   "layer": "platform",
+   "role": [
+    "create"
+   ],
+   "purpose": "사람 같은 AI 음성과 목소리 복제",
+   "desc": "텍스트를 자연스러운 음성으로 읽어 주고 목소리 복제, 영상 더빙, 음성 에이전트 제작까지 제공하는 음성 AI 플랫폼입니다.",
+   "bestFor": [
+    "영상 내레이션",
+    "오디오북",
+    "내 목소리로 더빙"
+   ],
+   "strengths": [
+    "음성의 자연스러움",
+    "다국어",
+    "API 제공"
+   ],
+   "weaknesses": [
+    "사용량에 따라 비용 증가",
+    "타인 목소리 복제는 동의 필요"
+   ],
+   "edge": "내레이션 품질이 영상 완성도를 좌우할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "오디오"
+   ],
+   "output": [
+    "오디오"
+   ],
+   "tech": "자체 음성 모델",
+   "builtOn": [],
+   "url": "https://elevenlabs.io",
+   "alt": [
+    "heygen",
+    "descript"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "suno",
+   "name": "Suno",
+   "company": "Suno",
+   "cat": [
+    "audio"
+   ],
+   "fit": {
+    "music": 2
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "가사와 보컬이 있는 노래 생성",
+   "desc": "장르와 분위기를 적거나 가사를 넣으면 보컬이 포함된 노래를 만들어 줍니다.",
+   "bestFor": [
+    "영상 BGM",
+    "재미로 노래 만들기",
+    "광고 징글 시안"
+   ],
+   "strengths": [
+    "보컬 포함 완성곡",
+    "쉬운 사용"
+   ],
+   "weaknesses": [
+    "상업적 이용 범위는 요금제별로 확인 필요",
+    "음원 저작권 관련 분쟁 이력이 있음"
+   ],
+   "edge": "악기 연주 없이 완성된 노래가 필요할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "오디오"
+   ],
+   "output": [
+    "오디오"
+   ],
+   "tech": "자체 모델",
+   "builtOn": [],
+   "url": "https://suno.com",
+   "alt": [],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "whisper",
+   "name": "Whisper",
+   "company": "OpenAI",
+   "cat": [
+    "audio"
+   ],
+   "fit": {
+    "stt": 2,
+    "translate": 1
+   },
+   "layer": "model",
+   "role": [
+    "create"
+   ],
+   "purpose": "공개된 음성 인식 모델",
+   "desc": "OpenAI가 공개한 음성 인식 모델입니다. 직접 설치해 쓰거나 이 모델을 쓰는 다른 앱을 통해 녹음을 텍스트로 바꿀 수 있습니다.",
+   "bestFor": [
+    "녹음 파일 받아쓰기를 직접 처리",
+    "개발자가 앱에 STT 넣기"
+   ],
+   "strengths": [
+    "무료 공개 모델",
+    "다국어 인식",
+    "내 컴퓨터에서 실행 가능"
+   ],
+   "weaknesses": [
+    "직접 쓰려면 설치와 개발 지식 필요",
+    "화자 구분은 기본 기능이 아님"
+   ],
+   "edge": "녹음을 외부 서버에 올리지 않고 받아쓰고 싶을 때",
+   "free": "open",
+   "pricing": "모델 무료(API 이용 시 확인 필요)",
+   "difficulty": "어려움",
+   "input": [
+    "오디오"
+   ],
+   "output": [
+    "텍스트"
+   ],
+   "tech": "Whisper 음성 인식 모델(오픈소스)",
+   "builtOn": [],
+   "url": "https://github.com/openai/whisper",
+   "alt": [
+    "clova-note",
+    "otter"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "adobe-podcast",
+   "name": "Adobe Podcast",
+   "company": "Adobe",
+   "cat": [
+    "audio"
+   ],
+   "fit": {
+    "audio-clean": 2,
+    "stt": 1
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "녹음 음질을 스튜디오처럼 개선",
+   "desc": "잡음과 울림이 있는 녹음을 깨끗한 목소리로 바꿔 주는 음성 향상 기능으로 알려진 웹 서비스입니다.",
+   "bestFor": [
+    "휴대폰 녹음 음질 개선",
+    "인터뷰·강의 녹음 정리"
+   ],
+   "strengths": [
+    "원클릭 음성 향상"
+   ],
+   "weaknesses": [
+    "음악이나 효과음 처리는 목적이 아님"
+   ],
+   "edge": "이미 녹음한 파일의 음질만 빠르게 살리고 싶을 때",
+   "free": "freemium",
+   "pricing": "무료(파일당 30분·하루 1시간) / 유료 기능은 2026-08부터 Adobe Firefly Pro에 포함",
+   "difficulty": "쉬움",
+   "input": [
+    "오디오"
+   ],
+   "output": [
+    "오디오"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://podcast.adobe.com",
+   "alt": [
+    "descript"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "deepl",
+   "name": "DeepL",
+   "company": "DeepL",
+   "cat": [
+    "writing"
+   ],
+   "fit": {
+    "translate": 2,
+    "proofread": 1
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "자연스러운 번역과 문서 통번역",
+   "desc": "문장과 문서 파일을 번역하는 서비스입니다. 원문 서식을 유지한 채 문서를 번역하는 기능과 문장 다듬기 기능이 있습니다.",
+   "bestFor": [
+    "업무 메일·문서 번역",
+    "PDF·워드 파일 통째로 번역"
+   ],
+   "strengths": [
+    "번역 문장의 자연스러움",
+    "문서 서식 유지"
+   ],
+   "weaknesses": [
+    "무료 버전은 문서 수·글자 수 제한"
+   ],
+   "edge": "서식을 유지한 채 문서 전체를 번역해야 할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "문서"
+   ],
+   "output": [
+    "텍스트",
+    "문서"
+   ],
+   "tech": "자체 번역 모델",
+   "builtOn": [],
+   "url": "https://www.deepl.com",
+   "alt": [
+    "chatgpt",
+    "claude"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "grammarly",
+   "name": "Grammarly",
+   "company": "Grammarly",
+   "cat": [
+    "writing"
+   ],
+   "fit": {
+    "proofread": 2,
+    "write": 1
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "영어 문장 교정과 톤 조정",
+   "desc": "영어 글을 쓰는 동안 문법, 어휘, 톤을 실시간으로 고쳐 주는 도구입니다. 브라우저와 여러 앱에서 쓸 수 있습니다.",
+   "bestFor": [
+    "영문 이메일",
+    "영문 자소서·에세이 교정"
+   ],
+   "strengths": [
+    "실시간 교정",
+    "여러 앱에서 동작"
+   ],
+   "weaknesses": [
+    "한국어는 지원 대상이 아님"
+   ],
+   "edge": "영어 문장을 쓰는 그 자리에서 바로 고치고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트"
+   ],
+   "output": [
+    "텍스트"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://www.grammarly.com",
+   "alt": [
+    "deepl",
+    "claude"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "notion-ai",
+   "name": "Notion AI",
+   "company": "Notion",
+   "cat": [
+    "productivity",
+    "writing"
+   ],
+   "fit": {
+    "notes": 2,
+    "knowledge": 2,
+    "minutes": 1,
+    "summarize": 1,
+    "write": 1
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "노션 안에서 문서를 쓰고 워크스페이스를 검색",
+   "desc": "노션 페이지 안에서 글을 쓰고 요약하며, 워크스페이스 전체 문서를 검색해 답을 찾아 주는 기능입니다. 회의 노트 기능도 있습니다.",
+   "bestFor": [
+    "노션에 쌓인 자료 찾기",
+    "회의 노트 정리",
+    "문서 초안"
+   ],
+   "strengths": [
+    "내 노션 자료와 바로 연결",
+    "문서 작업 흐름 안에서 사용"
+   ],
+   "weaknesses": [
+    "노션을 쓰지 않으면 이점이 적음",
+    "요금 체계 확인 필요"
+   ],
+   "edge": "이미 노션에 자료를 모으고 있을 때",
+   "free": "unknown",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "노션 페이지",
+    "오디오"
+   ],
+   "output": [
+    "텍스트",
+    "문서"
+   ],
+   "tech": "외부 모델 사용(구성은 확인 필요)",
+   "builtOn": [],
+   "url": "https://www.notion.com/product/ai",
+   "alt": [
+    "claude",
+    "chatgpt"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "gamma",
+   "name": "Gamma",
+   "company": "Gamma",
+   "cat": [
+    "design"
+   ],
+   "fit": {
+    "ppt": 2,
+    "website": 1,
+    "infographic": 1
+   },
+   "layer": "app",
+   "role": [
+    "present"
+   ],
+   "purpose": "글 한 줄이나 문서로 발표자료 자동 생성",
+   "desc": "주제나 문서를 넣으면 디자인된 슬라이드를 자동으로 만들어 줍니다. 결과를 웹페이지처럼 공유하거나 PPT로 내보낼 수 있습니다.",
+   "bestFor": [
+    "발표자료 초안",
+    "문서를 슬라이드로 변환",
+    "간단한 소개 페이지"
+   ],
+   "strengths": [
+    "생성 속도",
+    "디자인 기본값",
+    "웹 공유"
+   ],
+   "weaknesses": [
+    "세밀한 레이아웃 조정은 제한적",
+    "PPT로 내보내면 일부 디자인이 달라질 수 있음"
+   ],
+   "edge": "디자인 고민 없이 발표자료 뼈대를 빠르게 만들 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "문서"
+   ],
+   "output": [
+    "슬라이드",
+    "웹페이지",
+    "PPT"
+   ],
+   "tech": "외부 모델 사용(구성은 확인 필요)",
+   "builtOn": [],
+   "url": "https://gamma.app",
+   "alt": [
+    "canva"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "canva",
+   "name": "Canva",
+   "company": "Canva",
+   "cat": [
+    "design",
+    "marketing"
+   ],
+   "fit": {
+    "graphic": 2,
+    "poster": 2,
+    "ppt": 2,
+    "sns": 2,
+    "bg-remove": 1,
+    "ad-creative": 1
+   },
+   "layer": "app",
+   "role": [
+    "present"
+   ],
+   "purpose": "템플릿과 AI 기능으로 누구나 하는 디자인",
+   "desc": "템플릿 기반 디자인 도구로 카드뉴스, 포스터, 발표자료, SNS 이미지를 만듭니다. 배경 제거, 이미지 생성, 글쓰기 같은 AI 기능이 들어 있습니다.",
+   "bestFor": [
+    "카드뉴스·SNS 이미지",
+    "포스터·배너",
+    "팀 공동 디자인"
+   ],
+   "strengths": [
+    "템플릿 양",
+    "쉬운 편집",
+    "협업"
+   ],
+   "weaknesses": [
+    "AI 기능 상당수가 유료",
+    "독창적인 디자인보다 템플릿 느낌"
+   ],
+   "edge": "디자이너 없이 바로 쓸 수 있는 결과물이 필요할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "이미지",
+    "PDF",
+    "슬라이드",
+    "영상"
+   ],
+   "tech": "자체 및 외부 모델(Leonardo 인수)",
+   "builtOn": [],
+   "url": "https://www.canva.com",
+   "alt": [
+    "gamma",
+    "figma"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "figma",
+   "name": "Figma",
+   "company": "Figma",
+   "cat": [
+    "design",
+    "coding"
+   ],
+   "fit": {
+    "uiux": 2,
+    "prototype": 2,
+    "graphic": 1
+   },
+   "layer": "platform",
+   "role": [
+    "present",
+    "build"
+   ],
+   "purpose": "UI 디자인 협업 툴과 AI 기능",
+   "desc": "앱과 웹 화면을 디자인하고 협업하는 표준 도구입니다. 프롬프트로 화면이나 프로토타입을 만드는 AI 기능이 추가되었습니다.",
+   "bestFor": [
+    "앱·웹 화면 설계",
+    "디자이너·개발자 협업"
+   ],
+   "strengths": [
+    "업계 표준 협업",
+    "디자인 시스템 관리"
+   ],
+   "weaknesses": [
+    "처음 쓰는 사람에겐 학습 필요",
+    "AI 기능 범위는 요금제별로 확인 필요"
+   ],
+   "edge": "디자인을 개발팀에 넘길 정식 화면 설계가 필요할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "디자인 파일",
+    "프로토타입"
+   ],
+   "tech": "외부 모델 사용(구성은 확인 필요)",
+   "builtOn": [],
+   "url": "https://www.figma.com",
+   "alt": [
+    "v0",
+    "canva"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "napkin",
+   "name": "Napkin AI",
+   "company": "Napkin",
+   "cat": [
+    "design"
+   ],
+   "fit": {
+    "infographic": 2,
+    "ppt": 1
+   },
+   "layer": "app",
+   "role": [
+    "present"
+   ],
+   "purpose": "글을 도식과 인포그래픽으로 바꾸기",
+   "desc": "문단을 붙여 넣으면 그 내용을 다이어그램, 흐름도, 인포그래픽으로 바꿔 줍니다.",
+   "bestFor": [
+    "보고서에 넣을 도식",
+    "개념 설명 그림"
+   ],
+   "strengths": [
+    "글 → 도식 변환",
+    "편집 가능한 결과"
+   ],
+   "weaknesses": [
+    "복잡한 데이터 차트는 목적이 아님"
+   ],
+   "edge": "설명 글을 한 장의 그림으로 정리하고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트"
+   ],
+   "output": [
+    "이미지",
+    "SVG"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://www.napkin.ai",
+   "alt": [
+    "gamma",
+    "canva"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "claude-code",
+   "name": "Claude Code",
+   "company": "Anthropic",
+   "cat": [
+    "coding",
+    "automation"
+   ],
+   "fit": {
+    "agentic-coding": 2,
+    "ai-coding": 2,
+    "code-review": 2,
+    "webapp": 1,
+    "agent-build": 1
+   },
+   "layer": "app",
+   "role": [
+    "build"
+   ],
+   "purpose": "코드베이스 전체를 읽고 작업하는 에이전트 코딩 도구",
+   "desc": "터미널, IDE, 웹, 데스크톱 앱에서 쓰는 에이전트형 코딩 도구입니다. 프로젝트 파일을 읽고 여러 파일을 고치고 명령을 실행하며 작업을 끝까지 진행합니다.",
+   "bestFor": [
+    "기존 프로젝트에 기능 추가",
+    "여러 파일에 걸친 수정",
+    "버그 원인 찾기"
+   ],
+   "strengths": [
+    "코드베이스 이해",
+    "여러 단계 작업을 스스로 진행",
+    "명령 실행·테스트"
+   ],
+   "weaknesses": [
+    "유료 플랜이나 API 사용 필요",
+    "개발 환경 지식이 있어야 효과가 큼"
+   ],
+   "edge": "자동완성이 아니라 작업 단위로 코딩을 맡기고 싶을 때",
+   "free": "paid",
+   "pricing": "확인 필요",
+   "difficulty": "어려움",
+   "input": [
+    "텍스트",
+    "코드",
+    "이미지"
+   ],
+   "output": [
+    "코드",
+    "커밋"
+   ],
+   "tech": "Anthropic Claude 계열 모델",
+   "builtOn": [
+    "claude-model"
+   ],
+   "url": "https://claude.com/product/claude-code",
+   "alt": [
+    "cursor",
+    "codex",
+    "github-copilot"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "cursor",
+   "name": "Cursor",
+   "company": "Anysphere",
+   "cat": [
+    "coding"
+   ],
+   "fit": {
+    "ai-coding": 2,
+    "agentic-coding": 2,
+    "code-review": 1,
+    "webapp": 1
+   },
+   "layer": "app",
+   "role": [
+    "build"
+   ],
+   "purpose": "AI가 들어간 코드 에디터",
+   "desc": "VS Code 기반의 AI 코드 에디터로 자동완성, 대화형 수정, 에이전트 모드를 제공합니다. 여러 회사의 모델을 골라 쓸 수 있습니다.",
+   "bestFor": [
+    "에디터에서 코딩하며 AI 도움",
+    "프로젝트 전체 검색·수정"
+   ],
+   "strengths": [
+    "익숙한 에디터 환경",
+    "모델 선택",
+    "빠른 자동완성"
+   ],
+   "weaknesses": [
+    "사용량 많으면 비용 증가",
+    "개발 지식 필요"
+   ],
+   "edge": "에디터 화면에서 코드를 보면서 AI와 함께 고치고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "텍스트",
+    "코드"
+   ],
+   "output": [
+    "코드"
+   ],
+   "tech": "여러 외부 모델과 자체 모델",
+   "builtOn": [],
+   "url": "https://cursor.com",
+   "alt": [
+    "claude-code",
+    "github-copilot"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "github-copilot",
+   "name": "GitHub Copilot",
+   "company": "GitHub (Microsoft)",
+   "cat": [
+    "coding"
+   ],
+   "fit": {
+    "ai-coding": 2,
+    "code-review": 2,
+    "agentic-coding": 1
+   },
+   "layer": "app",
+   "role": [
+    "build"
+   ],
+   "purpose": "GitHub와 연결된 AI 코딩 도우미",
+   "desc": "VS Code 등 여러 에디터와 GitHub에서 쓰는 AI 코딩 도우미입니다. 자동완성, 채팅, 코드 리뷰, 이슈를 맡기는 에이전트 기능이 있습니다.",
+   "bestFor": [
+    "회사 GitHub 환경",
+    "PR 코드 리뷰",
+    "자동완성"
+   ],
+   "strengths": [
+    "GitHub 연동",
+    "여러 에디터 지원",
+    "기업 관리 기능"
+   ],
+   "weaknesses": [
+    "무료 버전 사용량 제한"
+   ],
+   "edge": "팀이 GitHub로 협업하고 있을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "텍스트",
+    "코드"
+   ],
+   "output": [
+    "코드",
+    "리뷰 코멘트"
+   ],
+   "tech": "여러 외부 모델 선택",
+   "builtOn": [],
+   "url": "https://github.com/features/copilot",
+   "alt": [
+    "cursor",
+    "claude-code"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "codex",
+   "name": "OpenAI Codex",
+   "company": "OpenAI",
+   "cat": [
+    "coding"
+   ],
+   "fit": {
+    "agentic-coding": 2,
+    "ai-coding": 2,
+    "code-review": 1
+   },
+   "layer": "app",
+   "role": [
+    "build"
+   ],
+   "purpose": "OpenAI의 에이전트 코딩 도구",
+   "desc": "OpenAI의 코딩 에이전트로 클라우드나 터미널, IDE에서 코딩 작업을 맡길 수 있습니다. ChatGPT 요금제와 연결되어 있습니다.",
+   "bestFor": [
+    "코딩 작업 위임",
+    "여러 작업 병렬 진행"
+   ],
+   "strengths": [
+    "ChatGPT 계정으로 사용",
+    "클라우드 실행"
+   ],
+   "weaknesses": [
+    "요금제별 사용량 확인 필요"
+   ],
+   "edge": "ChatGPT를 이미 쓰고 있고 코딩 작업도 맡기고 싶을 때",
+   "free": "unknown",
+   "pricing": "확인 필요",
+   "difficulty": "어려움",
+   "input": [
+    "텍스트",
+    "코드"
+   ],
+   "output": [
+    "코드",
+    "PR"
+   ],
+   "tech": "OpenAI GPT 계열 모델",
+   "builtOn": [
+    "gpt"
+   ],
+   "url": "https://openai.com/codex/",
+   "alt": [
+    "claude-code",
+    "cursor"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "lovable",
+   "name": "Lovable",
+   "company": "Lovable",
+   "cat": [
+    "coding"
+   ],
+   "fit": {
+    "webapp": 2,
+    "website": 2,
+    "prototype": 2
+   },
+   "layer": "platform",
+   "role": [
+    "build"
+   ],
+   "purpose": "말로 설명해서 웹앱을 만들고 배포",
+   "desc": "만들고 싶은 서비스를 설명하면 화면과 기능을 갖춘 웹앱을 만들고 배포까지 해 줍니다. 로그인, 데이터베이스 같은 백엔드도 연결할 수 있습니다.",
+   "bestFor": [
+    "코딩 없이 MVP",
+    "아이디어 검증용 서비스",
+    "내부 업무 도구"
+   ],
+   "strengths": [
+    "코딩 지식 없이 시작",
+    "배포까지 한 번에",
+    "백엔드 연결"
+   ],
+   "weaknesses": [
+    "복잡해지면 수정이 꼬일 수 있음",
+    "크레딧 소모"
+   ],
+   "edge": "개발자 없이 실제로 동작하는 서비스를 띄워 보고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "웹앱",
+    "코드"
+   ],
+   "tech": "외부 모델 사용(구성은 확인 필요)",
+   "builtOn": [],
+   "url": "https://lovable.dev",
+   "alt": [
+    "bolt",
+    "v0",
+    "replit"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "bolt",
+   "name": "Bolt",
+   "company": "StackBlitz",
+   "cat": [
+    "coding"
+   ],
+   "fit": {
+    "webapp": 2,
+    "website": 2,
+    "prototype": 2,
+    "mobile-app": 1
+   },
+   "layer": "platform",
+   "role": [
+    "build"
+   ],
+   "purpose": "브라우저에서 바로 웹앱 생성·실행",
+   "desc": "브라우저 안에서 개발 환경을 띄워 설명대로 웹앱을 만들고 바로 실행해 볼 수 있습니다.",
+   "bestFor": [
+    "빠른 웹앱 시제품",
+    "코드 보면서 수정"
+   ],
+   "strengths": [
+    "설치 없이 실행",
+    "코드 직접 수정 가능"
+   ],
+   "weaknesses": [
+    "큰 프로젝트에선 한계",
+    "토큰 사용량 관리 필요"
+   ],
+   "edge": "만들어지는 코드를 보면서 웹앱을 빠르게 뽑을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "웹앱",
+    "코드"
+   ],
+   "tech": "외부 모델 사용(구성은 확인 필요)",
+   "builtOn": [],
+   "url": "https://bolt.new",
+   "alt": [
+    "lovable",
+    "v0",
+    "replit"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "replit",
+   "name": "Replit",
+   "company": "Replit",
+   "cat": [
+    "coding"
+   ],
+   "fit": {
+    "webapp": 2,
+    "mobile-app": 1,
+    "prototype": 2,
+    "ai-coding": 1,
+    "agent-build": 1
+   },
+   "layer": "platform",
+   "role": [
+    "build"
+   ],
+   "purpose": "만들고 실행하고 배포까지 하는 온라인 개발 환경",
+   "desc": "브라우저 기반 개발 환경에 AI 에이전트가 붙어 있어 앱을 만들고 호스팅까지 한 곳에서 할 수 있습니다.",
+   "bestFor": [
+    "백엔드가 있는 앱",
+    "배포까지 한 곳에서"
+   ],
+   "strengths": [
+    "실행·호스팅 통합",
+    "여러 언어 지원"
+   ],
+   "weaknesses": [
+    "사용량 기반 비용",
+    "에이전트 작업이 길어지면 비용 증가"
+   ],
+   "edge": "서버까지 포함한 앱을 한 서비스 안에서 끝내고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "텍스트",
+    "코드"
+   ],
+   "output": [
+    "웹앱",
+    "코드"
+   ],
+   "tech": "외부 모델 사용(구성은 확인 필요)",
+   "builtOn": [],
+   "url": "https://replit.com",
+   "alt": [
+    "lovable",
+    "bolt"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "v0",
+   "name": "v0",
+   "company": "Vercel",
+   "cat": [
+    "coding",
+    "design"
+   ],
+   "fit": {
+    "uiux": 2,
+    "website": 2,
+    "webapp": 1,
+    "prototype": 2
+   },
+   "layer": "app",
+   "role": [
+    "build",
+    "present"
+   ],
+   "purpose": "웹 화면(UI)을 코드로 빠르게 생성",
+   "desc": "Vercel이 만든 도구로 설명이나 스크린샷을 넣으면 React 기반 화면 코드를 만들어 줍니다. Vercel로 바로 배포할 수 있습니다.",
+   "bestFor": [
+    "랜딩 페이지",
+    "웹 화면 시안",
+    "디자인을 코드로"
+   ],
+   "strengths": [
+    "화면 품질",
+    "실제 쓸 수 있는 코드",
+    "Vercel 배포"
+   ],
+   "weaknesses": [
+    "복잡한 백엔드는 다른 도구가 나음"
+   ],
+   "edge": "개발에 바로 쓸 수 있는 화면 코드가 필요할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "코드",
+    "웹페이지"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://v0.app",
+   "alt": [
+    "lovable",
+    "bolt",
+    "figma"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "n8n",
+   "name": "n8n",
+   "company": "n8n",
+   "cat": [
+    "automation"
+   ],
+   "fit": {
+    "workflow": 2,
+    "agent-build": 2,
+    "api-connect": 2,
+    "web-auto": 1,
+    "rag": 1
+   },
+   "layer": "workflow",
+   "role": [
+    "connect"
+   ],
+   "purpose": "직접 설치도 되는 노드형 업무 자동화",
+   "desc": "노드를 연결해 앱과 AI를 잇는 워크플로우 자동화 도구입니다. 직접 서버에 설치해 쓸 수 있고, AI 에이전트 노드로 복잡한 흐름을 만들 수 있습니다.",
+   "bestFor": [
+    "AI가 들어간 업무 자동화",
+    "회사 내부 서버에서 운영",
+    "복잡한 분기 흐름"
+   ],
+   "strengths": [
+    "직접 설치 가능",
+    "유연한 흐름 설계",
+    "AI 에이전트 노드"
+   ],
+   "weaknesses": [
+    "처음엔 어렵게 느껴짐",
+    "직접 운영하면 서버 관리 필요"
+   ],
+   "edge": "자동화를 세밀하게 짜고 데이터를 내 서버에 두고 싶을 때",
+   "free": "open",
+   "pricing": "직접 설치 무료, 클라우드 확인 필요",
+   "difficulty": "어려움",
+   "input": [
+    "앱 데이터",
+    "API",
+    "웹훅"
+   ],
+   "output": [
+    "자동화 실행"
+   ],
+   "tech": "외부 AI 모델 연결형",
+   "builtOn": [],
+   "url": "https://n8n.io",
+   "alt": [
+    "make",
+    "zapier",
+    "dify"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "make",
+   "name": "Make",
+   "company": "Make (Celonis)",
+   "cat": [
+    "automation"
+   ],
+   "fit": {
+    "workflow": 2,
+    "api-connect": 2,
+    "agent-build": 1
+   },
+   "layer": "workflow",
+   "role": [
+    "connect"
+   ],
+   "purpose": "화면에서 흐름을 그리며 만드는 업무 자동화",
+   "desc": "앱들을 시각적인 흐름도로 연결하는 자동화 도구입니다. Zapier보다 복잡한 흐름을 그리기 쉽고 n8n보다 시작이 쉽다는 평가가 많습니다.",
+   "bestFor": [
+    "여러 단계의 업무 자동화",
+    "데이터 가공이 있는 흐름"
+   ],
+   "strengths": [
+    "시각적 설계",
+    "복잡한 분기 처리"
+   ],
+   "weaknesses": [
+    "실행 횟수 기반 과금"
+   ],
+   "edge": "코딩 없이 여러 단계로 나뉜 자동화를 만들 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "앱 데이터",
+    "API"
+   ],
+   "output": [
+    "자동화 실행"
+   ],
+   "tech": "외부 AI 모델 연결형",
+   "builtOn": [],
+   "url": "https://www.make.com",
+   "alt": [
+    "zapier",
+    "n8n"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "zapier",
+   "name": "Zapier",
+   "company": "Zapier",
+   "cat": [
+    "automation"
+   ],
+   "fit": {
+    "workflow": 2,
+    "api-connect": 2,
+    "agent-build": 1
+   },
+   "layer": "workflow",
+   "role": [
+    "connect"
+   ],
+   "purpose": "가장 많은 앱과 연결되는 쉬운 자동화",
+   "desc": "\"이 일이 생기면 저 일을 해라\" 형태로 앱을 연결하는 자동화 도구입니다. 연결 가능한 앱이 매우 많고 AI 단계와 에이전트 기능도 있습니다.",
+   "bestFor": [
+    "간단한 업무 연결",
+    "알림·기록 자동화"
+   ],
+   "strengths": [
+    "연동 앱 수",
+    "쉬운 시작"
+   ],
+   "weaknesses": [
+    "단계가 많아지면 비용이 빨리 늘어남"
+   ],
+   "edge": "자동화를 처음 해 보거나 연결할 앱이 특이할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "앱 데이터"
+   ],
+   "output": [
+    "자동화 실행"
+   ],
+   "tech": "외부 AI 모델 연결형",
+   "builtOn": [],
+   "url": "https://zapier.com",
+   "alt": [
+    "make",
+    "n8n"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "dify",
+   "name": "Dify",
+   "company": "LangGenius",
+   "cat": [
+    "automation"
+   ],
+   "fit": {
+    "agent-build": 2,
+    "rag": 2,
+    "workflow": 1
+   },
+   "layer": "platform",
+   "role": [
+    "connect",
+    "build"
+   ],
+   "purpose": "문서 챗봇과 AI 앱을 만드는 오픈소스 플랫폼",
+   "desc": "문서를 올려 질문에 답하는 챗봇이나 AI 에이전트를 화면에서 조립해 만드는 오픈소스 플랫폼입니다. 직접 설치하거나 클라우드로 쓸 수 있습니다.",
+   "bestFor": [
+    "사내 문서 챗봇",
+    "AI 앱 프로토타입"
+   ],
+   "strengths": [
+    "문서 검색(RAG) 기능 내장",
+    "여러 모델 연결",
+    "오픈소스"
+   ],
+   "weaknesses": [
+    "운영하려면 기술 이해 필요"
+   ],
+   "edge": "내 문서를 아는 챗봇을 직접 만들고 싶을 때",
+   "free": "open",
+   "pricing": "직접 설치 무료, 클라우드 확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "문서",
+    "텍스트",
+    "API"
+   ],
+   "output": [
+    "챗봇",
+    "AI 앱"
+   ],
+   "tech": "외부 AI 모델 연결형",
+   "builtOn": [],
+   "url": "https://dify.ai",
+   "alt": [
+    "n8n"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "julius",
+   "name": "Julius AI",
+   "company": "Julius AI",
+   "cat": [
+    "data"
+   ],
+   "fit": {
+    "data-analysis": 2,
+    "viz": 2,
+    "excel": 1
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "엑셀·CSV를 올려 대화로 분석하고 차트 만들기",
+   "desc": "데이터 파일을 올리고 질문하면 분석 코드를 돌려 표와 차트로 답하는 데이터 분석 도구입니다.",
+   "bestFor": [
+    "엑셀 데이터 분석",
+    "차트 만들기",
+    "통계 기초 분석"
+   ],
+   "strengths": [
+    "데이터 분석 특화",
+    "차트 출력"
+   ],
+   "weaknesses": [
+    "회사 데이터 업로드 전 보안 정책 확인 필요"
+   ],
+   "edge": "분석 코드를 몰라도 데이터에서 숫자와 그래프를 뽑고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "CSV",
+    "엑셀",
+    "텍스트"
+   ],
+   "output": [
+    "차트",
+    "표",
+    "텍스트"
+   ],
+   "tech": "외부 모델 사용(구성은 확인 필요)",
+   "builtOn": [],
+   "url": "https://julius.ai",
+   "alt": [
+    "chatgpt",
+    "m365-copilot"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "m365-copilot",
+   "name": "Microsoft 365 Copilot",
+   "company": "Microsoft",
+   "cat": [
+    "data",
+    "productivity"
+   ],
+   "fit": {
+    "excel": 2,
+    "ppt": 1,
+    "email": 2,
+    "minutes": 1,
+    "data-analysis": 1,
+    "write": 1
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "엑셀·워드·파워포인트·아웃룩 안의 AI",
+   "desc": "오피스 프로그램 안에서 엑셀 수식과 분석, 워드 초안, PPT 생성, 메일 요약, Teams 회의 요약을 돕는 AI입니다.",
+   "bestFor": [
+    "엑셀 수식·분석",
+    "회사 오피스 문서 작업",
+    "Teams 회의 요약"
+   ],
+   "strengths": [
+    "오피스 파일 안에서 바로 사용",
+    "회사 계정·보안 정책 연동"
+   ],
+   "weaknesses": [
+    "회사 라이선스 필요",
+    "개인 요금제 범위는 확인 필요"
+   ],
+   "edge": "회사가 Microsoft 365를 쓰고 있을 때",
+   "free": "paid",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "오피스 문서",
+    "메일",
+    "회의"
+   ],
+   "output": [
+    "문서",
+    "표",
+    "슬라이드"
+   ],
+   "tech": "OpenAI 모델 등 외부 모델 사용",
+   "builtOn": [],
+   "url": "https://www.microsoft.com/microsoft-365/copilot",
+   "alt": [
+    "julius",
+    "gemini",
+    "chatgpt"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "clova-note",
+   "name": "CLOVA Note",
+   "company": "NAVER",
+   "cat": [
+    "productivity",
+    "audio"
+   ],
+   "fit": {
+    "meeting-record": 2,
+    "minutes": 2,
+    "stt": 2
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "한국어 회의 녹음 받아쓰기와 요약",
+   "desc": "네이버의 음성 기록 서비스로 녹음하면 말한 사람별로 나눠 받아 적고 요약해 줍니다. 한국어 인식에 강점이 있습니다.",
+   "bestFor": [
+    "한국어 회의록",
+    "강의·인터뷰 녹음 정리"
+   ],
+   "strengths": [
+    "한국어 인식",
+    "화자 구분",
+    "모바일 앱"
+   ],
+   "weaknesses": [
+    "무료 사용 시간 제한(확인 필요)"
+   ],
+   "edge": "한국어 대화를 정확하게 받아 적어야 할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "오디오"
+   ],
+   "output": [
+    "텍스트",
+    "요약"
+   ],
+   "tech": "NAVER 음성 인식 기술",
+   "builtOn": [],
+   "url": "https://clovanote.naver.com",
+   "alt": [
+    "otter",
+    "fireflies",
+    "whisper"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "otter",
+   "name": "Otter.ai",
+   "company": "Otter.ai",
+   "cat": [
+    "productivity",
+    "audio"
+   ],
+   "fit": {
+    "meeting-record": 2,
+    "minutes": 2,
+    "stt": 2
+   },
+   "layer": "app",
+   "role": [
+    "think"
+   ],
+   "purpose": "영어 화상회의 자동 기록",
+   "desc": "Zoom, Google Meet 같은 화상회의에 참석해 실시간으로 기록하고 요약과 할 일을 정리합니다.",
+   "bestFor": [
+    "영어 회의",
+    "화상회의 자동 기록"
+   ],
+   "strengths": [
+    "실시간 기록",
+    "회의 앱 연동"
+   ],
+   "weaknesses": [
+    "한국어 지원 범위 확인 필요"
+   ],
+   "edge": "영어 화상회의를 놓치지 않고 기록하고 싶을 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "오디오",
+    "화상회의"
+   ],
+   "output": [
+    "텍스트",
+    "요약"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://otter.ai",
+   "alt": [
+    "fireflies",
+    "clova-note"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "fireflies",
+   "name": "Fireflies.ai",
+   "company": "Fireflies",
+   "cat": [
+    "productivity"
+   ],
+   "fit": {
+    "meeting-record": 2,
+    "minutes": 2,
+    "knowledge": 1,
+    "api-connect": 1
+   },
+   "layer": "app",
+   "role": [
+    "think",
+    "connect"
+   ],
+   "purpose": "회의 기록을 업무 도구에 자동으로 넘기기",
+   "desc": "화상회의를 기록하고 요약한 뒤 CRM, 슬랙, 노션 같은 업무 도구로 내용을 넘길 수 있는 회의 도우미입니다.",
+   "bestFor": [
+    "영업·고객 미팅 기록",
+    "회의 내용을 업무 도구로 전달"
+   ],
+   "strengths": [
+    "업무 도구 연동",
+    "회의 검색"
+   ],
+   "weaknesses": [
+    "한국어 정확도는 직접 확인 필요"
+   ],
+   "edge": "회의 내용을 CRM이나 협업 툴로 바로 보내야 할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "쉬움",
+   "input": [
+    "오디오",
+    "화상회의"
+   ],
+   "output": [
+    "텍스트",
+    "요약"
+   ],
+   "tech": "확인 필요",
+   "builtOn": [],
+   "url": "https://fireflies.ai",
+   "alt": [
+    "otter",
+    "clova-note"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  },
+  {
+   "id": "meshy",
+   "name": "Meshy",
+   "company": "Meshy",
+   "cat": [
+    "3d"
+   ],
+   "fit": {
+    "model3d": 2,
+    "game-asset": 2
+   },
+   "layer": "app",
+   "role": [
+    "create"
+   ],
+   "purpose": "텍스트·이미지로 3D 모델 만들기",
+   "desc": "글이나 이미지를 넣으면 텍스처가 입혀진 3D 모델을 만들어 줍니다. 게임 엔진이나 3D 프린팅용으로 내보낼 수 있습니다.",
+   "bestFor": [
+    "게임 소품",
+    "3D 프린팅 시안",
+    "3D 목업"
+   ],
+   "strengths": [
+    "3D 생성 특화",
+    "여러 파일 형식 내보내기"
+   ],
+   "weaknesses": [
+    "복잡한 형태는 후작업 필요"
+   ],
+   "edge": "모델링 없이 3D 오브젝트가 필요할 때",
+   "free": "freemium",
+   "pricing": "확인 필요",
+   "difficulty": "보통",
+   "input": [
+    "텍스트",
+    "이미지"
+   ],
+   "output": [
+    "3D 모델"
+   ],
+   "tech": "자체 모델",
+   "builtOn": [],
+   "url": "https://www.meshy.ai",
+   "alt": [
+    "leonardo"
+   ],
+   "lastVerified": "2026-11-12 (공식 사이트 접속 확인)"
+  }
+ ],
+ "WORKFLOWS": [
+  {
+   "id": "brand-video",
+   "name": "브랜드 홍보영상 만들기",
+   "tags": [
+    "t2v",
+    "i2v",
+    "ad-creative",
+    "tts",
+    "video-edit"
+   ],
+   "summary": "아이디어부터 내레이션이 들어간 30초 홍보영상까지",
+   "steps": [
+    {
+     "label": "아이디어·대본",
+     "tool": "claude",
+     "alt": [
+      "chatgpt"
+     ],
+     "note": "타깃, 메시지, 장면별 대본을 정리합니다"
+    },
+    {
+     "label": "핵심 장면 이미지",
+     "tool": "nano-banana",
+     "alt": [
+      "midjourney",
+      "firefly"
+     ],
+     "note": "같은 제품·인물이 여러 장면에 나오도록 맞춥니다"
+    },
+    {
+     "label": "이미지 → 영상",
+     "tool": "kling",
+     "alt": [
+      "veo",
+      "runway"
+     ],
+     "note": "장면별 3~10초 클립을 만듭니다"
+    },
+    {
+     "label": "내레이션",
+     "tool": "elevenlabs",
+     "alt": [
+      "capcut"
+     ],
+     "note": "대본을 음성으로 만듭니다"
+    },
+    {
+     "label": "편집·자막",
+     "tool": "capcut",
+     "alt": [
+      "descript"
+     ],
+     "note": "클립을 잇고 자막과 음악을 넣습니다"
+    }
+   ]
+  },
+  {
+   "id": "market-report",
+   "name": "시장조사 보고서 쓰기",
+   "tags": [
+    "market-research",
+    "competitor",
+    "deep-research",
+    "ppt"
+   ],
+   "summary": "자료 수집 → 리포트 → 검증 → 발표자료",
+   "steps": [
+    {
+     "label": "빠른 현황 파악",
+     "tool": "perplexity",
+     "alt": [
+      "liner"
+     ],
+     "note": "출처 링크를 보며 시장 규모와 주요 기업을 훑습니다"
+    },
+    {
+     "label": "심층 리포트(ChatGPT 심층 리서치)",
+     "tool": "chatgpt",
+     "alt": [
+      "gemini"
+     ],
+     "note": "경쟁 구도와 트렌드를 긴 보고서로 받습니다"
+    },
+    {
+     "label": "내 자료로 검증",
+     "tool": "notebooklm",
+     "alt": [
+      "claude"
+     ],
+     "note": "공시·보고서 PDF를 올려 수치를 원문과 대조합니다"
+    },
+    {
+     "label": "발표자료",
+     "tool": "gamma",
+     "alt": [
+      "canva"
+     ],
+     "note": "핵심만 추려 슬라이드로 만듭니다"
+    }
+   ]
+  },
+  {
+   "id": "shorts",
+   "name": "유튜브 쇼츠 만들기",
+   "tags": [
+    "shortform",
+    "t2v",
+    "music",
+    "video-edit"
+   ],
+   "summary": "대본 한 장으로 BGM 들어간 쇼츠 완성",
+   "steps": [
+    {
+     "label": "기획·대본",
+     "tool": "chatgpt",
+     "alt": [
+      "claude"
+     ],
+     "note": "첫 2초 훅과 장면 구성을 정합니다"
+    },
+    {
+     "label": "영상 클립",
+     "tool": "veo",
+     "alt": [
+      "kling"
+     ],
+     "note": "세로 비율로 클립을 만듭니다"
+    },
+    {
+     "label": "BGM",
+     "tool": "suno",
+     "alt": [],
+     "note": "분위기에 맞는 배경음을 만듭니다(상업 이용 조건 확인)"
+    },
+    {
+     "label": "편집·자막",
+     "tool": "capcut",
+     "alt": [],
+     "note": "자동 자막과 컷 편집으로 마무리합니다"
+    }
+   ]
+  },
+  {
+   "id": "web-mvp",
+   "name": "웹 서비스 MVP 만들기",
+   "tags": [
+    "webapp",
+    "website",
+    "prototype",
+    "uiux"
+   ],
+   "summary": "아이디어를 실제로 동작하는 웹앱으로",
+   "steps": [
+    {
+     "label": "기능 정의",
+     "tool": "claude",
+     "alt": [
+      "chatgpt"
+     ],
+     "note": "핵심 기능과 화면 목록을 정리합니다"
+    },
+    {
+     "label": "화면 시안",
+     "tool": "v0",
+     "alt": [
+      "figma"
+     ],
+     "note": "주요 화면을 먼저 만들어 봅니다"
+    },
+    {
+     "label": "앱 생성·배포",
+     "tool": "lovable",
+     "alt": [
+      "bolt",
+      "replit"
+     ],
+     "note": "로그인, 데이터 저장까지 붙여 배포합니다"
+    },
+    {
+     "label": "코드 다듬기",
+     "tool": "claude-code",
+     "alt": [
+      "cursor"
+     ],
+     "note": "커지면 코드를 내려받아 직접 고칩니다"
+    }
+   ]
+  },
+  {
+   "id": "meeting-flow",
+   "name": "회의 내용 → 할 일 정리",
+   "tags": [
+    "meeting-record",
+    "minutes",
+    "workflow",
+    "notes"
+   ],
+   "summary": "녹음부터 담당자별 할 일 공유까지",
+   "steps": [
+    {
+     "label": "녹음·받아쓰기",
+     "tool": "clova-note",
+     "alt": [
+      "otter",
+      "fireflies"
+     ],
+     "note": "화자별로 기록합니다"
+    },
+    {
+     "label": "결정사항 요약",
+     "tool": "claude",
+     "alt": [
+      "chatgpt"
+     ],
+     "note": "결정사항, 할 일, 담당자, 기한으로 나눕니다"
+    },
+    {
+     "label": "기록 보관",
+     "tool": "notion-ai",
+     "alt": [],
+     "note": "회의록 페이지로 저장합니다"
+    },
+    {
+     "label": "알림 자동화",
+     "tool": "zapier",
+     "alt": [
+      "make",
+      "n8n"
+     ],
+     "note": "담당자에게 메신저 알림을 보냅니다"
+    }
+   ]
+  },
+  {
+   "id": "product-page",
+   "name": "쇼핑몰 상세페이지 만들기",
+   "tags": [
+    "product-img",
+    "bg-remove",
+    "copy",
+    "graphic"
+   ],
+   "summary": "상품 사진 한 장에서 상세페이지 이미지까지",
+   "steps": [
+    {
+     "label": "배경 제거",
+     "tool": "photoroom",
+     "alt": [
+      "canva"
+     ],
+     "note": "상품만 깔끔하게 남깁니다"
+    },
+    {
+     "label": "연출 컷",
+     "tool": "nano-banana",
+     "alt": [
+      "firefly"
+     ],
+     "note": "사용 장면이나 배경을 합성합니다"
+    },
+    {
+     "label": "상세 문구",
+     "tool": "chatgpt",
+     "alt": [
+      "claude"
+     ],
+     "note": "특징, 사용법, 구매 이유를 문구로 씁니다"
+    },
+    {
+     "label": "페이지 레이아웃",
+     "tool": "canva",
+     "alt": [],
+     "note": "템플릿에 사진과 문구를 배치합니다"
+    }
+   ]
+  },
+  {
+   "id": "paper-review",
+   "name": "논문 조사·정리",
+   "tags": [
+    "paper",
+    "summarize",
+    "source-docs"
+   ],
+   "summary": "논문 찾기부터 요약 노트까지",
+   "steps": [
+    {
+     "label": "논문 찾기",
+     "tool": "elicit",
+     "alt": [
+      "consensus"
+     ],
+     "note": "연구 질문으로 관련 논문을 모읍니다"
+    },
+    {
+     "label": "내용 이해",
+     "tool": "notebooklm",
+     "alt": [
+      "claude"
+     ],
+     "note": "PDF를 올려 핵심과 한계를 질문합니다"
+    },
+    {
+     "label": "정리·글쓰기",
+     "tool": "claude",
+     "alt": [
+      "chatgpt"
+     ],
+     "note": "비교표와 요약 노트를 만듭니다"
+    }
+   ]
+  },
+  {
+   "id": "doc-bot",
+   "name": "사내 문서 챗봇 만들기",
+   "tags": [
+    "rag",
+    "agent-build",
+    "api-connect"
+   ],
+   "summary": "회사 문서를 아는 질문 답변 봇",
+   "steps": [
+    {
+     "label": "문서 정리",
+     "tool": "notion-ai",
+     "alt": [
+      "claude"
+     ],
+     "note": "규정·매뉴얼을 최신본으로 모읍니다"
+    },
+    {
+     "label": "챗봇 구축",
+     "tool": "dify",
+     "alt": [],
+     "note": "문서를 올리고 답변 규칙을 정합니다"
+    },
+    {
+     "label": "메신저 연결",
+     "tool": "n8n",
+     "alt": [
+      "make"
+     ],
+     "note": "슬랙 같은 사내 메신저로 질문을 받습니다"
+    }
+   ]
+  }
+ ],
+ "UPDATES": [
+  {
+   "date": "2026-11-12",
+   "type": "update",
+   "tool": "정리",
+   "title": "목록에서 7개 뺌: Sora(서비스 종료), Udio(결과물 내려받기 막힘), Pika(클립 생성에서 방향 전환), Flowise(Workday 인수 후 기업용으로), Beautiful.ai(Gamma와 겹침), ChatGPT 심층 리서치·이미지 생성(ChatGPT 안 기능이라 ChatGPT에 합침)",
+   "source": ""
+  },
+  {
+   "date": "2026-07-16",
+   "type": "update",
+   "tool": "notebooklm",
+   "title": "NotebookLM → Gemini Notebook으로 이름 변경, 주소는 notebook.google.com",
+   "source": "https://www.nlmtools.com/blog/notebooklm-is-now-gemini-notebook"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "update",
+   "tool": "adobe-podcast",
+   "title": "Podcast Premium 단독 판매 종료 — 유료 기능은 Firefly Pro로, 무료 음성 보정은 그대로",
+   "source": "https://www.yaps.ai/blog/adobe-podcast-enhance-alternative"
+  },
+  {
+   "date": "2026-07-31",
+   "type": "model",
+   "tool": "hailuo",
+   "title": "MiniMax H3(Hailuo 3.0) 공개 — 2K 영상 + 소리 생성",
+   "source": "https://pasqualepillitteri.it/en/news/9204/minimax-h3-2k-ai-video-open-weights"
+  },
+  {
+   "date": "2026-04-26",
+   "type": "update",
+   "tool": "Sora",
+   "title": "OpenAI Sora 앱·웹 종료(API는 2026-09-24 종료) — 목록에서 뺌",
+   "source": "https://www.forbes.com/sites/ronschmelzer/2026/03/24/openai-discontinues-ai-video-gen-app-sora/"
+  }
+ ]
 };
-
 </script>
 <script>
 (function(){
@@ -2027,13 +4888,13 @@ const ICONS = {
   dark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>'
 };
 const THEME_TXT = {system:"시스템",light:"라이트",dark:"다크"};
-let theme = store.get("theme","system");
+let theme = store.get("theme","dark"); if(theme==="system") theme="dark";
 function applyTheme(){
   const r = document.documentElement;
   if(theme==="system") r.removeAttribute("data-theme"); else r.setAttribute("data-theme",theme);
   const b = document.getElementById("themeBtn"); b.innerHTML = ICONS[theme]; b.title = "테마: "+THEME_TXT[theme]; b.setAttribute("aria-label","테마 바꾸기, 지금 "+THEME_TXT[theme]);
 }
-document.getElementById("themeBtn").addEventListener("click",()=>{ theme = {system:"light",light:"dark",dark:"system"}[theme]; store.set("theme",theme); applyTheme(); toast("테마: "+THEME_TXT[theme]); });
+document.getElementById("themeBtn").addEventListener("click",()=>{ theme = theme==="dark"?"light":"dark"; store.set("theme",theme); applyTheme(); toast("테마: "+THEME_TXT[theme]); });
 applyTheme();
 
 /* 홈 검색창 예시 문장 순환 */
