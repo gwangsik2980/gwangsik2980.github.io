@@ -4687,7 +4687,7 @@ function mapSvg(){
   const N = CATS.length, cx=320, cy=320, R=236, RX=272;
   const SHORT = {general:"범용 AI",research:"리서치",image:"이미지",video:"영상",audio:"음성·음악",writing:"글쓰기",design:"발표·디자인",coding:"코딩",automation:"자동화",data:"데이터",productivity:"생산성",marketing:"마케팅",learning:"학습","3d":"3D·게임"};
   const rings = [[118,118],[RX,R],[RX+52,300]].map(([rx,ry])=>`<ellipse class="ring" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`).join("");
-  const ticks = Array.from({length:12},(_,i)=>{ const a=(i*30-90)*Math.PI/180, r=300, rx=RX+52; return `<text class="tick" x="${(cx+Math.cos(a)*rx+ (Math.cos(a)>0.3?6:Math.cos(a)<-0.3?-6:0)).toFixed(1)}" y="${(cy+Math.sin(a)*r+ (Math.sin(a)>0.3?12:Math.sin(a)<-0.3?-5:4)).toFixed(1)}" text-anchor="${Math.cos(a)>0.3?"start":Math.cos(a)<-0.3?"end":"middle"}">${String(i*30).padStart(3,"0")}°</text>`; }).join("");
+  const ticks = "";   /* 둘레 각도 숫자 장식은 뺌(2026-11-12 회장) */
   let links="", nodes="";
   /* 칸 겹침 막기(2026-11-12, 회장 "칸이 겹치는 부분은 반드시 따로 뗀다"): 글자 폭을 실제로 재서 칸 너비를 정하고, 겹치는 칸은 좌우로 밀어 뗀다 */
   const mctx = (mapSvg.c || (mapSvg.c = document.createElement("canvas"))).getContext("2d");
@@ -4714,7 +4714,7 @@ function mapSvg(){
   P.forEach(({c,a,label,n,w,x,y})=>{
     const on = c.id===S.mapCat;
     links += `<line class="link ${on?"on":""}" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
-    const subs = on ? c.sub.map((s,j)=>{ const sa = a + (j-(c.sub.length-1)/2)*0.085, sr=R+48; return `<circle class="sub-dot" cx="${(cx+Math.cos(sa)*(sr+RX-R)).toFixed(1)}" cy="${(cy+Math.sin(sa)*sr).toFixed(1)}" r="3.5"/>`; }).join("") : "";
+    const subs = "";   /* 세부 분야 점 장식은 뺌(2026-11-12 회장) — 오른쪽 목록에 글자로 있음 */
     nodes += `${subs}<g class="node ${on?"on":""}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${esc(c.name)} 펼치기" data-act="mapcat" data-id="${c.id}" transform="translate(${x.toFixed(1)},${y.toFixed(1)})">
       <rect x="${-w/2}" y="-24" width="${w}" height="48" rx="24"/>
       <circle class="pip" cx="${-w/2+15}" cy="-5" r="5" fill="oklch(var(--cat-l) var(--cat-c) ${CAT_HUE[c.id]})"/>
