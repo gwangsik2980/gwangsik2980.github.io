@@ -222,7 +222,12 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .upnext .sub{margin:0 0 6px;display:flex;justify-content:space-between}
 /* 재생목록 휠(11-17 회장 시안: 날짜 고르기 휠처럼 가운데 줄 강조) — 보이는 곳 근처 줄만 그림 */
 .wheel{position:relative;height:220px;margin-top:6px}
-.wsel{position:absolute;left:0;right:0;top:88px;height:44px;border-radius:10px;background:#262626;pointer-events:none}
+.wsel{position:absolute;left:0;right:0;top:0;height:44px;border-radius:10px;background:#262626;pointer-events:none;will-change:transform}
+.wsel.anim{transition:transform .3s cubic-bezier(.2,.65,.3,.9)}
+/* 11-17 회장: 첫 곡은 맨 윗줄, 셋째 곡부터 가운데 줄 — 위아래 빈칸 없음. 끝에 닿은 쪽은 흐리게 하지 않음 */
+.wsc.top{-webkit-mask-image:linear-gradient(#000 68%,transparent);mask-image:linear-gradient(#000 68%,transparent)}
+.wsc.end{-webkit-mask-image:linear-gradient(transparent,#000 32%);mask-image:linear-gradient(transparent,#000 32%)}
+.wsc.top.end{-webkit-mask-image:none;mask-image:none}
 .wsc{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-webkit-mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent);mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent)}
 .wsc::-webkit-scrollbar{display:none}
 .wtrack{position:relative}
@@ -690,7 +695,7 @@ function fullScreen(){
       <button class="ib tg${rep ? " on" : ""}${rep === 2 ? " one" : ""}" data-a="rep" title="${["반복", "목록 반복", "한 곡 반복"][rep]}">${I.rep}</button></div>
     ${wide ? volHtml() : ""}
     <div class="upnext"><div class="sub"><span>재생목록</span><span>${cur + 1} / ${queue.length}</span></div>
-      <div class="wheel"><div class="wsel"></div><div class="wsc" id="wsc"><div class="wtrack" style="height:${(queue.length + 4) * WH}px"></div></div></div></div></div></div>`;
+      <div class="wheel"><div class="wsel"></div><div class="wsc" id="wsc"><div class="wtrack" style="height:${queue.length * WH}px"></div></div></div></div></div></div>`;
 }
 function volHtml(){
   const v = audio.muted ? 0 : Math.round(audio.volume * 100);
@@ -704,22 +709,28 @@ document.addEventListener("input", e => {
   const b = e.target.previousElementSibling; if(b) b.innerHTML = v ? I.vol : I.mute;
 });
 const WH = 44;  // 휠 한 줄 높이
-let wFrom = -1, wTo = -1;
-function drawWheel(force){
+let wFrom = -1, wTo = -1, wBar = null;  // wBar: 회색 바가 있던 자리(곡이 바뀌면 거기서 미끄러짐)
+const wTop = () => Math.max(0, Math.min(cur - 2, queue.length - 5)) * WH;  // 지금 곡을 가운데에, 끝에선 붙임
+function drawWheel(force, slide){
   const sc = $("wsc"); if(!sc) return;
-  const tr = sc.firstElementChild, c = Math.round(sc.scrollTop / WH), n = queue.length;
-  const from = Math.max(0, c - 12), to = Math.min(n - 1, c + 12);
+  const tr = sc.firstElementChild, c = cur, n = queue.length;
+  const bar = sc.previousElementSibling, y = cur * WH - sc.scrollTop;  // 회색 바 = 지금 곡 줄
+  if(slide && wBar !== null && wBar !== y){ bar.classList.remove("anim"); bar.style.transform = `translateY(${wBar}px)`; void bar.offsetWidth; bar.classList.add("anim"); }
+  else if(!slide) bar.classList.remove("anim");
+  bar.style.transform = `translateY(${y}px)`; wBar = y;
+  sc.classList.toggle("top", sc.scrollTop < 2); sc.classList.toggle("end", sc.scrollTop > sc.scrollHeight - sc.clientHeight - 2);
+  const cs = Math.round(sc.scrollTop / WH), from = Math.max(0, cs - 10), to = Math.min(n - 1, cs + 15);  // 보이는 곳 근처만
   if(force || from !== wFrom || to !== wTo){
     wFrom = from; wTo = to; let h = "";
     for(let i = from; i <= to; i++){ const x = queue[i];
-      h += `<div class="wr${i === cur ? " now" : ""}${rOf(x.id) === -1 ? " bad" : ""}" data-i="${i}" style="top:${(i + 2) * WH}px"><span class="no">${i === cur ? "▶" : i + 1}</span><span class="ttl">${esc(x.t)}</span><span class="meta">${x.d ? fmt(x.d) : ""}</span></div>`; }
+      h += `<div class="wr${i === cur ? " now" : ""}${rOf(x.id) === -1 ? " bad" : ""}" data-i="${i}" style="top:${i * WH}px"><span class="no">${i === cur ? "▶" : i + 1}</span><span class="ttl">${esc(x.t)}</span><span class="meta">${x.d ? fmt(x.d) : ""}</span></div>`; }
     tr.innerHTML = h;
   }
   tr.querySelectorAll(".wr").forEach(r => r.classList.toggle("c", +r.dataset.i === c));
 }
 function bindWheel(){
   const sc = $("wsc"); if(!sc) return;
-  sc.scrollTop = cur * WH; drawWheel(true);
+  sc.scrollTop = wTop(); drawWheel(true, true);
   // 멈추면 가장 가까운 줄로 맞춤(보이는 줄만 그려서 CSS 스냅 대신 직접 맞춤)
   let idle = 0; sc.onscroll = () => { drawWheel();  // 보이는 범위가 바뀔 때만 줄을 다시 만들어서 가벼움
     clearTimeout(idle); idle = setTimeout(() => { const t = Math.round(sc.scrollTop / WH) * WH; if(Math.abs(t - sc.scrollTop) > 1) sc.scrollTo({top: t, behavior: "smooth"}); }, 140); };
