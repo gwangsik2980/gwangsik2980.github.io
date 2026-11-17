@@ -429,12 +429,24 @@ async function prefetchNext(){
   const nf = !shuf && nextFolder();
   const n = shuf && queue.length > 1 ? (shufNext = (() => { let k; do k = Math.floor(Math.random() * queue.length); while(k === cur); return k; })())
                                      : (cur + 1) % queue.length;
+  const t = nf ? nf.songs[0] : queue[n];
   try {
-    const u = await streamUrl(nf ? nf.songs[0] : queue[n]);
+    const u = await streamUrl(t);
     const o = new URL(u).origin;
     if(!preconn.has(o)){ preconn.add(o); const l = document.createElement("link"); l.rel = "preconnect"; l.href = o; l.crossOrigin = ""; document.head.append(l); }
+    // 다음 곡 파일을 통째로 미리 받아 둠 → '다음'을 누르면 받을 것 없이 바로 재생(11-17 회장).
+    // 15분 넘는 곡(모음집 등)은 너무 커서 안 받음. 미리 받은 곡은 늘 하나만 들고 있음
+    if(pre?.id === t.id || !(t.d > 0 && t.d <= 900)) return;
+    if(pre){ URL.revokeObjectURL(pre.url); pre = null; }
+    const r = await fetch(u);
+    if(!r.ok) return;
+    const b = await r.blob();
+    if(song()?.id === t.id) return;  // 받는 사이에 이미 그 곡으로 넘어갔으면 버림
+    if(pre) URL.revokeObjectURL(pre.url);  // 빨리 넘겨 두 번 받았으면 앞의 것은 버림
+    pre = {id: t.id, url: URL.createObjectURL(b)};
   } catch {}
 }
+let pre = null, curBlob = null;  // 미리 받아 둔 다음 곡 {id, url}, 지금 틀고 있는 미리 받은 파일 주소
 
 /* ───────── 재생 ───────── */
 const audio = new Audio(); audio.preload = "auto";
@@ -456,9 +468,15 @@ async function start(i, autoplay = true){
   cur = i; const s = song(); if(!s) return;
   loading = true;
   try {
-    const u = await streamUrl(s);  // 미리 받아 둔 곡이면 바로
+    // 미리 통째로 받아 둔 다음 곡이면 그 파일로(누르자마자 재생, 11-17 회장), 아니면 주소로
+    const pb = pre && pre.id === s.id ? pre.url : null;
+    if(pb) pre = null;
+    const u = pb || await streamUrl(s);
     if(my !== startSeq) return;
+    const old = curBlob;
     audio.src = u;
+    curBlob = pb;
+    if(old && old !== u) URL.revokeObjectURL(old);
     const p = autoplay ? audio.play() : null;  // 소리부터 출발시키고 화면은 그다음에(화면 그리기가 재생을 늦추지 않게)
     render();
     if(p) await p;
