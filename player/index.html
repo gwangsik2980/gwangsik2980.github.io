@@ -41,7 +41,8 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .gate .warn{color:var(--text);border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:10px 12px;font-size:13px}
 
 /* 앱 틀 */
-.app{position:relative;z-index:1;height:100%;max-width:1120px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+/* 보이는 화면에 딱 맞게 고정(아이폰 홈 화면 앱에서 height:100%가 화면보다 커져 아래가 잘리던 것 — 11-17) */
+.app{position:fixed;inset:0;z-index:1;max-width:1120px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
 .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 10px;flex:none}
 .hd .lab{color:var(--sub)}
 .hacts{display:flex;align-items:center;gap:4px}
