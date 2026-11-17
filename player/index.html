@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#101010">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,7 +21,7 @@
   --spring:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:#3a3a3a transparent;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+html,body{height:100%;touch-action:manipulation}  /* 앱처럼: 두 번 톡톡 확대 막기 */
 body{margin:0;background:#101010;color:var(--text);font-family:Pretendard,"Malgun Gothic",sans-serif;letter-spacing:-.01em;overflow:hidden}
 body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.14;pointer-events:none;z-index:0}
 .lab{font-family:var(--display);font-stretch:125%;font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
@@ -518,6 +518,10 @@ function bind(){
     f.onpointerup = f.onpointercancel = () => { if(sy === null) return; sy = null; f.classList.remove("drag"); setFull(dy < 110); };
   }
 }
+
+/* 앱처럼: 아이폰 Safari는 user-scalable=no를 무시해서 두 손가락 확대를 직접 막음 */
+["gesturestart", "gesturechange", "gestureend"].forEach(t => document.addEventListener(t, e => e.preventDefault(), {passive: false}));
+document.addEventListener("touchmove", e => { if(e.touches.length > 1) e.preventDefault(); }, {passive: false});
 
 /* ───────── 시작 ───────── */
 function showGate(msg){
