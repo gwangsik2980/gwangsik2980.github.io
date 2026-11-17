@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#101010">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>GWANG Player</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<meta name="apple-mobile-web-app-title" content="Player">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112..125,500..900&display=swap">
+<style>
+:root{
+  --char:#151515;--ink:#121212;--text:#f2f2f0;--sub:#b4b4b0;--mute:#808080;
+  --line:#2f2f2f;--line-hi:#3d3d3d;--white:#f2f2f0;--r:12px;--r-sm:8px;--display:"Archivo","Pretendard",sans-serif;
+  --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --spring:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:#3a3a3a transparent;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:#101010;color:var(--text);font-family:Pretendard,"Malgun Gothic",sans-serif;letter-spacing:-.01em;overflow:hidden}
+body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.14;pointer-events:none;z-index:0}
+.lab{font-family:var(--display);font-stretch:125%;font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
+.ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{color:var(--mute);font-size:12.5px;font-variant-numeric:tabular-nums}
+.btn{background:transparent;border:1px solid var(--line-hi);border-radius:var(--r-sm);color:var(--text);font:inherit;font-size:14px;padding:10px 16px;cursor:pointer;transition:border-color .2s,background .2s}
+.btn:hover{border-color:var(--sub)}
+.btn.white{background:var(--white);border-color:var(--white);color:var(--ink);font-weight:700}
+.btn.white:hover{background:#fff}
+
+/* 로그인 화면 */
+.gate{position:relative;z-index:1;height:100%;display:grid;place-items:center;padding:24px 16px}
+.gate .box{width:min(400px,100%);display:flex;flex-direction:column;gap:14px}
+.gate h1{margin:0;font-size:24px}
+.gate p{margin:0;color:var(--sub);font-size:14px;line-height:1.6}
+.gate .btn{align-self:flex-start;padding:12px 18px;font-size:15px}
+.gate .warn{color:var(--text);border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:10px 12px;font-size:13px}
+
+/* 앱 틀 */
+.app{position:relative;z-index:1;height:100%;max-width:1120px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 10px;flex:none}
+.hd .lab{color:var(--sub)}
+.hacts{display:flex;align-items:center;gap:4px}
+.hacts .ib{width:32px;height:32px}
+.hacts .ib svg{width:18px;height:18px}
+.body{flex:1;min-height:0;display:flex}
+.list{flex:1;min-width:0;display:flex;flex-direction:column}
+.scroll{flex:1;overflow:auto;min-height:0;padding:0 10px 10px;overscroll-behavior:contain}
+.ib{background:none;border:0;color:var(--sub);cursor:pointer;display:grid;place-items:center;padding:0;transition:color .2s,transform .15s}
+.ib:hover{color:var(--text)}.ib:active{transform:scale(.92)}
+.ib svg{width:22px;height:22px}
+.ib.spin svg{animation:spin 1s linear infinite}
+.tg.on{color:var(--text);position:relative}
+.tg.on::after{content:"";position:absolute;bottom:-7px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:2px;background:var(--white)}
+.art{background:linear-gradient(145deg,#3a3a38,#1b1b1b);border:1px solid var(--line-hi);border-radius:10px;display:grid;place-items:center;color:rgba(242,242,240,.75);position:relative;overflow:hidden;flex:none}
+.art::after{content:"";position:absolute;inset:0;background:var(--noise);opacity:.25}
+.art svg{width:42%;height:42%;opacity:.85}
+.ctl{display:flex;align-items:center;justify-content:space-between}
+
+/* 재생 버튼: 테두리 원 + ▶ ↔ 흰 원 + ❚❚ */
+.pp{position:relative;flex:none;border-radius:50%;border:1.5px solid var(--line-hi);color:var(--text);overflow:hidden;transition:border-color .35s,color .35s,transform .15s}
+.pp:hover{border-color:var(--sub);color:var(--text)}
+.pp .fill{position:absolute;inset:-2px;border-radius:50%;background:var(--white);transform:scale(0);transition:transform .5s var(--spring)}
+.pp svg{position:absolute;inset:0;margin:auto;transition:opacity .3s,transform .5s var(--spring)}
+.pp .i-pause{opacity:0;transform:scale(.4) rotate(-90deg)}
+.pp.on{border-color:var(--white);color:var(--ink)}
+.pp.on:hover{color:var(--ink)}
+.pp.on .fill{transform:scale(1)}
+.pp.on .i-play{opacity:0;transform:scale(.4) rotate(90deg)}
+.pp.on .i-pause{opacity:1;transform:none}
+.pp.big{width:66px;height:66px}.pp.big svg{width:26px;height:26px}
+.pp.sm{width:40px;height:40px}.pp.sm svg{width:16px;height:16px}
+.pp.xs{width:28px;height:28px;border-width:1px}.pp.xs svg{width:12px;height:12px}
+.pp.wait::before{content:"";position:absolute;inset:-1px;border-radius:50%;border:1.5px solid transparent;border-top-color:var(--white);animation:spin .9s linear infinite;z-index:2}
+
+/* 파형 진행 막대 */
+.wave{height:46px;display:flex;align-items:center;gap:2px;position:relative;cursor:pointer;touch-action:none;margin-top:18px}
+.wave i{flex:1;min-width:0;border-radius:2px;background:var(--line-hi);transition:background .35s}
+.wave i.on{background:var(--white)}
+.wave .head{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--white);border-radius:1px;transition:left .25s linear}
+.wave.drag .head{transition:none}
+.times{display:flex;justify-content:space-between;margin-top:6px}
+
+/* 레코드 */
+.disc-wrap{position:relative;width:min(100%,250px);aspect-ratio:1;margin:12px auto 22px;flex:none}
+.sleeve{position:absolute;inset:0;border-radius:12px;z-index:2;transition:transform .8s var(--spring)}
+.disc{position:absolute;inset:4%;transition:transform .9s var(--spring)}
+.rec{width:100%;height:100%;border-radius:50%;border:1px solid var(--line-hi);display:grid;place-items:center;
+  background:conic-gradient(from 20deg,rgba(255,255,255,.07),transparent 12%,transparent 45%,rgba(255,255,255,.06) 58%,transparent 70%),repeating-radial-gradient(circle,#141414 0 2px,#1c1c1c 2px 4px);
+  animation:spin 10s linear infinite;animation-play-state:paused}
+.rec i{width:34%;aspect-ratio:1;border-radius:50%;background:#2a2a28;border:1px solid var(--line-hi);position:relative}
+.rec i::before{content:"";position:absolute;left:50%;top:14%;width:1px;height:22%;background:var(--mute)}
+.rec i::after{content:"";position:absolute;inset:44%;border-radius:50%;background:#0e0e0e}
+.spin-on .sleeve{transform:translateX(-14%)}
+.spin-on .disc{transform:translateX(18%)}
+.spin-on .rec{animation-play-state:running}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 폴더 나무 */
+.search{margin:0 8px 8px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:0 10px;background:var(--char)}
+.search svg{width:16px;height:16px;color:var(--mute);flex:none}
+.search input{flex:1;min-width:0;background:none;border:0;color:var(--text);font:inherit;font-size:16px;padding:9px 0;outline:none}
+.row{display:flex;align-items:center;gap:8px;padding:6px 6px 6px calc(6px + var(--d,0) * 16px);border-radius:var(--r-sm);min-height:42px;cursor:pointer;user-select:none}
+.row:hover{background:rgba(255,255,255,.04)}
+.row .ttl{flex:1;min-width:0}
+.chev{flex:none;width:14px;color:var(--mute);font-size:16px;line-height:1;text-align:center;transition:transform .35s var(--spring)}
+.node.open>.row .chev{transform:rotate(90deg)}
+.fic{flex:none;width:17px;height:17px;color:var(--sub)}
+.row.fold .ttl{font-size:14.5px}
+.node[data-d="0"]>.row .ttl{font-weight:700}
+.cnt{flex:none;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.kids{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--spring)}
+.node.open>.kids{grid-template-rows:1fr}
+.kids-in{overflow:hidden;min-height:0;position:relative;opacity:0;transition:opacity .35s}
+.node.open>.kids>.kids-in{opacity:1}
+.kids-in::before{content:"";position:absolute;left:calc(12px + var(--d) * 16px);top:0;bottom:8px;width:1px;background:var(--line)}
+.row.song{font-size:14px;color:var(--sub);padding-left:calc(28px + var(--d,0) * 16px)}
+.row.song .meta{flex:none}
+.row.song.on{color:var(--text)}
+.row.song.on .ttl{font-weight:700}
+.eq{display:none;width:14px;height:12px;gap:2px;align-items:flex-end;flex:none}
+.row.on .eq{display:flex}
+.eq i{flex:1;background:var(--white);animation:eq 1s ease-in-out infinite}
+.eq i:nth-child(2){animation-delay:-.3s}.eq i:nth-child(3){animation-delay:-.6s}
+.paused .eq i{animation-play-state:paused}
+@keyframes eq{0%,100%{height:30%}50%{height:100%}}
+.empty{color:var(--mute);font-size:13px;padding:28px 6px;text-align:center;line-height:1.6}
+.sub{font-size:12px;color:var(--mute);margin:14px 6px 4px}
+
+/* 미니 플레이어 */
+.mini{flex:none;margin:6px 10px calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:11px;padding:10px;border:1px solid var(--line);border-radius:var(--r);background:#0b0b0b;cursor:pointer}
+.mini .art{width:46px;height:46px;border-radius:8px}
+.mini .mid{flex:1;min-width:0;font-size:14px}
+.mini .mid .ttl:first-child{font-weight:600}
+.mbar{height:3px;background:var(--line-hi);border-radius:2px;margin-top:7px;overflow:hidden}
+.mbar i{display:block;height:100%;width:0;background:var(--white);border-radius:2px;transition:width .25s linear}
+.mini .nx{width:34px;height:34px}
+.mini .nx svg{width:20px;height:20px}
+
+/* 큰 재생 화면 */
+.full{background:#121212;display:flex;flex-direction:column;padding:0 24px 24px;overflow-x:hidden}
+.full>*{flex-shrink:0}
+.app.phone .full{position:fixed;inset:0;z-index:5;transform:translateY(100%);transition:transform .5s var(--spring);overflow-y:auto;border-radius:24px 24px 0 0;touch-action:pan-y;padding-top:env(safe-area-inset-top);padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+.app.phone .full.open{transform:none}
+.app.phone .full.drag{transition:none}
+.full .inner{width:min(100%,420px);margin:0 auto;display:flex;flex-direction:column}
+.grab{width:38px;height:4px;border-radius:2px;background:var(--line-hi);margin:12px auto 0}
+.app.wide .full{width:380px;flex:none;border-left:1px solid var(--line);padding-top:4px;overflow-y:auto;background:transparent}
+.full h2{margin:0;font-size:19px;line-height:1.35}
+.crumb{display:flex;align-items:center;gap:6px;margin-top:5px}
+.crumb svg{width:13px;height:13px;color:var(--mute);flex:none}
+.full .ctl{margin-top:16px}
+.upnext{margin-top:22px;border-top:1px solid var(--line);padding-top:12px}
+.upnext .sub{margin:0 0 6px;display:flex;justify-content:space-between}
+.upnext .row{min-height:36px;padding-left:4px;font-size:13.5px}
+
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:20;background:var(--white);color:var(--ink);font-size:13.5px;font-weight:600;padding:9px 14px;border-radius:var(--r-sm);pointer-events:none;max-width:calc(100% - 32px);animation:up .25s var(--spring)}
+@keyframes up{from{transform:translate(-50%,10px);opacity:0}}
+.gw-copy{position:relative;display:inline-block;margin:18px 6px 4px;padding:4px 0 8px 12px;font-size:12px;color:var(--mute);border-left:1px solid color-mix(in srgb,var(--mute) 60%,transparent)}
+.gw-copy::after{content:"";position:absolute;left:-1px;bottom:0;width:10px;border-bottom:1px solid color-mix(in srgb,var(--mute) 60%,transparent)}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation-play-state:paused!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+/* ───────── 설정 ─────────
+   CLIENT_ID: Azure '앱 등록'에서 받은 '애플리케이션(클라이언트) ID' (비밀번호가 아니라 앱 이름표 같은 값)
+   MUSIC: OneDrive 안 음악 폴더 (유튜브MP3가 받는 곳) */
+const CLIENT_ID = "29de7764-8008-441c-9e37-7e19fd1a496b";  // GWANG Player (2026-11-17 등록, 개인 계정 전용 · SPA)
+const MUSIC = "음악/유튜브MP3";
+const AUTH = "https://login.microsoftonline.com/consumers/oauth2/v2.0";
+const SCOPE = "Files.Read offline_access";
+const GRAPH = "https://graph.microsoft.com/v1.0";
+const REDIRECT = location.origin + location.pathname;
+const K = "gwplayer.";  // 이 기기 브라우저에만 저장
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ls = {get(k, d){ try { return JSON.parse(localStorage.getItem(K + k)) ?? d; } catch { return d; } },
+            set(k, v){ try { localStorage.setItem(K + k, JSON.stringify(v)); } catch {} },
+            del(k){ try { localStorage.removeItem(K + k); } catch {} }};
+function toast(msg){
+  document.querySelector(".toast")?.remove();
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
+  document.body.append(t); setTimeout(() => t.remove(), 2800);
+}
+
+/* ───────── 로그인 (PKCE: 비밀값 없이 이 페이지에서 바로) ───────── */
+const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+async function login(){
+  const verifier = b64url(crypto.getRandomValues(new Uint8Array(48)));
+  const challenge = b64url(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)));
+  const state = b64url(crypto.getRandomValues(new Uint8Array(16)));
+  sessionStorage.setItem(K + "pkce", JSON.stringify({verifier, state}));
+  location.href = `${AUTH}/authorize?` + new URLSearchParams({client_id: CLIENT_ID, response_type: "code", redirect_uri: REDIRECT,
+    scope: SCOPE, code_challenge: challenge, code_challenge_method: "S256", state, response_mode: "query", prompt: "select_account"});
+}
+async function tokenCall(body){
+  const r = await fetch(`${AUTH}/token`, {method: "POST", body: new URLSearchParams({client_id: CLIENT_ID, scope: SCOPE, ...body})});
+  const j = await r.json();
+  if(!r.ok || !j.access_token) throw new Error(j.error_description || j.error || "로그인 실패");
+  ls.set("tok", {at: j.access_token, rt: j.refresh_token, exp: Date.now() + j.expires_in * 1000});
+  return j.access_token;
+}
+async function finishLogin(){
+  const u = new URL(location.href), code = u.searchParams.get("code"), err = u.searchParams.get("error");
+  if(!code && !err) return;
+  history.replaceState(null, "", REDIRECT);
+  if(err) throw new Error(err === "access_denied" ? "로그인을 취소했어요." : `Microsoft 로그인 중 오류가 났어요(${err}). 잠시 뒤 다시 로그인해 주세요. ${u.searchParams.get("error_description") || ""}`);
+  const p = JSON.parse(sessionStorage.getItem(K + "pkce") || "{}");
+  sessionStorage.removeItem(K + "pkce");
+  if(!p.verifier || p.state !== u.searchParams.get("state")) throw new Error("로그인 확인값이 맞지 않아요. 다시 로그인해 주세요.");
+  await tokenCall({grant_type: "authorization_code", code, redirect_uri: REDIRECT, code_verifier: p.verifier});
+}
+let refreshing = null;
+async function token(force){
+  const t = ls.get("tok", null);
+  if(!t) return null;
+  if(!force && t.exp - 60000 > Date.now()) return t.at;
+  if(!t.rt) return null;
+  refreshing ??= tokenCall({grant_type: "refresh_token", refresh_token: t.rt}).catch(() => { ls.del("tok"); return null; }).finally(() => refreshing = null);
+  return refreshing;
+}
+async function graph(path){
+  for(let i = 0; i < 2; i++){
+    const at = await token(i > 0);
+    if(!at) throw Object.assign(new Error("로그인이 필요해요"), {login: true});
+    const r = await fetch(path.startsWith("http") ? path : GRAPH + path, {headers: {Authorization: "Bearer " + at}});
+    if(r.status === 401) continue;
+    if(!r.ok) throw new Error(r.status === 404 ? `OneDrive에 '${MUSIC}' 폴더가 없어요` : `OneDrive 응답 오류 (${r.status})`);
+    return r.json();
+  }
+  ls.del("tok");
+  throw Object.assign(new Error("로그인이 필요해요"), {login: true});
+}
+function logout(){ ls.del("tok"); ls.del("tree"); audio.pause(); location.href = REDIRECT; }
+
+/* ───────── OneDrive 폴더 읽기 (대·중·소 3단계) ───────── */
+let ROOT = {kids: [], songs: []}, ALL = [], urls = {}, urlsAt = 0;
+const collator = new Intl.Collator("ko", {numeric: true});
+async function children(url){
+  const out = [];
+  while(url){ const j = await graph(url); out.push(...j.value); url = j["@odata.nextLink"]; }
+  return out;
+}
+async function readFolder(url, path, depth){
+  const items = await children(url);
+  const folders = items.filter(x => x.folder).sort((a, b) => collator.compare(a.name, b.name));
+  const files = items.filter(x => x.file && /\.mp3$/i.test(x.name)).sort((a, b) => collator.compare(a.name, b.name));
+  files.forEach(f => { if(f["@microsoft.graph.downloadUrl"]) urls[f.id] = f["@microsoft.graph.downloadUrl"]; });
+  const kids = depth < 3 ? await Promise.all(folders.map(f => {
+    const p = path ? path + "/" + f.name : f.name;
+    return readFolder(`/me/drive/items/${f.id}/children?$top=999`, p, depth + 1).then(n => ({...n, name: f.name, path: p}));
+  })) : [];
+  return {kids, songs: files.map(f => ({id: f.id, t: f.name.replace(/\.mp3$/i, ""), d: Math.round((f.audio?.duration || 0) / 1000), path}))};
+}
+const enc = p => p.split("/").map(encodeURIComponent).join("/");
+async function loadTree(){
+  const t = await readFolder(`/me/drive/root:/${enc(MUSIC)}:/children?$top=999`, "", 0);
+  urlsAt = Date.now();
+  setTree(t); ls.set("tree", t);
+}
+function setTree(t){
+  ROOT = t;
+  ALL = [];
+  const walk = n => { n.kids.forEach(walk); };  // 순서: 폴더 안 곡 → 하위 폴더
+  const flat = n => [...n.songs, ...n.kids.flatMap(flat)];
+  ALL = flat(ROOT); walk(ROOT);
+}
+const allSongs = n => [...n.songs, ...n.kids.flatMap(allSongs)];
+const find = (p, n = ROOT) => { if((n.path || "") === p) return n; for(const k of n.kids){ const f = find(p, k); if(f) return f; } };
+const byId = id => ALL.find(s => s.id === id);
+async function streamUrl(s){
+  if(urls[s.id] && Date.now() - urlsAt < 50 * 60000) return urls[s.id];  // 주소는 약 1시간 유효
+  const j = await graph(`/me/drive/items/${s.id}`);
+  return urls[s.id] = j["@microsoft.graph.downloadUrl"];
+}
+
+/* ───────── 재생 ───────── */
+const audio = new Audio(); audio.preload = "metadata";
+let queue = [], qName = "", cur = -1, shuf = false, rep = false, full = false, q = "", loading = false;
+let open = new Set(ls.get("open", [])), shown = false, shownQ = "";
+const song = () => queue[cur];
+const playing = () => !audio.paused && !!audio.src;
+const dur = () => (isFinite(audio.duration) && audio.duration) || song()?.d || 0;
+const posMap = ls.get("pos", {});  // 곡마다 들은 자리(이어 듣기)
+function saveState(){
+  const s = song(); if(!s) return;
+  if(audio.currentTime > 10 && audio.currentTime < dur() - 15) posMap[s.id] = Math.floor(audio.currentTime); else delete posMap[s.id];
+  ls.set("pos", posMap);
+  ls.set("last", {id: s.id, q: qName, ids: queue.map(x => x.id)});
+}
+async function start(i, autoplay = true){
+  saveState();
+  cur = i; const s = song(); if(!s) return;
+  loading = true; render();
+  try {
+    audio.src = await streamUrl(s);
+    const at = posMap[s.id];
+    if(at) audio.currentTime = at;
+    if(autoplay) await audio.play();
+  } catch(e){
+    if(e.login) return showGate(e.message);
+    if(e.name === "NotAllowedError") toast("재생 버튼을 한 번 더 눌러 주세요");
+    else toast(e.message || "재생하지 못했어요");
+  } finally { loading = false; syncPlay(); }
+  mediaMeta(); saveState();
+}
+function playList(list, name, i = 0){ queue = list; qName = name; start(shuf ? Math.floor(Math.random() * list.length) : i); }
+function toggle(){
+  if(!song()) return ALL.length && playList(ALL, "", 0);
+  if(!audio.src) return start(cur);
+  audio.paused ? audio.play().catch(() => start(cur)) : audio.pause();
+}
+function go(d){
+  if(!queue.length) return;
+  if(shuf && d > 0 && queue.length > 1){ let n; do n = Math.floor(Math.random() * queue.length); while(n === cur); return start(n); }
+  start((cur + d + queue.length) % queue.length);
+}
+audio.addEventListener("play", syncPlay);
+audio.addEventListener("pause", () => { syncPlay(); saveState(); });
+audio.addEventListener("timeupdate", () => { progress(); if(Math.floor(audio.currentTime) % 5 === 0) saveState(); });
+audio.addEventListener("ended", () => { delete posMap[song()?.id]; rep ? (audio.currentTime = 0, audio.play()) : go(1); });
+audio.addEventListener("error", () => { if(audio.src) { urlsAt = 0; toast("곡을 불러오지 못했어요 — 다시 눌러 주세요"); } });
+function mediaMeta(){
+  if(!("mediaSession" in navigator) || !song()) return;
+  navigator.mediaSession.metadata = new MediaMetadata({title: song().t, artist: crumbOf(qName) || "유튜브MP3", album: "GWANG Player"});
+  const h = (a, f) => { try { navigator.mediaSession.setActionHandler(a, f); } catch {} };
+  h("play", () => audio.play()); h("pause", () => audio.pause());
+  h("previoustrack", () => audio.currentTime > 3 ? (audio.currentTime = 0) : go(-1)); h("nexttrack", () => go(1));
+  h("seekto", e => { audio.currentTime = e.seekTime; });
+}
+
+/* ───────── 화면 ───────── */
+const I = {
+  play: '<svg class="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 5.5v13l10.5-6.5z"/></svg>',
+  pause: '<svg class="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg>',
+  prev: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 6v12l-9-6zM6 6h2v12H6z"/></svg>',
+  next: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6v12l9-6zM16 6h2v12h-2z"/></svg>',
+  shuf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h3.5c2 0 3.2 1 4.3 2.7l2.4 4.6C14.3 16 15.5 17 17.5 17H21M18 14l3 3-3 3M3 17h3.5c1.3 0 2.2-.4 3-1.2M14 8.2c.8-.8 1.7-1.2 3.5-1.2H21M18 4l3 3-3 3"/></svg>',
+  rep: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l3 3-3 3M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3M20 13v2a3 3 0 0 1-3 3H4"/></svg>',
+  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>',
+  note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg>',
+  folder: '<svg class="fic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 7.5V18a1.5 1.5 0 0 0 1.5 1.5h15A1.5 1.5 0 0 0 21 18V9a1.5 1.5 0 0 0-1.5-1.5h-7.8L9.8 5H4.5A1.5 1.5 0 0 0 3 6.5z"/></svg>',
+  find: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg>',
+  reload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4.5h-4.5"/></svg>',
+  out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l4-4-4-4M14 12H4"/></svg>',
+};
+const art = () => `<div class="art">${I.note}</div>`;
+const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return s >= 3600 ? `${Math.floor(s/3600)}:${String(Math.floor(s%3600/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}` : `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; };
+const crumbOf = p => p ? p.split("/").join(" › ") : "전체";
+const ppBtn = (size, attrs, on) => `<button class="ib pp ${size}${on ? " on" : ""}" ${attrs}><span class="fill"></span>${I.play}${I.pause}</button>`;
+const isWide = () => matchMedia("(min-width: 820px)").matches;
+// 파형 모양(곡 이름으로 정해지는 모양 — 실제 소리 크기는 아님)
+const BARS = 54;
+function waveOf(id){ let s = 0; for(const c of id) s = (s * 31 + c.charCodeAt(0)) % 233280; let prev = 50;
+  return Array.from({length: BARS}, () => { s = (s * 9301 + 49297) % 233280; prev = prev * .45 + (18 + s / 233280 * 82) * .55; return Math.round(prev); }); }
+
+function nodeHtml(n, d){
+  return `<div class="node${open.has(n.path) ? " open" : ""}" data-d="${d}">
+    <div class="row fold" style="--d:${d}" data-f="${esc(n.path)}"><span class="chev">›</span>${I.folder}<span class="ttl">${esc(n.name)}</span><span class="cnt">${allSongs(n).length}</span>
+      ${ppBtn("xs", `data-pf="${esc(n.path)}" title="이 폴더 전체 재생"`, shown && shownQ === n.path)}</div>
+    <div class="kids"><div class="kids-in" style="--d:${d}">${n.kids.map(k => nodeHtml(k, d + 1)).join("")}${n.songs.map(s => songRow(s, d + 1)).join("")}</div></div></div>`;
+}
+function songRow(s, d, showPath){
+  const on = song() === s || (song() && song().id === s.id);
+  return `<div class="row song${on ? " on" : ""}${shown ? "" : " paused"}" style="--d:${d}" data-song="${esc(s.id)}">
+    <span class="ttl" title="${esc(s.t)}">${esc(s.t)}${showPath ? `<div class="meta ttl">${esc(crumbOf(s.path))}</div>` : ""}</span>
+    <span class="eq"><i></i><i></i><i></i></span><span class="meta">${s.d ? fmt(s.d) : ""}</span></div>`;
+}
+function treeHtml(){
+  if(!ALL.length) return `<div class="empty">곡이 없어요.<br>유튜브MP3로 받은 곡이 OneDrive '${esc(MUSIC)}'에 올라가면 여기 보여요.</div>`;
+  if(q){
+    const hit = ALL.filter(s => s.t.toLowerCase().includes(q.toLowerCase()));
+    return hit.map(s => songRow(s, 0, true)).join("") || `<div class="empty">'${esc(q)}'에 맞는 곡이 없어요.</div>`;
+  }
+  return ROOT.kids.map(n => nodeHtml(n, 0)).join("")
+    + (ROOT.songs.length ? `<div class="sub">맨 위에 있는 곡</div>` + ROOT.songs.map(s => songRow(s, 0)).join("") : "")
+    + `<div class="gw-copy">© 2026 GWANG. All rights reserved.</div>`;
+}
+function waveHtml(){
+  const s = song(), w = waveOf(s.id), p = dur() ? audio.currentTime / dur() : 0;
+  return `<div class="wave" id="wave">${w.map((h, i) => `<i class="${i < p * BARS ? "on" : ""}" style="height:${h}%"></i>`).join("")}<b class="head" style="left:${p * 100}%"></b></div>
+    <div class="times meta"><span>${fmt(audio.currentTime)}</span><span>-${fmt(dur() - audio.currentTime)}</span></div>`;
+}
+function miniBar(){
+  const s = song();
+  if(!s) return "";
+  return `<div class="mini" data-a="open">${art()}<div class="mid"><div class="ttl">${esc(s.t)}</div><div class="meta ttl">${esc(crumbOf(qName))}</div><div class="mbar"><i style="width:${dur() ? audio.currentTime / dur() * 100 : 0}%"></i></div></div>
+    ${ppBtn("sm" + (loading ? " wait" : ""), 'data-a="toggle" title="재생/멈춤"', shown)}<button class="ib nx" data-a="next" title="다음 곡">${I.next}</button></div>`;
+}
+function fullScreen(){
+  const s = song(), wide = isWide();
+  if(!s) return wide ? `<div class="full"><div class="empty">폴더 옆 ▶를 누르면<br>그 폴더를 재생목록으로 틀어요.</div></div>` : "";
+  const nexts = queue.slice(cur + 1, cur + 4);
+  return `<div class="full${full ? " open" : ""}" id="full"><div class="inner">${wide ? `<span class="lab" style="margin-top:6px">Now Playing</span>` : `<div class="grab"></div>
+    <div class="hd" style="padding:6px 0 0"><button class="ib" data-a="close" title="내리기">${I.down}</button><span class="lab">Now Playing</span><span style="width:22px"></span></div>`}
+    <div class="disc-wrap${shown ? " spin-on" : ""}"><div class="disc"><div class="rec"><i></i></div></div><div class="sleeve art">${I.note}</div></div>
+    <h2 class="ttl" title="${esc(s.t)}">${esc(s.t)}</h2>
+    <div class="crumb meta">${I.folder}<span class="ttl">${esc(crumbOf(qName))} · ${cur + 1} / ${queue.length}</span></div>
+    ${waveHtml()}
+    <div class="ctl">
+      <button class="ib tg${shuf ? " on" : ""}" data-a="shuf" title="섞어 듣기">${I.shuf}</button>
+      <button class="ib" data-a="prev" title="이전 곡">${I.prev}</button>
+      ${ppBtn("big" + (loading ? " wait" : ""), 'data-a="toggle" title="재생/멈춤"', shown)}
+      <button class="ib" data-a="next" title="다음 곡">${I.next}</button>
+      <button class="ib tg${rep ? " on" : ""}" data-a="rep" title="한 곡 반복">${I.rep}</button></div>
+    <div class="upnext"><div class="sub"><span>다음 곡</span><span>${queue.length - cur - 1}곡 남음</span></div>
+      ${nexts.map((x, i) => `<div class="row" data-q="${cur + 1 + i}"><span class="ttl">${esc(x.t)}</span><span class="meta">${x.d ? fmt(x.d) : ""}</span></div>`).join("") || `<div class="meta">이 재생목록 마지막 곡이에요.</div>`}</div></div></div>`;
+}
+let busy = false;
+function render(){
+  if(!$("app")) return;
+  const keep = $("tree")?.scrollTop || 0, wide = isWide();
+  $("app").className = "app " + (wide ? "wide" : "phone");
+  $("app").innerHTML = `<div class="hd"><span class="lab">GWANG · Player</span><span class="hacts"><span class="meta">${ALL.length ? ALL.length + "곡" : ""}</span>
+      <button class="ib${busy ? " spin" : ""}" data-a="reload" title="OneDrive에서 다시 읽기">${I.reload}</button><button class="ib" data-a="logout" title="로그아웃">${I.out}</button></span></div>
+    <div class="body"><div class="list"><div class="search">${I.find}<input id="q" placeholder="곡 이름으로 찾기" value="${esc(q)}" enterkeyhint="search"></div>
+      <div class="scroll" id="tree">${treeHtml()}</div>${wide ? "" : miniBar()}</div>${wide ? fullScreen() : ""}</div>${wide ? "" : fullScreen()}`;
+  $("tree").scrollTop = keep;
+  bind(); syncPlay();
+}
+function syncPlay(){
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const p = playing();
+    document.querySelectorAll(".pp").forEach(b => {
+      b.classList.toggle("on", b.dataset.pf !== undefined ? p && qName === b.dataset.pf : p);
+      if(!b.dataset.pf) b.classList.toggle("wait", loading);
+    });
+    document.querySelectorAll(".disc-wrap").forEach(d => d.classList.toggle("spin-on", p));
+    document.querySelectorAll(".row.song").forEach(r => r.classList.toggle("paused", !p));
+    shown = p; shownQ = qName;
+  }));
+}
+function progress(){
+  if(!song()) return;
+  const p = dur() ? audio.currentTime / dur() : 0;
+  if(!$("wave")?.classList.contains("drag")){
+    document.querySelectorAll("#wave i").forEach((b, i) => b.classList.toggle("on", i < p * BARS));
+    document.querySelectorAll("#wave .head").forEach(h => h.style.left = p * 100 + "%");
+  }
+  document.querySelectorAll(".times").forEach(x => x.innerHTML = `<span>${fmt(audio.currentTime)}</span><span>-${fmt(dur() - audio.currentTime)}</span>`);
+  document.querySelectorAll(".mbar i").forEach(x => x.style.width = p * 100 + "%");
+}
+function setFull(on){ full = on; const f = $("full"); if(!f) return; f.style.transform = ""; f.classList.toggle("open", on); }
+async function reload(){
+  busy = true; render();
+  try { await loadTree(); toast("OneDrive에서 다시 읽었어요"); }
+  catch(e){ if(e.login) return showGate(e.message); toast(e.message); }
+  busy = false; render();
+}
+function bind(){
+  $("tree").onclick = e => {
+    const pf = e.target.closest("[data-pf]");
+    if(pf){
+      e.stopPropagation();
+      const p = pf.dataset.pf;
+      if(qName === p && song()) return toggle();
+      return playList(allSongs(find(p)), p);
+    }
+    const s = e.target.closest("[data-song]");
+    if(s){
+      const x = byId(s.dataset.song);
+      if(song()?.id === x.id) return toggle();
+      const list = find(x.path)?.songs || [x];
+      return playList(list, x.path, list.findIndex(y => y.id === x.id));
+    }
+    const f = e.target.closest("[data-f]");
+    if(f){
+      const p = f.dataset.f;
+      open.has(p) ? open.delete(p) : open.add(p); ls.set("open", [...open]);
+      f.parentElement.classList.toggle("open", open.has(p));
+    }
+  };
+  const qi = $("q");
+  qi.oninput = () => { q = qi.value.trim(); $("tree").innerHTML = treeHtml(); };
+  document.querySelectorAll("[data-q]").forEach(el => el.onclick = () => start(+el.dataset.q));
+  document.querySelectorAll("[data-a]").forEach(el => el.onclick = e => {
+    e.stopPropagation();
+    const a = el.dataset.a;
+    if(a === "toggle") return toggle();
+    if(a === "next") return go(1);
+    if(a === "prev") return audio.currentTime > 3 ? (audio.currentTime = 0) : go(-1);
+    if(a === "shuf"){ shuf = !shuf; ls.set("shuf", shuf); return el.classList.toggle("on", shuf); }
+    if(a === "rep"){ rep = !rep; ls.set("rep", rep); return el.classList.toggle("on", rep); }
+    if(a === "open") return setFull(true);
+    if(a === "close") return setFull(false);
+    if(a === "reload") return reload();
+    if(a === "logout") return confirm("로그아웃할까요? 다음에 다시 Microsoft 로그인이 필요해요.") && logout();
+  });
+  const w = $("wave");
+  if(w){
+    let dragging = false, p = 0;
+    const at = e => { const r = w.getBoundingClientRect(); p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      w.querySelectorAll("i").forEach((b, i) => b.classList.toggle("on", i < p * BARS)); w.querySelector(".head").style.left = p * 100 + "%"; };
+    w.onpointerdown = e => { e.stopPropagation(); dragging = true; w.classList.add("drag"); w.setPointerCapture(e.pointerId); at(e); };
+    w.onpointermove = e => { if(dragging) at(e); };
+    w.onpointerup = () => { if(!dragging) return; dragging = false; w.classList.remove("drag"); if(dur()) audio.currentTime = p * dur(); progress(); saveState(); };
+    w.onpointercancel = () => { dragging = false; w.classList.remove("drag"); progress(); };
+  }
+  const f = $("full");
+  if(f && !isWide()){  // 큰 화면 끌어 내려 닫기
+    let sy = null, dy = 0;
+    f.onpointerdown = e => { if(e.target.closest("button, .wave, [data-q]") || f.scrollTop > 0) return; sy = e.clientY; dy = 0; f.classList.add("drag"); f.setPointerCapture(e.pointerId); };
+    f.onpointermove = e => { if(sy === null) return; dy = Math.max(0, e.clientY - sy); f.style.transform = `translateY(${dy}px)`; };
+    f.onpointerup = f.onpointercancel = () => { if(sy === null) return; sy = null; f.classList.remove("drag"); setFull(dy < 110); };
+  }
+}
+
+/* ───────── 시작 ───────── */
+function showGate(msg){
+  $("root").innerHTML = `<div class="gate"><div class="box">
+    <span class="lab">GWANG · Player</span><h1>내 OneDrive 음악</h1>
+    <p>Microsoft 계정으로 로그인하면 OneDrive '${esc(MUSIC)}' 폴더의 곡을 바로 들어요. 이 화면은 곡을 <b>읽기만</b> 하고, 곡은 OneDrive와 이 기기 사이에서만 오가요.</p>
+    ${msg ? `<div class="warn">${esc(msg)}</div>` : ""}
+    ${CLIENT_ID ? `<button class="btn white" id="go">Microsoft로 로그인</button>` : `<div class="warn">아직 앱 등록 전이에요. 파일 안 CLIENT_ID를 채워야 로그인할 수 있어요.</div>`}
+    <span class="gw-copy" style="margin:12px 0 0">© 2026 GWANG. All rights reserved.</span></div></div>`;
+  if($("go")) $("go").onclick = login;
+}
+async function boot(){
+  try { await finishLogin(); } catch(e){ return showGate(e.message); }
+  if(!ls.get("tok", null)) return showGate();
+  shuf = ls.get("shuf", false); rep = ls.get("rep", false);
+  $("root").innerHTML = `<div class="app" id="app"></div>`;
+  const cached = ls.get("tree", null);
+  if(cached) setTree(cached);
+  busy = true; render();
+  try { await loadTree(); }
+  catch(e){ if(e.login) return showGate(e.message); toast(e.message); }
+  busy = false;
+  // 지난번 듣던 곡을 미니 플레이어에 다시 올려 둠(자동 재생은 안 함)
+  const last = ls.get("last", null);
+  if(last && !song()){
+    const list = last.ids.map(byId).filter(Boolean), i = list.findIndex(s => s.id === last.id);
+    if(i >= 0){ queue = list; qName = last.q; cur = i; }
+  }
+  render(); mediaMeta();
+  matchMedia("(min-width: 820px)").addEventListener("change", render);
+  setInterval(() => { if(!playing()) loadTree().then(render).catch(() => {}); }, 45 * 60000);  // 재생 주소가 1시간이라 쉬는 동안 새로 받음
+  addEventListener("pagehide", saveState);
+}
+boot();
+</script>
+</body>
+</html>
