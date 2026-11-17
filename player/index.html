@@ -930,6 +930,10 @@ function progress(){
 }
 function setFull(on){ full = on; const f = $("full"); if(!f) return; f.style.transform = ""; f.classList.toggle("open", on); }
 async function reload(){
+  // 11-18 회장(B안): 올라간 Player가 지금 것과 다르면 앱째로 새로고침, 같으면 목록만(음악 안 끊김)
+  try { const h = await (await fetch(location.pathname, {cache: "reload"})).text();
+    if(![document.querySelector("style"), document.querySelector("script:not([src])")].every(x => h.includes(x.textContent))) return location.reload();
+  } catch {}
   busy = true; render();
   try { await loadTree(); toast("OneDrive에서 다시 읽었어요"); }
   catch(e){ if(e.login) return showGate(e.message); toast(e.message); }
