@@ -225,8 +225,7 @@ html.sa body::before{position:absolute;height:var(--appH)}
 
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:20;background:var(--white);color:var(--ink);font-size:13.5px;font-weight:600;padding:9px 14px;border-radius:var(--r-sm);pointer-events:none;max-width:calc(100% - 32px);animation:up .25s var(--spring)}
 @keyframes up{from{transform:translate(-50%,10px);opacity:0}}
-.gw-copy{position:relative;display:inline-block;margin:18px 6px 4px;padding:4px 0 8px 12px;font-size:12px;color:var(--mute);border-left:1px solid color-mix(in srgb,var(--mute) 60%,transparent)}
-.gw-copy::after{content:"";position:absolute;left:-1px;bottom:0;width:10px;border-bottom:1px solid color-mix(in srgb,var(--mute) 60%,transparent)}
+.gw-copy{display:inline-block;margin:18px 6px 4px;padding:4px 0 8px;font-size:12px;color:var(--mute)}  /* ㄴ자 선은 회장이 빼라 함(11-17, Player만) */
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation-play-state:paused!important}}
 </style>
 </head>
