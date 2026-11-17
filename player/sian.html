@@ -277,6 +277,33 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;border:1px solid var(--line-hi);background:none;color:var(--sub);font-size:12.5px;padding:6px 12px;border-radius:999px;cursor:pointer}
 .chip.on{background:var(--white);border-color:var(--white);color:var(--ink);font-weight:600}
+/* ===== 시안: 신곡 표지 칸(유튜브 뮤직 '빠른 선곡') ===== */
+.ngw{margin:4px 0 12px}
+.ngh{display:flex;align-items:center;gap:8px;padding:6px 6px 8px}
+.ngh .ttl{flex:1;font-size:16px;font-weight:700}
+.ngnote{padding:0 6px 8px;font-size:12px;color:var(--mute);line-height:1.5}
+.ngp{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.ngp::-webkit-scrollbar{display:none}
+.ngpage{flex:none;width:100%;box-sizing:border-box;scroll-snap-align:start;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 6px;align-content:start}
+.app.wide .ngpage{grid-template-columns:repeat(5,1fr)}
+.ng{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#1d1d1d;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mute);transition:transform .14s cubic-bezier(.2,.65,.3,.9),filter .14s;-webkit-tap-highlight-color:transparent}
+.ng>svg{width:26px;height:26px}
+.ng img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ng:not(.more)::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 52%,rgba(0,0,0,.78))}
+.ng .nt{position:absolute;left:8px;right:8px;bottom:7px;z-index:1;color:#fff;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.ng .eq{position:absolute;top:8px;right:8px;z-index:1;display:flex}
+.ngw.paused .eq i{animation-play-state:paused}
+.ng.now{outline:1.5px solid var(--white);outline-offset:-1.5px}
+.ng.press{transform:scale(.95);filter:brightness(.8);transition-duration:.06s}
+.ng.more{background:radial-gradient(120% 90% at 85% 10%,#2a2a2a,transparent 60%),linear-gradient(160deg,#1a1a1a,#0b0b0b);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.ng.more .dots{position:absolute;inset:0}
+.ng.more .dots i{position:absolute;width:19%;aspect-ratio:1;border-radius:50%;background:#bdbdbd;transform:translate(-50%,-50%)}
+.ng.more .dots i:nth-child(1){left:28%;top:26%}.ng.more .dots i:nth-child(2){left:50%;top:50%}.ng.more .dots i:nth-child(3){left:72%;top:74%}
+.ng.more.open .dots i{background:var(--white)}
+.ngdots{display:flex;justify-content:center;gap:5px;margin-top:10px}
+.ngdots i{width:5px;height:5px;border-radius:50%;background:var(--line-hi);transition:background .2s}
+.ngdots i.on{background:var(--white)}
+.nglist{margin-top:6px}
 .qlist.paused .eq i{animation-play-state:paused}
 .ql{transition:transform .14s cubic-bezier(.2,.65,.3,.9),background-color .14s}
 .ql.press{transform:scale(.97);background:rgba(255,255,255,.07);transition-duration:.06s}
@@ -700,7 +727,7 @@ function treeHtml(){
   }
   const ln = likeNode(), cn = checkNode();
   const tops = topsOf();
-  return (ln.songs.length ? nodeHtml(ln, 0) : "") + (cn.songs.length ? nodeHtml(cn, 0) : "") + tops.map(n => nodeHtml(n, 0)).join("")
+  return newGridHtml() + (ln.songs.length ? nodeHtml(ln, 0) : "") + (cn.songs.length ? nodeHtml(cn, 0) : "") + tops.filter(n => n.name !== "신곡").map(n => nodeHtml(n, 0)).join("")
     + (ROOT.songs.length ? `<div class="sub">맨 위에 있는 곡</div>` + ROOT.songs.map(s => songRow(s, 0)).join("") : "")
     + `<div class="gw-copy">© 2026 GWANG. All rights reserved.</div>`;
 }
@@ -805,6 +832,54 @@ function bindList(){
     const el = en.target, s = queue[+el.dataset.c]; smallCover(s).then(u => { if(!u) return; const im = new Image(); im.alt = ""; im.decoding = "async"; im.onerror = () => im.remove(); im.src = u; el.prepend(im); }); }), {root: L, rootMargin: "160px 0px"});
   L.querySelectorAll("[data-c]").forEach(el => io.observe(el));
 }
+
+// ===== 시안: 신곡 표지 칸 =====
+let newOpen = false;
+const covAll = {}, covAsk = {};
+function thumbsOf(s){  // 폴더 하나 = OneDrive 한 번, 작은·중간 표지 주소 둘 다 담아 둠
+  if(s.id in covAll) return Promise.resolve(covAll[s.id]);
+  const p = s.path || "";
+  covAsk[p] ??= children(`/me/drive/root:/${enc(p ? MUSIC + "/" + p : MUSIC)}:/children?$top=999&$select=id&$expand=thumbnails`)
+    .then(items => items.forEach(x => { covAll[x.id] = x.thumbnails?.[0] || {}; })).catch(() => {});
+  return covAsk[p].then(() => covAll[s.id] || {});
+}
+function newGridHtml(){
+  const nf = ROOT.kids.find(n => n.name === "신곡"); if(!nf) return "";
+  const songs = allSongs(nf); if(!songs.length) return "";
+  const per = isWide() ? 10 : 9, items = [...songs, null], pages = [];
+  for(let i = 0; i < items.length; i += per) pages.push(items.slice(i, i + per));
+  const tile = s => { if(!s) return `<div class="ng more${newOpen ? " open" : ""}" data-ngmore role="button" aria-label="${newOpen ? "신곡 목록 접기" : "신곡 전체 보기"}" title="${newOpen ? "접기" : "전체 보기"}"><span class="dots"><i></i><i></i><i></i></span></div>`;
+    const now = song()?.id === s.id, u = covAll[s.id]?.medium?.url;
+    return `<div class="ng${now ? " now" : ""}" data-song="${esc(s.id)}" data-nc="${esc(s.id)}">${u ? `<img alt="" src="${esc(u)}">` : I.note}${now ? `<span class="eq"><i></i><i></i><i></i></span>` : ""}<span class="nt">${esc(artistOf(s.t)[0])}</span></div>`; };
+  return `<div class="ngw${shown ? "" : " paused"}"><div class="ngh"><span class="ttl">신곡</span><span class="cnt">${songs.length}</span>${ppBtn("xs", `data-pf="${esc(nf.path)}" title="신곡 전체 재생"`, shown && shownQ === nf.path)}</div>
+    <div class="ngnote"><span class="nb">7</span>시안: 신곡은 표지 칸으로 맨 위, 좋아요는 그 아래 — 9곡 넘으면 옆으로 밀어 다음 장</div>
+    <div class="ngp">${pages.map(pg => `<div class="ngpage">${pg.map(tile).join("")}</div>`).join("")}</div>
+    ${pages.length > 1 ? `<div class="ngdots">${pages.map((_, i) => `<i${i ? "" : ' class="on"'}></i>`).join("")}</div>` : ""}
+    ${newOpen ? `<div class="nglist">${songs.map(x => songRow(x, 0)).join("")}</div>` : ""}</div>`;
+}
+function bindNew(){
+  const t = $("tree"); if(!t) return;
+  t.addEventListener("click", e => { if(!e.target.closest("[data-ngmore]")) return; e.stopPropagation(); newOpen = !newOpen; const k = t.scrollTop; t.innerHTML = treeHtml(); t.scrollTop = k; bindNewInner(); }, true);
+  pressable(t, ".ng");
+  bindNewInner();
+}
+function bindNewInner(){
+  const t = $("tree"); if(!t) return;
+  t.querySelectorAll("[data-nc]").forEach(el => { if(el.querySelector("img")) return; const s = byId(el.dataset.nc); if(!s) return;
+    thumbsOf(s).then(th => { const u = th.medium?.url; if(!u || el.querySelector("img")) return; const im = new Image(); im.alt = ""; im.decoding = "async"; im.onerror = () => im.remove(); im.src = u; el.querySelector("svg")?.remove(); el.prepend(im); }); });
+  const P = t.querySelector(".ngp"), D = t.querySelectorAll(".ngdots i");
+  if(P && D.length) P.onscroll = () => { const k = Math.round(P.scrollLeft / P.clientWidth); D.forEach((d, i) => d.classList.toggle("on", i === k)); };
+}
+// 누름 느낌(목록 줄·신곡 칸 같이 씀): 손가락이 잠깐 머물면 눌림, 쓸면 바로 풀림
+function pressable(box, sel){
+  let pr = null, pt = 0;
+  const unpress = () => { clearTimeout(pt); pr?.classList.remove("press"); pr = null; };
+  box.addEventListener("pointerdown", e => { unpress(); pr = e.target.closest(sel); if(pr) pt = setTimeout(() => pr?.classList.add("press"), 60); });
+  box.addEventListener("pointerup", () => { const r = pr; clearTimeout(pt); pr = null; if(r){ r.classList.add("press"); setTimeout(() => r.classList.remove("press"), 120); } });
+  box.addEventListener("pointercancel", unpress); box.addEventListener("scroll", unpress, {passive: true, capture: true});
+}
+audio.addEventListener("play", () => document.querySelector(".ngw")?.classList.remove("paused"));
+audio.addEventListener("pause", () => document.querySelector(".ngw")?.classList.add("paused"));
 audio.addEventListener("play", () => $("qlist")?.classList.remove("paused"));
 audio.addEventListener("pause", () => $("qlist")?.classList.add("paused"));
 const WH = 44;  // 휠 한 줄 높이
@@ -935,7 +1010,7 @@ function bind(){
   };
   const qi = $("q");
   qi.oninput = () => { q = qi.value.trim(); $("tree").innerHTML = treeHtml(); };
-  bindWheel();
+  bindWheel(); bindNew();
   document.querySelectorAll("[data-a]").forEach(el => el.onclick = e => {
     e.stopPropagation();
     if(el._swiping || el.closest(".swipe-x")?._swiping) return;  // 옆으로 민 손가락은 '열기'·버튼 누름으로 치지 않음
