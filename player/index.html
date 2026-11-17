@@ -61,6 +61,7 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .ib.spin svg{animation:spin 1s linear infinite}
 .tg.on{color:var(--text);position:relative}
 .tg.on::after{content:"";position:absolute;bottom:-7px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:2px;background:var(--white)}
+.tg.one::before{content:"1";position:absolute;inset:0;display:grid;place-items:center;font-size:9px;font-weight:800;line-height:1;pointer-events:none}  /* 한 곡 반복: 반복 아이콘 가운데 1(11-17 회장) */
 .art{background:linear-gradient(145deg,#3a3a38,#1b1b1b);border:1px solid var(--line-hi);border-radius:10px;display:grid;place-items:center;color:rgba(242,242,240,.75);position:relative;overflow:hidden;flex:none}
 .art::after{content:"";position:absolute;inset:0;background:var(--noise);opacity:.25}
 .art svg{width:42%;height:42%;opacity:.85}
@@ -470,7 +471,7 @@ let pre = null, curBlob = null;  // 미리 받아 둔 다음 곡 {id, url}, 지�
 /* ───────── 재생 ───────── */
 const audio = new Audio(); audio.preload = "auto";
 audio.volume = Math.min(1, Math.max(0, ls.get("vol", 1)));  // 볼륨은 그 기기에 기억(아이폰은 웹이 소리 크기를 못 바꿔서 막대를 안 보임)
-let queue = [], qName = "", cur = -1, shuf = false, rep = false, full = false, q = "", loading = false;
+let queue = [], qName = "", cur = -1, shuf = false, rep = 0,  /* rep: 0 끔 · 1 지금 목록 반복 · 2 한 곡 반복(11-17 회장) */ full = false, q = "", loading = false;
 let open = new Set(ls.get("open", [])), shown = false, shownQ = "";
 const song = () => queue[cur];
 const playing = () => !audio.paused && !!audio.src;
@@ -514,7 +515,7 @@ const topsOf = () => [...ROOT.kids.filter(n => n.name === "신곡"), ...ROOT.kid
 // 폴더 첫 곡에서 '이전' → 이전 폴더 마지막 곡(맨 처음이면 맨 끝 폴더). 모음집은 순환에서 뺌(11-17 회장) — 모음집을 듣다 끝나면 맨 첫 폴더로.
 // 좋아요 목록은 그 안에서만 돎
 function adjFolder(d){
-  if((d > 0 ? cur < queue.length - 1 : cur > 0) || qName === LIKES || qName === CHECK) return null;
+  if((d > 0 ? cur < queue.length - 1 : cur > 0) || qName === LIKES || qName === CHECK || rep === 1) return null;  // 목록 반복이면 그 목록 안에서만
   const g = [], walk = n => { n.kids.forEach(walk); if(n.songs.length) g.push(n); };  // 화면과 같은 순서: 하위 폴더 → 그 폴더 곡
   topsOf().filter(n => n.name !== "모음집").forEach(walk); if(ROOT.songs.length) g.push(ROOT);
   if(!g.length) return null;
@@ -565,7 +566,7 @@ function go(d){
 audio.addEventListener("play", syncPlay);
 audio.addEventListener("pause", () => { syncPlay(); saveState(); });
 audio.addEventListener("timeupdate", () => { progress(); if(Math.floor(audio.currentTime) % 5 === 0) saveState(); });
-audio.addEventListener("ended", () => { rep ? (audio.currentTime = 0, audio.play()) : go(1); });
+audio.addEventListener("ended", () => { rep === 2 ? (audio.currentTime = 0, audio.play()) : go(1); });
 audio.addEventListener("error", () => { if(audio.src) { urlsAt = 0; toast("곡을 불러오지 못했어요 — 다시 눌러 주세요"); } });
 // 표지 주소: 곡마다 한 번만 OneDrive에 물어봄(표지가 없으면 그림 주소가 깨져서 음표가 그대로 보임)
 const covers = {};
@@ -686,7 +687,7 @@ function fullScreen(){
       <button class="ib" data-a="prev" title="이전 곡">${I.prev}</button>
       ${ppBtn("big" + (loading ? " wait" : ""), 'data-a="toggle" title="재생/멈춤"', shown)}
       <button class="ib" data-a="next" title="다음 곡">${I.next}</button>
-      <button class="ib tg${rep ? " on" : ""}" data-a="rep" title="한 곡 반복">${I.rep}</button></div>
+      <button class="ib tg${rep ? " on" : ""}${rep === 2 ? " one" : ""}" data-a="rep" title="${["반복", "목록 반복", "한 곡 반복"][rep]}">${I.rep}</button></div>
     ${wide ? volHtml() : ""}
     <div class="upnext"><div class="sub"><span>재생목록</span><span>${cur + 1} / ${queue.length}</span></div>
       <div class="wheel"><div class="wsel"></div><div class="wsc" id="wsc"><div class="wtrack" style="height:${(queue.length + 4) * WH}px"></div></div></div></div></div></div>`;
@@ -830,7 +831,7 @@ function bind(){
     if(a === "next") return go(1);
     if(a === "prev") return go(-1);  // 언제 눌러도 이전 곡(3초 넘게 들으면 처음으로 가던 규칙은 뺌, 11-17 회장)
     if(a === "shuf"){ shuf = !shuf; ls.set("shuf", shuf); return el.classList.toggle("on", shuf); }
-    if(a === "rep"){ rep = !rep; ls.set("rep", rep); return el.classList.toggle("on", rep); }
+    if(a === "rep"){ rep = (rep + 1) % 3; ls.set("rep", rep); el.title = ["반복", "목록 반복", "한 곡 반복"][rep]; el.classList.toggle("one", rep === 2); return el.classList.toggle("on", rep > 0); }
     if(a === "open") return setFull(true);
     if(a === "close") return setFull(false);
     if(a === "reload") return reload();
@@ -900,7 +901,7 @@ async function boot(){
   if(!back && ls.get("was", false) && CLIENT_ID && !(await token()) && !(await login(true))) return showGate("하루가 지나 다시 로그인이 필요해요.");
   if(!ls.get("tok", null)) return showGate(ls.get("needScope", false) ? "따봉·싫어요를 저장하려고 권한이 하나 늘었어요(Player 전용 폴더에만 쓰기). 한 번만 다시 로그인해 주세요." : "");
   ls.del("needScope");
-  shuf = ls.get("shuf", false); rep = ls.get("rep", false);
+  shuf = ls.get("shuf", false); rep = +ls.get("rep", 0) || 0;  // 예전 true(켜짐)는 1
   $("root").innerHTML = `<div class="app" id="app"></div>`;
   const cached = ls.get("tree", null);
   if(cached){ setTree(cached); ROOT.kids.forEach(n => open.add(n.path)); }
