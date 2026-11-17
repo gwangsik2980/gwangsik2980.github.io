@@ -528,11 +528,12 @@ async function boot(){
   shuf = ls.get("shuf", false); rep = ls.get("rep", false);
   $("root").innerHTML = `<div class="app" id="app"></div>`;
   const cached = ls.get("tree", null);
-  if(cached) setTree(cached);
+  if(cached){ setTree(cached); ROOT.kids.forEach(n => open.add(n.path)); }
   busy = true; render();
   try { await loadTree(); }
   catch(e){ if(e.login) return showGate(e.message); toast(e.message); }
   busy = false;
+  ROOT.kids.forEach(n => open.add(n.path));  // 열자마자 대분류는 늘 펼침(중분류가 바로 보이게), 그 아래는 지난번 상태 그대로
   // 지난번 듣던 곡을 미니 플레이어에 다시 올려 둠(자동 재생은 안 함)
   const last = ls.get("last", null);
   if(last && !song()){
