@@ -89,7 +89,7 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 
 /* 파형 진행 막대 */
 .totop{cursor:pointer;user-select:none}
-.totop{display:inline-flex;align-items:center;gap:10px}.emb{width:24px;height:24px;flex:none}
+.totop{display:inline-flex;align-items:center;gap:10px}.emb{width:20px;height:20px;flex:none;color:var(--mute)}  /* 이름 글자와 같은 색 선 그림 — 칠한 타일은 튀어서(11-18 회장) */
 /* 재생바(11-17 회장 시안 1안): 시간 위, 얇은 흰 막대, 손대면 손잡이, 끄는 동안 이동할 시간 표시 */
 .times{display:flex;justify-content:space-between;margin-top:18px;color:rgba(242,242,240,.9);font-size:12.5px;font-variant-numeric:tabular-nums}
 .seek{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.2);margin-top:8px;cursor:pointer;touch-action:none;transition:height .2s var(--spring),margin .2s var(--spring)}
@@ -929,7 +929,7 @@ function render(){
   if(!$("app")) return;
   const keep = $("tree")?.scrollTop || 0, wide = isWide();
   $("app").className = "app " + (wide ? "wide" : "phone");
-  $("app").innerHTML = `<div class="hd"><span class="lab totop" data-a="top" title="맨 위로"><img class="emb" src="icon-192.png" alt="">GWANG · Player</span><span class="hacts"><span class="meta">${ALL.length ? ALL.length + "곡" : ""}</span>
+  $("app").innerHTML = `<div class="hd"><span class="lab totop" data-a="top" title="맨 위로"><svg class="emb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="5.5"/><path d="M13.2 15.6V6.6l3.6 1.3"/><circle cx="10.9" cy="15.6" r="2.3"/></svg>GWANG · Player</span><span class="hacts"><span class="meta">${ALL.length ? ALL.length + "곡" : ""}</span>
       <button class="ib${busy ? " spin" : ""}" data-a="reload" title="OneDrive에서 다시 읽기">${I.reload}</button><button class="ib" data-a="logout" title="로그아웃">${I.out}</button></span></div>
     <div class="body"><div class="list"><div class="search">${I.find}<input id="q" placeholder="곡 이름으로 찾기" value="${esc(q)}" enterkeyhint="search"></div>
       <div class="scroll" id="tree">${treeHtml()}</div>${wide ? "" : miniBar()}</div>${wide ? fullScreen() : ""}</div>${wide ? "" : fullScreen()}`;
