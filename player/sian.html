@@ -278,6 +278,8 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .chip{flex:none;border:1px solid var(--line-hi);background:none;color:var(--sub);font-size:12.5px;padding:6px 12px;border-radius:999px;cursor:pointer}
 .chip.on{background:var(--white);border-color:var(--white);color:var(--ink);font-weight:600}
 .qlist.paused .eq i{animation-play-state:paused}
+.ql{transition:transform .14s cubic-bezier(.2,.65,.3,.9),background-color .14s}
+.ql.press{transform:scale(.97);background:rgba(255,255,255,.07);transition-duration:.06s}
 </style>
 </head>
 <body>
@@ -746,12 +748,12 @@ document.addEventListener("input", e => {
 });
 
 // ===== 시안(목록) =====
-let SIAN = (() => { try { return localStorage.getItem("gwplayer.sian") || "A"; } catch { return "A"; } })(), chip = "all";
+let SIAN = (() => { try { return localStorage.getItem("gwplayer.sian2") || "B"; } catch { return "B"; } })(), chip = "all";
 const SN = {
   "0": `<b>지금 그대로</b> — 회색 바 휠`,
-  A: `<span class="nb">1</span><b>회색 바·줄 맞추기·위아래 흐림 없앰</b> — 손가락 따라 그냥 미끄러지는 목록<br><span class="nb">2</span><b>지금 곡만 표시</b> — 흰 굵은 글자 + 번호 자리에 움직이는 막대<br><span class="nb">3</span>열면 지금 곡이 둘째 줄(바로 앞 곡 한 줄 보임), 제목은 왼쪽 맞춤`,
-  B: `A에 더해 — 유튜브 뮤직 '다음 트랙'처럼<br><span class="nb">4</span><b>줄마다 작은 표지 + 제목·가수 두 줄</b>, 지금 곡은 표지 위에 막대`,
-  C: `B에 더해 — 유튜브 뮤직 '친숙한 곡·숨은 명곡' 칩처럼<br><span class="nb">5</span><b>목록 위 칩</b>: 전체 · 👍 · 평가 안 한 곡 — 눌러도 재생 순서는 그대로, 보이는 줄만 거름`
+  A: `<span class="nb">1</span><b>회색 바·줄 맞추기·위아래 흐림 없앰</b> — 손가락 따라 그냥 미끄러지는 목록<br><span class="nb">2</span><b>지금 곡만 표시</b> — 흰 굵은 글자 + 번호 자리에 움직이는 막대<br><span class="nb">3</span>열면 지금 곡이 둘째 줄(바로 앞 곡 한 줄 보임), 제목은 왼쪽 맞춤<br><span class="nb">4</span><b>누르면 그 줄이 살짝 눌렸다 돌아옴</b> — 쓸고 지나갈 땐 반응 안 함`,
+  B: `A에 더해 — 유튜브 뮤직 '다음 트랙'처럼<br><span class="nb">5</span><b>줄마다 작은 표지 + 제목·가수 두 줄</b>, 지금 곡은 표지 위에 막대 — 렉 줄이기: 목록용 작은 표지(약 100px)를 폴더마다 한 번에 받아 둠`,
+  C: `B에 더해 — 유튜브 뮤직 '친숙한 곡·숨은 명곡' 칩처럼<br><span class="nb">6</span><b>목록 위 칩</b>: 전체 · 👍 · 평가 안 한 곡 — 눌러도 재생 순서는 그대로, 보이는 줄만 거름`
 };
 const artistOf = t => { const k = t.lastIndexOf(" - "); return k > 0 ? [t.slice(0, k), t.slice(k + 3)] : [t, ""]; };
 function sianHtml(){
@@ -774,16 +776,33 @@ function chipsHtml(){
   const up = queue.filter(x => rOf(x.id) === 1).length, no = queue.filter(x => !rOf(x.id)).length;
   return `<div class="chips"><button class="chip${chip === "all" ? " on" : ""}" data-chip="all">전체 ${queue.length}</button><button class="chip${chip === "up" ? " on" : ""}" data-chip="up">👍 ${up}</button><button class="chip${chip === "no" ? " on" : ""}" data-chip="no">평가 안 한 곡 ${no}</button></div>`;
 }
+let pressI = null;
+const smallCov = {}, smallAsk = {};
+function smallCover(s){  // 폴더 하나 = OneDrive 한 번(곡마다 묻지 않음)
+  if(s.id in smallCov) return Promise.resolve(smallCov[s.id]);
+  const p = s.path || "";
+  smallAsk[p] ??= children(`/me/drive/root:/${enc(p ? MUSIC + "/" + p : MUSIC)}:/children?$top=999&$select=id&$expand=thumbnails`)
+    .then(items => items.forEach(x => { smallCov[x.id] = x.thumbnails?.[0]?.small?.url || ""; })).catch(() => {});
+  return smallAsk[p].then(() => smallCov[s.id] || "");
+}
 function bindList(){
   const L = $("qlist"); if(!L) return;
-  document.querySelectorAll("[data-sian]").forEach(b => b.onclick = e => { e.stopPropagation(); SIAN = b.dataset.sian; chip = "all"; try { localStorage.setItem("gwplayer.sian", SIAN); } catch {} render(); });
+  document.querySelectorAll("[data-sian]").forEach(b => b.onclick = e => { e.stopPropagation(); SIAN = b.dataset.sian; chip = "all"; try { localStorage.setItem("gwplayer.sian2", SIAN); } catch {} render(); });
   document.querySelectorAll("[data-chip]").forEach(b => b.onclick = e => { e.stopPropagation(); chip = b.dataset.chip; render(); });
   L.classList.toggle("paused", audio.paused);
   const r = L.querySelector(`[data-i="${cur}"]`); if(r) L.scrollTop = Math.max(0, r.offsetTop - L.offsetTop - r.offsetHeight);
-  L.onclick = e => { const x = e.target.closest("[data-i]"); if(!x) return; const i = +x.dataset.i; i === cur ? toggle() : start(i); };
-  // 표지는 보이는 줄만 받아 옴
+  L.onclick = e => { const x = e.target.closest("[data-i]"); if(!x) return; const i = +x.dataset.i; pressI = i; i === cur ? toggle() : start(i); };
+  // 누름 느낌: 손가락이 잠깐 머물면 눌림, 쓸면(스크롤) 바로 풀림. 곡이 바뀌어 목록이 새로 그려지면 누른 줄이 눌린 채로 시작해 돌아옴
+  let pr = null, pt = 0;
+  const unpress = () => { clearTimeout(pt); pr?.classList.remove("press"); pr = null; };
+  L.onpointerdown = e => { unpress(); pr = e.target.closest(".ql"); if(pr) pt = setTimeout(() => pr?.classList.add("press"), 60); };
+  L.onpointerup = () => { const r = pr; clearTimeout(pt); pr = null; if(r){ r.classList.add("press"); setTimeout(() => r.classList.remove("press"), 120); } };
+  L.onpointercancel = unpress; L.addEventListener("scroll", unpress, {passive: true});
+  if(pressI != null){ const r = L.querySelector(`[data-i="${pressI}"]`); pressI = null;
+    if(r){ r.classList.add("press"); requestAnimationFrame(() => requestAnimationFrame(() => r.classList.remove("press"))); } }
+  // 표지는 보이는 줄만, 목록용 작은 표지를 폴더마다 한 번에 받아 둔 것에서 꺼냄
   const io = new IntersectionObserver(es => es.forEach(en => { if(!en.isIntersecting) return; io.unobserve(en.target);
-    const el = en.target, s = queue[+el.dataset.c]; coverOf(s).then(u => { if(!u) return; const im = new Image(); im.alt = ""; im.onerror = () => im.remove(); im.src = u; el.prepend(im); }); }), {root: L, rootMargin: "120px 0px"});
+    const el = en.target, s = queue[+el.dataset.c]; smallCover(s).then(u => { if(!u) return; const im = new Image(); im.alt = ""; im.decoding = "async"; im.onerror = () => im.remove(); im.src = u; el.prepend(im); }); }), {root: L, rootMargin: "160px 0px"});
   L.querySelectorAll("[data-c]").forEach(el => io.observe(el));
 }
 audio.addEventListener("play", () => $("qlist")?.classList.remove("paused"));
