@@ -332,7 +332,7 @@ async function graph(path){
   ls.del("tok");
   throw Object.assign(new Error("로그인이 필요해요"), {login: true});
 }
-function logout(){ ls.del("tok"); ls.del("tree"); ls.del("was"); audio.pause(); location.href = REDIRECT; }
+function logout(){ ls.del("tok"); ls.del("tree"); ls.del("was"); audio.pause(); location.replace(REDIRECT); }  // 기록 안 남게
 
 /* ───────── OneDrive 폴더 읽기 (대·중·소 3단계) ───────── */
 let ROOT = {kids: [], songs: []}, ALL = [], urls = {}, urlsAt = 0;
