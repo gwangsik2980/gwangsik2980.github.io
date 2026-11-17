@@ -443,11 +443,10 @@ let open = new Set(ls.get("open", [])), shown = false, shownQ = "";
 const song = () => queue[cur];
 const playing = () => !audio.paused && !!audio.src;
 const dur = () => (isFinite(audio.duration) && audio.duration) || song()?.d || 0;
-const posMap = ls.get("pos", {});  // 곡마다 들은 자리(이어 듣기)
+// 이어 듣기는 하지 않음(11-17 회장): 껐다 다시 틀면 처음부터. 예전에 저장한 자리는 지움
+ls.del("pos");
 function saveState(){
   const s = song(); if(!s) return;
-  if(audio.currentTime > 10 && audio.currentTime < dur() - 15) posMap[s.id] = Math.floor(audio.currentTime); else delete posMap[s.id];
-  ls.set("pos", posMap);
   ls.set("last", {id: s.id, q: qName, ids: queue.map(x => x.id)});
 }
 let startSeq = 0;
@@ -459,8 +458,6 @@ async function start(i, autoplay = true){
     const u = await streamUrl(s);  // 미리 받아 둔 곡이면 바로
     if(my !== startSeq) return;
     audio.src = u;
-    const at = posMap[s.id];
-    if(at) audio.currentTime = at;
     const p = autoplay ? audio.play() : null;  // 소리부터 출발시키고 화면은 그다음에(화면 그리기가 재생을 늦추지 않게)
     render();
     if(p) await p;
@@ -516,7 +513,7 @@ function go(d){
 audio.addEventListener("play", syncPlay);
 audio.addEventListener("pause", () => { syncPlay(); saveState(); });
 audio.addEventListener("timeupdate", () => { progress(); if(Math.floor(audio.currentTime) % 5 === 0) saveState(); });
-audio.addEventListener("ended", () => { delete posMap[song()?.id]; rep ? (audio.currentTime = 0, audio.play()) : go(1); });
+audio.addEventListener("ended", () => { rep ? (audio.currentTime = 0, audio.play()) : go(1); });
 audio.addEventListener("error", () => { if(audio.src) { urlsAt = 0; toast("곡을 불러오지 못했어요 — 다시 눌러 주세요"); } });
 // 표지 주소: 곡마다 한 번만 OneDrive에 물어봄(표지가 없으면 그림 주소가 깨져서 음표가 그대로 보임)
 const covers = {};
