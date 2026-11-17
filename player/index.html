@@ -147,12 +147,12 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 /* 펼치기 모션(11-17 렉 고침): 높이를 늘리지 않고, 곡이 살짝 내려오며 차례로 나타남(그래픽 칩이 처리하는 opacity·transform만) */
 .kids-in{position:relative}
 .kids-in::before{content:"";position:absolute;left:calc(12px + var(--d) * 16px);top:0;bottom:8px;width:1px;background:var(--line);transform-origin:top}
-.kids-in.in::before{animation:lineIn .45s var(--spring) both}
-.kids-in.in>*{animation:rowIn .36s var(--spring) both;animation-delay:calc(var(--i,12) * 18ms)}
-.kids-in.out{animation:kidsOut .15s ease both}
-@keyframes rowIn{from{opacity:0;transform:translateY(-6px)}}
+.kids-in.in::before{animation:lineIn .7s var(--spring) both}
+.kids-in.in>*{animation:rowIn .55s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--i,12) * 35ms)}  /* 11-17 밤 회장: 너무 빨라서 천천히 */
+.kids-in.out{animation:kidsOut .3s cubic-bezier(.4,0,.2,1) both}
+@keyframes rowIn{from{opacity:0;transform:translateY(-10px)}}
 @keyframes lineIn{from{transform:scaleY(0)}}
-@keyframes kidsOut{to{opacity:0;transform:translateY(-4px)}}
+@keyframes kidsOut{to{opacity:0;transform:translateY(-8px)}}
 @media (prefers-reduced-motion:reduce){.kids-in.in>*,.kids-in.in::before,.kids-in.out{animation:none}}
 .row.song{font-size:14px;color:var(--sub);padding-left:calc(28px + var(--d,0) * 16px)}
 .row.song .meta{flex:none}
@@ -634,7 +634,7 @@ function setNode(node, on, anim){
     if(anim){ [...box.children].forEach((c, i) => c.style.setProperty("--i", Math.min(i, 12))); void box.offsetWidth; box.classList.add("in"); }
   } else if(anim){
     box.classList.add("out");
-    node._t = setTimeout(() => { node.classList.remove("open"); box.classList.remove("out"); box.innerHTML = ""; }, 150);
+    node._t = setTimeout(() => { node.classList.remove("open"); box.classList.remove("out"); box.innerHTML = ""; }, 300);
   } else { node.classList.remove("open"); box.innerHTML = ""; }
 }
 function songRow(s, d, showPath){
