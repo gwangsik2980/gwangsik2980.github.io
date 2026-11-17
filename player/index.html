@@ -217,7 +217,7 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .smenu.open{opacity:1;transform:none;pointer-events:auto}
 .smenu .sh{display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line-hi);font-size:15px;font-weight:600;color:var(--text)}
 .smenu .sh svg{width:18px;height:18px;flex:none}
-.smenu .sh small{font-size:12px;font-weight:500;color:var(--mute)}
+.smenu .sh small{font-variant-numeric:tabular-nums;font-size:12px;font-weight:500;color:var(--mute)}
 .smenu button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:9px 14px;cursor:pointer}
 .smenu button:active{background:rgba(255,255,255,.06)}
 .smenu button.off{color:var(--mute);border-top:1px solid var(--line-hi)}
@@ -758,9 +758,9 @@ function fullScreen(){
 // 수면 타이머(11-18 회장): 큰 화면 오른쪽 위 점 세 개 → 반달 '수면 타이머' 5·15·30·60분. 시간이 되면 멈춤
 let sleepAt = 0, sleepT = 0;
 const moreBtn = () => `<button class="ib more${sleepAt ? " on" : ""}" data-a="more" title="더보기" aria-haspopup="true">${I.more}</button>`;
-const sleepLeft = () => Math.max(1, Math.ceil((sleepAt - Date.now()) / 60000));
+const sleepLeft = () => { const t = Math.max(0, Math.ceil((sleepAt - Date.now()) / 1000)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; };  // 남은 시간 5:00부터 1초씩
 function sleepMenu(){
-  return `<div class="smenu" id="smenu" role="menu"><div class="sh" aria-label="수면 타이머">${I.moon}${sleepAt ? `<small>${sleepLeft()}분 남음</small>` : ""}</div>
+  return `<div class="smenu" id="smenu" role="menu"><div class="sh" aria-label="수면 타이머">${I.moon}${sleepAt ? `<small id="sleft">${sleepLeft()}</small>` : ""}</div>
     ${[5, 15, 30, 60].map(m => `<button data-sleep="${m}" role="menuitem">${m}분</button>`).join("")}${sleepAt ? `<button data-sleep="0" role="menuitem" class="off">끄기</button>` : ""}</div>`;
 }
 function setSleep(m){
@@ -770,12 +770,14 @@ function setSleep(m){
   toast(m ? `${m}분 뒤에 멈춰요` : "수면 타이머를 껐어요");
 }
 function sleepCheck(){ if(sleepAt && Date.now() >= sleepAt){ sleepAt = 0; clearTimeout(sleepT); audio.pause(); document.querySelectorAll(".ib.more").forEach(b => b.classList.remove("on")); } }
-audio.addEventListener("timeupdate", sleepCheck);  // 화면이 꺼져 타이머가 늦어도 재생 중엔 이걸로 멈춤
+audio.addEventListener("timeupdate", sleepCheck);
+setInterval(() => { const l = $("sleft"); if(l && sleepAt && $("smenu")?.classList.contains("open")) l.textContent = sleepLeft(); }, 250);  // 메뉴 열려 있을 때 남은 시간 실시간  // 화면이 꺼져 타이머가 늦어도 재생 중엔 이걸로 멈춤
 document.addEventListener("click", e => {
   const m = $("smenu"); if(!m) return;
   const b = e.target.closest("[data-sleep]");
   if(b){ setSleep(+b.dataset.sleep); m.classList.remove("open"); return; }
-  if(e.target.closest('[data-a="more"]')){ m.outerHTML = sleepMenu(); $("smenu").classList.add("open"); return; }  // 열 때마다 남은 시간 새로
+  if(e.target.closest('[data-a="more"]')){ if(m.classList.contains("open")) return m.classList.remove("open");  // 한 번 더 누르면 닫힘
+    m.outerHTML = sleepMenu(); $("smenu").classList.add("open"); return; }  // 열 때마다 남은 시간 새로
   if(!e.target.closest("#smenu")) m.classList.remove("open");
 }, true);  // 캡처: 버튼 클릭은 bind()에서 stopPropagation 되므로
 function volHtml(){
