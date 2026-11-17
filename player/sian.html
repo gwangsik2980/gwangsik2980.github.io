@@ -132,8 +132,14 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 @keyframes swIn{from{opacity:0;transform:translateX(calc(var(--sx,1) * 48px))}}
 
 /* 폴더 나무 */
-.search{margin:0 8px 8px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:0 10px;background:var(--char)}
+.search{margin:0 16px 8px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:0 10px;background:var(--char)}
 .search svg{width:16px;height:16px;color:var(--mute);flex:none}
+.fchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 16px 10px;flex:none;overscroll-behavior-x:contain}
+.fchips::-webkit-scrollbar{display:none}
+.fchip{flex:none;border:0;background:#232323;color:var(--text);font-family:inherit;font-size:13.5px;font-weight:500;line-height:1;padding:9px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;transition:transform .14s,background-color .14s;-webkit-tap-highlight-color:transparent}
+.fchip.on{background:var(--white);color:var(--ink);font-weight:600}
+.fchip.press{transform:scale(.95);background:#2e2e2e;transition-duration:.06s}
+.fchip.on.press{background:#d8d8d6}
 .search input{flex:1;min-width:0;background:none;border:0;color:var(--text);font:inherit;font-size:16px;padding:9px 0;outline:none}
 .row{display:flex;align-items:center;gap:8px;padding:6px 6px 6px calc(6px + var(--d,0) * 16px);border-radius:var(--r-sm);min-height:42px;cursor:pointer;user-select:none}
 @media(hover:hover){.row:hover{background:rgba(255,255,255,.04)}} /* 폰은 스크롤 중 손가락 닿은 줄이 남아 보여서 마우스만 */
@@ -834,6 +840,28 @@ function bindList(){
   L.querySelectorAll("[data-c]").forEach(el => io.observe(el));
 }
 
+// ===== 시안: 중분류 칩 띠 =====
+const midFolders = () => topsOf().filter(n => n.name !== "신곡").flatMap(n => n.kids);
+function fchipsHtml(){
+  const ks = midFolders(); if(!ks.length) return "";
+  return `<div class="fchips" id="fchips">${ks.map(k => `<button class="fchip${open.has(k.path) ? " on" : ""}" data-fc="${esc(k.path)}">${esc(k.name)}</button>`).join("")}</div>`;
+}
+function bindFchips(){
+  const b = $("fchips"); if(!b) return;
+  pressable(b, ".fchip");
+  b.onclick = e => { const c = e.target.closest("[data-fc]"); if(!c) return;
+    const p = c.dataset.fc, t = $("tree"), was = open.has(p);
+    open = new Set(was ? [] : [p.split("/")[0], p]); ls.set("open", [...open]);  // 다시 누르면 접힘
+    q = ""; const qi = $("q"); if(qi) qi.value = "";
+    t.innerHTML = treeHtml(); bindNewInner();
+    b.querySelectorAll(".fchip").forEach(x => x.classList.toggle("on", open.has(x.dataset.fc)));
+    const row = t.querySelector(`[data-f="${CSS.escape(p)}"]`);
+    if(row && !was) t.scrollTo({top: row.getBoundingClientRect().top - t.getBoundingClientRect().top + t.scrollTop - 4, behavior: "smooth"});
+    else t.scrollTo({top: 0, behavior: "smooth"});
+    c.scrollIntoView({inline: "nearest", block: "nearest", behavior: "smooth"}); };
+}
+// 트리에서 폴더를 직접 열고 닫아도 칩 표시가 따라감
+document.addEventListener("click", () => setTimeout(() => document.querySelectorAll(".fchip").forEach(x => x.classList.toggle("on", open.has(x.dataset.fc)))), true);
 // ===== 시안: 신곡 표지 칸 =====
 let newOpen = false;
 const covAll = {}, covAsk = {};
@@ -853,7 +881,7 @@ function newGridHtml(){
     const now = song()?.id === s.id, u = covAll[s.id]?.medium?.url;
     return `<div class="ng${now ? " now" : ""}" data-song="${esc(s.id)}" data-nc="${esc(s.id)}">${u ? `<img alt="" src="${esc(u)}">` : I.note}${now ? `<span class="eq"><i></i><i></i><i></i></span>` : ""}<span class="nt">${esc(artistOf(s.t)[0])}</span></div>`; };
   return `<div class="ngw${shown ? "" : " paused"}"><div class="ngh"><span class="ttl">신곡</span><span class="cnt">${songs.length}</span>${ppBtn("xs", `data-pf="${esc(nf.path)}" title="신곡 전체 재생"`, shown && shownQ === nf.path)}</div>
-    <div class="ngnote"><span class="nb">7</span>시안: 신곡은 표지 칸으로 맨 위, 좋아요는 그 아래 — 9곡 넘으면 옆으로 밀어 다음 장<br><span class="nb">8</span>켜면 폴더는 전부 접힘, 폴더 하나 열면 대분류까지 다른 폴더는 다 닫힘</div>
+    <div class="ngnote"><span class="nb">7</span>시안: 신곡은 표지 칸으로 맨 위, 좋아요는 그 아래 — 9곡 넘으면 옆으로 밀어 다음 장<br><span class="nb">9</span>검색칸 아래 중분류 칩 — 누르면 그 폴더만 열고 거기로, 다시 누르면 접힘<br><span class="nb">8</span>켜면 폴더는 전부 접힘, 폴더 하나 열면 대분류까지 다른 폴더는 다 닫힘</div>
     <div class="ngp">${pages.map(pg => `<div class="ngpage">${pg.map(tile).join("")}</div>`).join("")}</div>
     ${pages.length > 1 ? `<div class="ngdots">${pages.map((_, i) => `<i${i ? "" : ' class="on"'}></i>`).join("")}</div>` : ""}
     ${newOpen ? `<div class="nglist">${songs.map(x => songRow(x, 0)).join("")}</div>` : ""}</div>`;
@@ -931,7 +959,7 @@ function render(){
   $("app").className = "app " + (wide ? "wide" : "phone");
   $("app").innerHTML = `<div class="hd"><span class="lab totop" data-a="top" title="맨 위로"><svg class="emb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="5.5"/><g transform="translate(6 6.125) scale(.5)" stroke-width="2.8"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></g></svg>GWANG · Player</span><span class="hacts"><span class="meta">${ALL.length ? ALL.length + "곡" : ""}</span>
       <button class="ib${busy ? " spin" : ""}" data-a="reload" title="OneDrive에서 다시 읽기">${I.reload}</button><button class="ib" data-a="logout" title="로그아웃">${I.out}</button></span></div>
-    <div class="body"><div class="list"><div class="search">${I.find}<input id="q" placeholder="곡 이름으로 찾기" value="${esc(q)}" enterkeyhint="search"></div>
+    <div class="body"><div class="list"><div class="search">${I.find}<input id="q" placeholder="곡 이름으로 찾기" value="${esc(q)}" enterkeyhint="search"></div>${fchipsHtml()}
       <div class="scroll" id="tree">${treeHtml()}</div>${wide ? "" : miniBar()}</div>${wide ? fullScreen() : ""}</div>${wide ? "" : fullScreen()}`;
   $("tree").scrollTop = keep;
   swipeIn = 0;
@@ -1011,7 +1039,7 @@ function bind(){
   };
   const qi = $("q");
   qi.oninput = () => { q = qi.value.trim(); $("tree").innerHTML = treeHtml(); };
-  bindWheel(); bindNew();
+  bindWheel(); bindNew(); bindFchips();
   document.querySelectorAll("[data-a]").forEach(el => el.onclick = e => {
     e.stopPropagation();
     if(el._swiping || el.closest(".swipe-x")?._swiping) return;  // 옆으로 민 손가락은 '열기'·버튼 누름으로 치지 않음
