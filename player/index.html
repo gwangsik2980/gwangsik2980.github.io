@@ -426,10 +426,11 @@ let shufNext = -1;
 const preconn = new Set();
 async function prefetchNext(){
   if(!queue.length) return;
+  const nf = !shuf && nextFolder();
   const n = shuf && queue.length > 1 ? (shufNext = (() => { let k; do k = Math.floor(Math.random() * queue.length); while(k === cur); return k; })())
                                      : (cur + 1) % queue.length;
   try {
-    const u = await streamUrl(queue[n]);
+    const u = await streamUrl(nf ? nf.songs[0] : queue[n]);
     const o = new URL(u).origin;
     if(!preconn.has(o)){ preconn.add(o); const l = document.createElement("link"); l.rel = "preconnect"; l.href = o; l.crossOrigin = ""; document.head.append(l); }
   } catch {}
@@ -471,6 +472,16 @@ async function start(i, autoplay = true){
   mediaMeta(); saveState();
   if(my === startSeq) prefetchNext();
 }
+const topsOf = () => [...ROOT.kids.filter(n => n.name !== "모음집"), ...ROOT.kids.filter(n => n.name === "모음집")];  // 모음집은 맨 아래(11-17)
+// 폴더 마지막 곡에서 '다음' → 화면 순서로 다음 폴더 첫 곡, 맨 마지막 폴더면 맨 첫 폴더로(11-17 회장). 좋아요 목록은 그 안에서만 돎
+function nextFolder(){
+  if(cur < queue.length - 1 || qName === LIKES) return null;
+  const g = [], walk = n => { n.kids.forEach(walk); if(n.songs.length) g.push(n); };  // 화면과 같은 순서: 하위 폴더 → 그 폴더 곡
+  topsOf().forEach(walk); if(ROOT.songs.length) g.push(ROOT);
+  if(!g.length) return null;
+  const k = g.findIndex(n => (n.path || "") === (song()?.path ?? ""));
+  return g[(k + 1) % g.length];
+}
 function playList(list, name, i = 0){ queue = list; qName = name; start(shuf ? Math.floor(Math.random() * list.length) : i); }
 function toggle(){
   if(!song()) return ALL.length && playList(ALL, "", 0);
@@ -508,6 +519,8 @@ function hSwipe(el, target, skip){
 function go(d){
   if(!queue.length) return;
   if(shuf && d > 0 && queue.length > 1){ let n = shufNext; if(n < 0 || n === cur || n >= queue.length){ do n = Math.floor(Math.random() * queue.length); while(n === cur); } shufNext = -1; return start(n); }
+  const nf = d > 0 && !shuf && nextFolder();
+  if(nf){ queue = nf.songs; qName = nf.path || ""; return start(0); }
   start((cur + d + queue.length) % queue.length);
 }
 audio.addEventListener("play", syncPlay);
@@ -599,7 +612,7 @@ function treeHtml(){
     return hit.map(s => songRow(s, 0, true)).join("") || `<div class="empty">'${esc(q)}'에 맞는 곡이 없어요.</div>`;
   }
   const ln = likeNode();
-  const tops = [...ROOT.kids.filter(n => n.name !== "모음집"), ...ROOT.kids.filter(n => n.name === "모음집")];  // 모음집은 맨 아래(11-17)
+  const tops = topsOf();
   return (ln.songs.length ? nodeHtml(ln, 0) : "") + tops.map(n => nodeHtml(n, 0)).join("")
     + (ROOT.songs.length ? `<div class="sub">맨 위에 있는 곡</div>` + ROOT.songs.map(s => songRow(s, 0)).join("") : "")
     + `<div class="gw-copy">© 2026 GWANG. All rights reserved.</div>`;
