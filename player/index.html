@@ -767,7 +767,7 @@ function bind(){
       document.querySelectorAll(".rate.dn").forEach(b => b.classList.toggle("on", r === -1));
       const t = $("tree"); if(t && !q){ const k = t.scrollTop; t.innerHTML = treeHtml(); t.scrollTop = k; }
       drawWheel(true);
-      return toast(r === 1 ? "따봉 — '좋아요'에 모였어요" : r === -1 ? "싫어요 — 일요일에 지워져요" : "평가를 지웠어요"); }
+      return; }  // 알림 없음(버튼 모양으로 충분 — 11-17 회장)
     if(a === "mute"){ audio.muted = !audio.muted; const r = $("vol"); if(r){ const v = audio.muted ? 0 : Math.round(audio.volume * 100); r.value = v; r.style.setProperty("--v", v + "%"); } el.innerHTML = audio.muted ? I.mute : I.vol; return; }
     if(a === "next") return go(1);
     if(a === "prev") return audio.currentTime > 3 ? (audio.currentTime = 0) : go(-1);
