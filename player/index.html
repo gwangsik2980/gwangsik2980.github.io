@@ -766,8 +766,7 @@ function sleepMenu(){
 function setSleep(m){
   clearTimeout(sleepT); sleepAt = m ? Date.now() + m * 60000 : 0;
   if(m) sleepT = setTimeout(sleepCheck, m * 60000 + 500);
-  document.querySelectorAll(".ib.more").forEach(b => b.classList.toggle("on", !!sleepAt));
-  toast(m ? `${m}분 뒤에 멈춰요` : "수면 타이머를 껐어요");
+  document.querySelectorAll(".ib.more").forEach(b => b.classList.toggle("on", !!sleepAt));  // 켜고 끌 때 알림 없음(11-18 회장 — 점 옆 흰 점으로 충분)
 }
 function sleepCheck(){ if(sleepAt && Date.now() >= sleepAt){ sleepAt = 0; clearTimeout(sleepT); audio.pause(); document.querySelectorAll(".ib.more").forEach(b => b.classList.remove("on")); } }
 audio.addEventListener("timeupdate", sleepCheck);
