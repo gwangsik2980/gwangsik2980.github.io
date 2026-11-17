@@ -657,12 +657,12 @@ function bind(){
       if(open.has(p)){ open.delete(p); setNode(f.parentElement, false, true); }
       else {
         open.add(p);
-        // 한 폴더만 펼치기(11-17): 중·소분류를 펼치면 같은 줄의 다른 폴더(그 아래까지)는 접음. 대분류는 그대로
+        // 한 폴더만 펼치기(11-17): 중·소분류를 펼치면 그 폴더로 가는 길(위 폴더들)만 남기고 다른 중·소분류는 전부 접음. 대분류는 그대로
         const cut = p.lastIndexOf("/");
         if(cut > 0){
-          const par = p.slice(0, cut + 1);
+          const keep = q => q === p || q.startsWith(p + "/") || p.startsWith(q + "/") || !q.includes("/");
           [...open].forEach(q => {
-            if(q === p || !q.startsWith(par) || q.startsWith(p + "/")) return;
+            if(keep(q)) return;
             open.delete(q);
             const nq = document.querySelector(`[data-f="${CSS.escape(q)}"]`)?.parentElement;
             if(nq) setNode(nq, false, false);  // 같은 줄 다른 폴더는 바로 접고
