@@ -736,8 +736,8 @@ function bind(){
         open.add(p);
         // 한 폴더만 펼치기(11-17): 중·소분류를 펼치면 그 폴더로 가는 길(위 폴더들)만 남기고 다른 중·소분류는 전부 접음. 대분류는 그대로
         const cut = p.lastIndexOf("/");
-        if(cut > 0){
-          const keep = q => q === p || q.startsWith(p + "/") || p.startsWith(q + "/") || !q.includes("/");
+        if(cut > 0 || p === LIKES){  // '좋아요' 폴더도 같이(열면 다른 폴더가 닫히고, 다른 폴더를 열면 좋아요가 닫힘 — 11-17)
+          const keep = q => q === p || q.startsWith(p + "/") || p.startsWith(q + "/") || (!q.includes("/") && q !== LIKES);
           [...open].forEach(q => {
             if(keep(q)) return;
             open.delete(q);
