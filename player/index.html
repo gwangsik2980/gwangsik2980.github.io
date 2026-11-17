@@ -776,8 +776,10 @@ function bind(){
     if(s){
       const x = byId(s.dataset.song);
       if(song()?.id === x.id) return toggle();
-      const list = find(x.path)?.songs || [x];
-      return playList(list, x.path, list.findIndex(y => y.id === x.id));
+      // 좋아요·확인 필요 안에서 누르면 그 목록끼리 재생(11-17 회장), 아니면 곡이 있는 폴더
+      const hp = s.closest(".node")?.querySelector(":scope>.row").dataset.f, vp = hp === LIKES || hp === CHECK ? hp : x.path;
+      const list = find(vp)?.songs || [x];
+      return playList(list, vp, list.findIndex(y => y.id === x.id));
     }
     const f = e.target.closest("[data-f]");
     if(f){
