@@ -487,7 +487,21 @@ function bind(){
     const f = e.target.closest("[data-f]");
     if(f){
       const p = f.dataset.f;
-      open.has(p) ? open.delete(p) : open.add(p); ls.set("open", [...open]);
+      if(open.has(p)) open.delete(p);
+      else {
+        open.add(p);
+        // 한 폴더만 펼치기(11-17): 중·소분류를 펼치면 같은 줄의 다른 폴더(그 아래까지)는 접음. 대분류는 그대로
+        const cut = p.lastIndexOf("/");
+        if(cut > 0){
+          const par = p.slice(0, cut + 1);
+          [...open].forEach(q => {
+            if(q === p || !q.startsWith(par) || q.startsWith(p + "/")) return;
+            open.delete(q);
+            document.querySelector(`[data-f="${CSS.escape(q)}"]`)?.parentElement.classList.remove("open");
+          });
+        }
+      }
+      ls.set("open", [...open]);
       f.parentElement.classList.toggle("open", open.has(p));
     }
   };
