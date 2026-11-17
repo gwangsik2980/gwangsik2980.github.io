@@ -34,12 +34,15 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .btn.white:hover{background:#fff}
 
 /* 로그인 화면 */
-.gate{position:relative;z-index:1;height:100%;display:grid;place-items:center;padding:24px 16px}
-.gate .box{width:min(400px,100%);display:flex;flex-direction:column;gap:14px}
-.gate h1{margin:0;font-size:24px}
-.gate p{margin:0;color:var(--sub);font-size:14px;line-height:1.6}
-.gate .btn{align-self:flex-start;padding:12px 18px;font-size:15px}
-.gate .warn{color:var(--text);border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:10px 12px;font-size:13px}
+/* 11-17 시안 A: 가운데 아이콘·제목, 아래 꽉 찬 버튼. 상태바 밑에 깔려 흐려지지 않게 safe-area만큼 띄움 */
+.gate{position:relative;z-index:1;height:var(--appH,100dvh);max-width:440px;margin:0 auto;display:flex;flex-direction:column;padding:calc(24px + env(safe-area-inset-top)) 24px calc(22px + env(safe-area-inset-bottom))}
+.gate .mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px}
+.gate .icon{width:76px;height:76px;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.gate h1{margin:0;font-size:22px;letter-spacing:-.02em}
+.gate .end{display:flex;flex-direction:column;align-items:center;gap:4px}
+.gate .btn.white{width:100%;border-radius:10px;padding:15px 16px;font-size:15px}
+.gate .alt{background:none;border:0;color:var(--mute);font:inherit;font-size:12.5px;padding:10px 4px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line-hi)}
+.gate .warn{width:100%;color:var(--text);border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:10px 12px;font-size:13px;margin-bottom:10px;text-align:left}
 
 /* 앱 틀 */
 /* 보이는 화면에 딱 맞게 고정(아이폰 홈 화면 앱에서 height:100%가 화면보다 커져 아래가 잘리던 것 — 11-17) */
@@ -857,13 +860,13 @@ document.addEventListener("touchmove", e => { if(e.touches.length > 1) e.prevent
 
 /* ───────── 시작 ───────── */
 function showGate(msg){
-  $("root").innerHTML = `<div class="gate"><div class="box">
-    <span class="lab">GWANG · Player</span><h1>내 OneDrive 음악</h1>
-    <p>Microsoft 계정으로 로그인하면 OneDrive '${esc(MUSIC)}' 폴더의 곡을 바로 들어요. 이 화면은 곡을 <b>읽기만</b> 하고, 곡은 OneDrive와 이 기기 사이에서만 오가요.</p>
+  $("root").innerHTML = `<div class="gate">
+    <div class="mid"><img class="icon" src="apple-touch-icon.png" alt=""><span class="lab">GWANG · Player</span><h1>내 음악, 어디서든</h1></div>
+    <div class="end">
     ${msg ? `<div class="warn">${esc(msg)}</div>` : ""}
     ${CLIENT_ID ? `<button class="btn white" id="go">Microsoft로 로그인</button>
-    <button class="btn" id="go2" style="border:0;color:var(--mute);font-size:12.5px;padding:8px 4px">로그인 창이 안 돌아오면: 이 화면에서 로그인</button>` : `<div class="warn">아직 앱 등록 전이에요. 파일 안 CLIENT_ID를 채워야 로그인할 수 있어요.</div>`}
-    <span class="gw-copy" style="margin:12px 0 0">© 2026 GWANG. All rights reserved.</span></div></div>`;
+    <button class="alt" id="go2">창이 안 돌아오면 여기서 로그인</button>` : `<div class="warn">아직 앱 등록 전이에요. 파일 안 CLIENT_ID를 채워야 로그인할 수 있어요.</div>`}
+    <span class="gw-copy" style="margin:14px 0 0">© 2026 GWANG. All rights reserved.</span></div></div>`;
   if($("go")) $("go").onclick = () => login(false);
   if($("go2")) $("go2").onclick = async () => location.replace(await authUrl(false));  // 예전 방식(창 없이 이 화면에서)
 }
