@@ -393,14 +393,14 @@ const byId = id => ALL.find(s => s.id === id);
 // 좋아요(11-17): 하트 누른 곡을 맨 위 '좋아요' 폴더로 — OneDrive 읽기만 해서 그 기기에만 저장
 const LIKES = "__likes";
 /* 따봉·싫어요(11-17): {곡 id: {r: 1 따봉 | -1 싫어요 | 0 지움, at, t 제목, p 폴더}} — 이 기기 + OneDrive 앱/GWANG Player/평가.json
-   집 PC 일요일 정리가 이 파일을 읽음: 싫어요 → 삭제, 신곡 폴더의 따봉 → 분류 폴더로 */
+   집 PC가 이 파일을 읽음: 싫어요 → 매일 05:00 삭제(11-17), 신곡 폴더의 따봉 → 일요일에 분류 폴더로 */
 let rate = ls.get("rate", {});
 for(const id of ls.get("likes", [])) rate[id] ??= {r: 1, at: 1};  // 예전 하트 옮겨 옴
 ls.del("likes");
 const rOf = id => rate[id]?.r || 0;
 const likeNode = () => ({name: "좋아요", path: LIKES, kids: [], songs: Object.keys(rate).filter(id => rate[id].r === 1).map(byId).filter(Boolean)});
 // 확인 필요(11-17 회장): 공식 채널이 아닌 영상으로 받은 곡 목록(집 PC가 앱/GWANG Player/확인필요.json에 둠).
-// 👍·👎를 누르면 목록에서 빠짐 — 👍는 좋아요로, 👎는 일요일 정리가 지움
+// 👍·👎를 누르면 목록에서 빠짐 — 👍는 좋아요로, 👎는 집 PC가 매일 05:00 지움
 const CHECK = "__check";
 let checkSet = new Set(ls.get("check", []));
 const checkNode = () => ({name: "확인 필요", path: CHECK, kids: [], songs: ALL.filter(s => !rOf(s.id) && checkSet.has(s.path + "/" + s.t))});
