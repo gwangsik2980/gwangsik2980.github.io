@@ -115,11 +115,18 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .row.fold .ttl{font-size:14.5px}
 .node[data-d="0"]>.row .ttl{font-weight:700}
 .cnt{flex:none;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
-.kids{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--spring)}
-.node.open>.kids{grid-template-rows:1fr}
-.kids-in{overflow:hidden;min-height:0;position:relative;opacity:0;transition:opacity .35s}
-.node.open>.kids>.kids-in{opacity:1}
-.kids-in::before{content:"";position:absolute;left:calc(12px + var(--d) * 16px);top:0;bottom:8px;width:1px;background:var(--line)}
+.kids{display:none}
+.node.open>.kids{display:block}
+/* 펼치기 모션(11-17 렉 고침): 높이를 늘리지 않고, 곡이 살짝 내려오며 차례로 나타남(그래픽 칩이 처리하는 opacity·transform만) */
+.kids-in{position:relative}
+.kids-in::before{content:"";position:absolute;left:calc(12px + var(--d) * 16px);top:0;bottom:8px;width:1px;background:var(--line);transform-origin:top}
+.kids-in.in::before{animation:lineIn .45s var(--spring) both}
+.kids-in.in>*{animation:rowIn .36s var(--spring) both;animation-delay:calc(var(--i,12) * 18ms)}
+.kids-in.out{animation:kidsOut .15s ease both}
+@keyframes rowIn{from{opacity:0;transform:translateY(-6px)}}
+@keyframes lineIn{from{transform:scaleY(0)}}
+@keyframes kidsOut{to{opacity:0;transform:translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){.kids-in.in>*,.kids-in.in::before,.kids-in.out{animation:none}}
 .row.song{font-size:14px;color:var(--sub);padding-left:calc(28px + var(--d,0) * 16px)}
 .row.song .meta{flex:none}
 .row.song.on{color:var(--text)}
@@ -394,7 +401,20 @@ function nodeHtml(n, d){
   return `<div class="node${open.has(n.path) ? " open" : ""}" data-d="${d}">
     <div class="row fold" style="--d:${d}" data-f="${esc(n.path)}"><span class="chev">›</span>${I.folder}<span class="ttl">${esc(n.name)}</span><span class="cnt">${allSongs(n).length}</span>
       ${ppBtn("xs", `data-pf="${esc(n.path)}" title="이 폴더 전체 재생"`, shown && shownQ === n.path)}</div>
-    <div class="kids"><div class="kids-in" style="--d:${d}">${n.kids.map(k => nodeHtml(k, d + 1)).join("")}${n.songs.map(s => songRow(s, d + 1)).join("")}</div></div></div>`;
+    <div class="kids"><div class="kids-in" style="--d:${d}">${open.has(n.path) ? kidsHtml(n, d) : ""}</div></div></div>`;
+}
+// 접힌 폴더 안은 그리지 않음(펼칠 때만 그 폴더 곡을 만듦 — 곡이 몇백 개라 폰이 버벅이던 것, 11-17)
+const kidsHtml = (n, d) => n.kids.map(k => nodeHtml(k, d + 1)).join("") + n.songs.map(s => songRow(s, d + 1)).join("");
+function setNode(node, on, anim){
+  const path = node.querySelector(":scope>.row").dataset.f, box = node.querySelector(":scope>.kids>.kids-in");
+  clearTimeout(node._t); box.classList.remove("in", "out");
+  if(on){
+    box.innerHTML = kidsHtml(find(path), +node.dataset.d); node.classList.add("open");
+    if(anim){ [...box.children].forEach((c, i) => c.style.setProperty("--i", Math.min(i, 12))); void box.offsetWidth; box.classList.add("in"); }
+  } else if(anim){
+    box.classList.add("out");
+    node._t = setTimeout(() => { node.classList.remove("open"); box.classList.remove("out"); box.innerHTML = ""; }, 150);
+  } else { node.classList.remove("open"); box.innerHTML = ""; }
 }
 function songRow(s, d, showPath){
   const on = song() === s || (song() && song().id === s.id);
@@ -514,7 +534,8 @@ function bind(){
     const f = e.target.closest("[data-f]");
     if(f){
       const p = f.dataset.f;
-      if(open.has(p)) open.delete(p);
+      const tree = $("tree"), y0 = f.getBoundingClientRect().top;
+      if(open.has(p)){ open.delete(p); setNode(f.parentElement, false, true); }
       else {
         open.add(p);
         // 한 폴더만 펼치기(11-17): 중·소분류를 펼치면 같은 줄의 다른 폴더(그 아래까지)는 접음. 대분류는 그대로
@@ -524,12 +545,14 @@ function bind(){
           [...open].forEach(q => {
             if(q === p || !q.startsWith(par) || q.startsWith(p + "/")) return;
             open.delete(q);
-            document.querySelector(`[data-f="${CSS.escape(q)}"]`)?.parentElement.classList.remove("open");
+            const nq = document.querySelector(`[data-f="${CSS.escape(q)}"]`)?.parentElement;
+            if(nq) setNode(nq, false, false);  // 같은 줄 다른 폴더는 바로 접고
           });
+          tree.scrollTop += f.getBoundingClientRect().top - y0;  // 누른 폴더가 제자리에 있게(위 폴더가 접혀도 안 튐)
         }
+        setNode(f.parentElement, true, true);
       }
       ls.set("open", [...open]);
-      f.parentElement.classList.toggle("open", open.has(p));
     }
   };
   const qi = $("q");
