@@ -388,7 +388,7 @@ function setTree(t){
   ALL = flat(ROOT); walk(ROOT);
 }
 const allSongs = n => [...n.songs, ...n.kids.flatMap(allSongs)];
-const find = (p, n = ROOT) => { if(p === LIKES) return likeNode(); if((n.path || "") === p) return n; for(const k of n.kids){ const f = find(p, k); if(f) return f; } };
+const find = (p, n = ROOT) => { if(p === LIKES) return likeNode(); if(p === CHECK) return checkNode(); if((n.path || "") === p) return n; for(const k of n.kids){ const f = find(p, k); if(f) return f; } };
 const byId = id => ALL.find(s => s.id === id);
 // 좋아요(11-17): 하트 누른 곡을 맨 위 '좋아요' 폴더로 — OneDrive 읽기만 해서 그 기기에만 저장
 const LIKES = "__likes";
@@ -399,6 +399,12 @@ for(const id of ls.get("likes", [])) rate[id] ??= {r: 1, at: 1};  // 예전 하�
 ls.del("likes");
 const rOf = id => rate[id]?.r || 0;
 const likeNode = () => ({name: "좋아요", path: LIKES, kids: [], songs: Object.keys(rate).filter(id => rate[id].r === 1).map(byId).filter(Boolean)});
+// 확인 필요(11-17 회장): 공식 채널이 아닌 영상으로 받은 곡 목록(집 PC가 앱/GWANG Player/확인필요.json에 둠).
+// 👍·👎를 누르면 목록에서 빠짐 — 👍는 좋아요로, 👎는 일요일 정리가 지움
+const CHECK = "__check";
+let checkSet = new Set(ls.get("check", []));
+const checkNode = () => ({name: "확인 필요", path: CHECK, kids: [], songs: ALL.filter(s => !rOf(s.id) && checkSet.has(s.path + "/" + s.t))});
+const CHECK_FILE = "/me/drive/special/approot:/" + encodeURIComponent("확인필요.json") + ":/content";
 const RATE_FILE = "/me/drive/special/approot:/" + encodeURIComponent("평가.json") + ":/content";
 let rateT = 0, rateBusy = false;
 async function syncRate(){
@@ -407,6 +413,8 @@ async function syncRate(){
   try {
     const r = await graph(RATE_FILE, {raw: true});
     const remote = r.ok ? (await r.json()).rate || {} : {};
+    const c = await graph(CHECK_FILE, {raw: true});
+    if(c.ok){ const paths = (await c.json()).paths || []; checkSet = new Set(paths); ls.set("check", paths); }
     let changed = false;
     for(const [id, v] of Object.entries(remote)) if(!rate[id] || (v.at || 0) > (rate[id].at || 0)) rate[id] = v;
     for(const [id, v] of Object.entries(rate)){
@@ -505,7 +513,7 @@ const topsOf = () => [...ROOT.kids.filter(n => n.name === "신곡"), ...ROOT.kid
 // 폴더 첫 곡에서 '이전' → 이전 폴더 마지막 곡(맨 처음이면 맨 끝 폴더). 모음집은 순환에서 뺌(11-17 회장) — 모음집을 듣다 끝나면 맨 첫 폴더로.
 // 좋아요 목록은 그 안에서만 돎
 function adjFolder(d){
-  if((d > 0 ? cur < queue.length - 1 : cur > 0) || qName === LIKES) return null;
+  if((d > 0 ? cur < queue.length - 1 : cur > 0) || qName === LIKES || qName === CHECK) return null;
   const g = [], walk = n => { n.kids.forEach(walk); if(n.songs.length) g.push(n); };  // 화면과 같은 순서: 하위 폴더 → 그 폴더 곡
   topsOf().filter(n => n.name !== "모음집").forEach(walk); if(ROOT.songs.length) g.push(ROOT);
   if(!g.length) return null;
@@ -605,7 +613,7 @@ const I = {
 };
 const art = () => `<div class="art cv">${I.note}</div>`;
 const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return s >= 3600 ? `${Math.floor(s/3600)}:${String(Math.floor(s%3600/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}` : `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; };
-const crumbOf = p => p === LIKES ? "좋아요" : p ? p.split("/").join(" › ") : "전체";
+const crumbOf = p => p === LIKES ? "좋아요" : p === CHECK ? "확인 필요" : p ? p.split("/").join(" › ") : "전체";
 const ppBtn = (size, attrs, on) => `<button class="ib pp ${size}${on ? " on" : ""}" ${attrs}><span class="fill"></span>${I.play}${I.pause}</button>`;
 const isWide = () => matchMedia("(min-width: 820px)").matches;
 // 파형 모양(곡 이름으로 정해지는 모양 — 실제 소리 크기는 아님)
@@ -642,9 +650,9 @@ function treeHtml(){
     const hit = ALL.filter(s => s.t.toLowerCase().includes(q.toLowerCase()));
     return hit.map(s => songRow(s, 0, true)).join("") || `<div class="empty">'${esc(q)}'에 맞는 곡이 없어요.</div>`;
   }
-  const ln = likeNode();
+  const ln = likeNode(), cn = checkNode();
   const tops = topsOf();
-  return (ln.songs.length ? nodeHtml(ln, 0) : "") + tops.map(n => nodeHtml(n, 0)).join("")
+  return (ln.songs.length ? nodeHtml(ln, 0) : "") + (cn.songs.length ? nodeHtml(cn, 0) : "") + tops.map(n => nodeHtml(n, 0)).join("")
     + (ROOT.songs.length ? `<div class="sub">맨 위에 있는 곡</div>` + ROOT.songs.map(s => songRow(s, 0)).join("") : "")
     + `<div class="gw-copy">© 2026 GWANG. All rights reserved.</div>`;
 }
@@ -780,8 +788,8 @@ function bind(){
         open.add(p);
         // 한 폴더만 펼치기(11-17): 중·소분류를 펼치면 그 폴더로 가는 길(위 폴더들)만 남기고 다른 중·소분류는 전부 접음. 대분류는 그대로
         const cut = p.lastIndexOf("/");
-        if(cut > 0 || p === LIKES){  // '좋아요' 폴더도 같이(열면 다른 폴더가 닫히고, 다른 폴더를 열면 좋아요가 닫힘 — 11-17)
-          const keep = q => q === p || q.startsWith(p + "/") || p.startsWith(q + "/") || (!q.includes("/") && q !== LIKES);
+        if(cut > 0 || p === LIKES || p === CHECK){  // '좋아요' 폴더도 같이(열면 다른 폴더가 닫히고, 다른 폴더를 열면 좋아요가 닫힘 — 11-17)
+          const keep = q => q === p || q.startsWith(p + "/") || p.startsWith(q + "/") || (!q.includes("/") && q !== LIKES && q !== CHECK);
           [...open].forEach(q => {
             if(keep(q)) return;
             open.delete(q);
