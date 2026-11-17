@@ -760,7 +760,7 @@ let sleepAt = 0, sleepT = 0;
 const moreBtn = () => `<button class="ib more${sleepAt ? " on" : ""}" data-a="more" title="더보기" aria-haspopup="true">${I.more}</button>`;
 const sleepLeft = () => { const t = Math.max(0, Math.ceil((sleepAt - Date.now()) / 1000)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; };  // 남은 시간 5:00부터 1초씩
 function sleepMenu(){
-  return `<div class="smenu" id="smenu" role="menu"><div class="sh" aria-label="수면 타이머">${I.moon}${sleepAt ? `<small id="sleft">${sleepLeft()}</small>` : ""}</div>
+  return `<div class="smenu" id="smenu" role="menu"><div class="sh" aria-label="수면 타이머">${sleepAt ? `<small id="sleft">${sleepLeft()}</small>` : I.moon}</div>
     ${[5, 15, 30, 60].map(m => `<button data-sleep="${m}" role="menuitem">${m}분</button>`).join("")}${sleepAt ? `<button data-sleep="0" role="menuitem" class="off">끄기</button>` : ""}</div>`;
 }
 function setSleep(m){
