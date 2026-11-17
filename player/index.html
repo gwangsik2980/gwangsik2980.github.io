@@ -189,7 +189,18 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .vol input::-moz-range-thumb{width:10px;height:10px;border-radius:50%;background:var(--white);border:0}
 .vol input:hover::-webkit-slider-thumb{transform:scale(1.3)}
 .upnext .sub{margin:0 0 6px;display:flex;justify-content:space-between}
-.upnext .row{min-height:36px;padding-left:4px;font-size:13.5px}
+/* 재생목록 휠(11-17 회장 시안: 날짜 고르기 휠처럼 가운데 줄 강조) — 보이는 곳 근처 줄만 그림 */
+.wheel{position:relative;height:220px;margin-top:6px}
+.wsel{position:absolute;left:0;right:0;top:88px;height:44px;border-radius:10px;background:#262626;pointer-events:none}
+.wsc{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-webkit-mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent);mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent)}
+.wsc::-webkit-scrollbar{display:none}
+.wtrack{position:relative}
+.wr{position:absolute;left:0;right:0;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--sub);font-size:14px;cursor:pointer;transition:color .2s}
+.wr .ttl{flex:1;min-width:0;text-align:center}
+.wr .meta{flex:none;width:34px;text-align:right}
+.wr .no{flex:none;width:34px;color:var(--mute);font-size:12px;font-variant-numeric:tabular-nums}
+.wr.c{color:var(--text);font-weight:700}
+.wr.now .no{color:var(--white)}
 
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:20;background:var(--white);color:var(--ink);font-size:13.5px;font-weight:600;padding:9px 14px;border-radius:var(--r-sm);pointer-events:none;max-width:calc(100% - 32px);animation:up .25s var(--spring)}
 @keyframes up{from{transform:translate(-50%,10px);opacity:0}}
@@ -235,7 +246,7 @@ async function login(silent){
   const p = {client_id: CLIENT_ID, response_type: "code", redirect_uri: REDIRECT,
     scope: SCOPE, code_challenge: challenge, code_challenge_method: "S256", state, response_mode: "query"};
   if(silent) p.prompt = "none";
-  location.href = `${AUTH}/authorize?` + new URLSearchParams(p);
+  location.replace(`${AUTH}/authorize?` + new URLSearchParams(p));  // 기록에 안 남게(뒤로 가기로 로그인 화면이 다시 뜨던 것, 11-17)
 }
 async function tokenCall(body){
   const r = await fetch(`${AUTH}/token`, {method: "POST", body: new URLSearchParams({client_id: CLIENT_ID, scope: SCOPE, ...body})});
@@ -336,8 +347,9 @@ function saveState(){
   ls.set("pos", posMap);
   ls.set("last", {id: s.id, q: qName, ids: queue.map(x => x.id)});
 }
+let startSeq = 0;
 async function start(i, autoplay = true){
-  saveState();
+  saveState(); const my = ++startSeq;
   cur = i; const s = song(); if(!s) return;
   loading = true; render();
   try {
@@ -347,6 +359,7 @@ async function start(i, autoplay = true){
     if(autoplay) await audio.play();
   } catch(e){
     if(e.login) return showGate(e.message);
+    if(my !== startSeq || e.name === "AbortError") return;  // 빨리 넘기면 앞 곡 재생이 끊기며 나는 'The operation was aborted' — 알릴 일 아님(11-17)
     if(e.name === "NotAllowedError") toast("재생 버튼을 한 번 더 눌러 주세요");
     else toast(e.message || "재생하지 못했어요");
   } finally { loading = false; syncPlay(); }
@@ -481,7 +494,6 @@ function miniBar(){
 function fullScreen(){
   const s = song(), wide = isWide();
   if(!s) return wide ? `<div class="full"><div class="empty">폴더 옆 ▶를 누르면<br>그 폴더를 재생목록으로 틀어요.</div></div>` : "";
-  const nexts = queue.slice(cur + 1, cur + 4);
   return `<div class="full${full ? " open" : ""}" id="full"><div class="inner">${wide ? `<span class="lab" style="margin-top:6px">Now Playing</span>` : `<div class="grab"></div>
     <div class="hd" style="padding:6px 0 0"><button class="ib" data-a="close" title="내리기">${I.down}</button><span class="lab">Now Playing</span><span style="width:22px"></span></div>`}
     <div class="disc-wrap${shown ? " spin-on" : ""}${swipeIn ? " sw-in" : ""}" style="--sx:${swipeIn}"><div class="disc"><div class="rec"><i></i></div></div><div class="sleeve art">${I.note}</div></div>
@@ -495,8 +507,8 @@ function fullScreen(){
       <button class="ib" data-a="next" title="다음 곡">${I.next}</button>
       <button class="ib tg${rep ? " on" : ""}" data-a="rep" title="한 곡 반복">${I.rep}</button></div>
     ${wide ? volHtml() : ""}
-    <div class="upnext"><div class="sub"><span>다음 곡</span><span>${queue.length - cur - 1}곡 남음</span></div>
-      ${nexts.map((x, i) => `<div class="row" data-q="${cur + 1 + i}"><span class="ttl">${esc(x.t)}</span><span class="meta">${x.d ? fmt(x.d) : ""}</span></div>`).join("") || `<div class="meta">이 재생목록 마지막 곡이에요.</div>`}</div></div></div>`;
+    <div class="upnext"><div class="sub"><span>재생목록</span><span>${cur + 1} / ${queue.length}</span></div>
+      <div class="wheel"><div class="wsel"></div><div class="wsc" id="wsc"><div class="wtrack" style="height:${(queue.length + 4) * WH}px"></div></div></div></div></div></div>`;
 }
 function volHtml(){
   const v = audio.muted ? 0 : Math.round(audio.volume * 100);
@@ -509,6 +521,28 @@ document.addEventListener("input", e => {
   audio.muted = v === 0;
   const b = e.target.previousElementSibling; if(b) b.innerHTML = v ? I.vol : I.mute;
 });
+const WH = 44;  // 휠 한 줄 높이
+let wFrom = -1, wTo = -1;
+function drawWheel(force){
+  const sc = $("wsc"); if(!sc) return;
+  const tr = sc.firstElementChild, c = Math.round(sc.scrollTop / WH), n = queue.length;
+  const from = Math.max(0, c - 12), to = Math.min(n - 1, c + 12);
+  if(force || from !== wFrom || to !== wTo){
+    wFrom = from; wTo = to; let h = "";
+    for(let i = from; i <= to; i++){ const x = queue[i];
+      h += `<div class="wr${i === cur ? " now" : ""}" data-i="${i}" style="top:${(i + 2) * WH}px"><span class="no">${i === cur ? "▶" : i + 1}</span><span class="ttl">${esc(x.t)}</span><span class="meta">${x.d ? fmt(x.d) : ""}</span></div>`; }
+    tr.innerHTML = h;
+  }
+  tr.querySelectorAll(".wr").forEach(r => r.classList.toggle("c", +r.dataset.i === c));
+}
+function bindWheel(){
+  const sc = $("wsc"); if(!sc) return;
+  sc.scrollTop = cur * WH; drawWheel(true);
+  // 멈추면 가장 가까운 줄로 맞춤(보이는 줄만 그려서 CSS 스냅 대신 직접 맞춤)
+  let idle = 0; sc.onscroll = () => { drawWheel();  // 보이는 범위가 바뀔 때만 줄을 다시 만들어서 가벼움
+    clearTimeout(idle); idle = setTimeout(() => { const t = Math.round(sc.scrollTop / WH) * WH; if(Math.abs(t - sc.scrollTop) > 1) sc.scrollTo({top: t, behavior: "smooth"}); }, 140); };
+  sc.onclick = e => { const r = e.target.closest("[data-i]"); if(!r) return; const i = +r.dataset.i; i === cur ? toggle() : start(i); };
+}
 let busy = false;
 function render(){
   if(!$("app")) return;
@@ -593,7 +627,7 @@ function bind(){
   };
   const qi = $("q");
   qi.oninput = () => { q = qi.value.trim(); $("tree").innerHTML = treeHtml(); };
-  document.querySelectorAll("[data-q]").forEach(el => el.onclick = () => start(+el.dataset.q));
+  bindWheel();
   document.querySelectorAll("[data-a]").forEach(el => el.onclick = e => {
     e.stopPropagation();
     if(el._swiping) return;  // 옆으로 민 손가락은 '열기'로 치지 않음
@@ -627,7 +661,7 @@ function bind(){
   const f = $("full");
   if(f && !isWide()){  // 큰 화면 끌어 내려 닫기
     let sy = null, dy = 0;
-    f.onpointerdown = e => { if(e.target.closest("button, .wave, [data-q]") || f.scrollTop > 0) return; sy = e.clientY; dy = 0; f.classList.add("drag"); if(!e.target.closest(".disc-wrap")) f.setPointerCapture(e.pointerId); };  // 표지 위면 표지가 옆 밀기를 받게 잡지 않음
+    f.onpointerdown = e => { if(e.target.closest("button, .wave, .wheel") || f.scrollTop > 0) return; sy = e.clientY; dy = 0; f.classList.add("drag"); if(!e.target.closest(".disc-wrap")) f.setPointerCapture(e.pointerId); };  // 표지 위면 표지가 옆 밀기를 받게 잡지 않음
     const sw = () => document.querySelector(".disc-wrap")?._swiping;  // 표지를 옆으로 미는 중이면 내리기 안 함
     f.onpointermove = e => { if(sy === null) return; if(sw()){ f.style.transform = ""; dy = 0; return; } dy = Math.max(0, e.clientY - sy); f.style.transform = `translateY(${dy}px)`; };
     f.onpointerup = f.onpointercancel = () => { if(sy === null) return; sy = null; f.classList.remove("drag"); setFull(dy < 110); };
@@ -670,6 +704,11 @@ async function boot(){
   if(!ls.get("tok", null)) return showGate();
   shuf = ls.get("shuf", false); rep = ls.get("rep", false);
   $("root").innerHTML = `<div class="app" id="app"></div>`;
+  // 아이폰 가장자리 밀기(뒤로 가기)가 지난 로그인 화면으로 가지 않게 앱 안에 붙잡아 둠 — 큰 재생 화면이 열려 있으면 닫기로 씀(11-17)
+  if(navigator.standalone || matchMedia("(display-mode: standalone)").matches){  // 앱으로 열었을 때만(브라우저 탭에선 뒤로 가기 그대로)
+    history.pushState({gw: 1}, "");
+    addEventListener("popstate", () => { if(full) setFull(false); history.pushState({gw: 1}, ""); });
+  }
   const cached = ls.get("tree", null);
   if(cached){ setTree(cached); ROOT.kids.forEach(n => open.add(n.path)); }
   busy = true; render();
