@@ -97,10 +97,13 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .seek.drag .fill,.seek.drag .dot{transition:none}
 .seek.drag .tip{opacity:1}
 .trow{display:flex;align-items:flex-start;gap:10px}.trow>div{flex:1;min-width:0}
-.heart{flex:none;width:34px;height:34px;margin:-4px -6px 0 0}
-.heart svg{width:22px;height:22px;transition:transform .3s var(--spring)}
-.heart.on svg{fill:var(--white)}
-.heart:active svg{transform:scale(.85)}
+.rates{flex:none;display:flex;gap:2px;margin:-4px -6px 0 0}
+.rate{width:34px;height:34px}
+.rate svg{width:21px;height:21px;transition:transform .3s var(--spring)}
+.rate.dn svg{transform:rotate(180deg)}
+.rate.on svg{fill:var(--white)}
+.rate:active svg{transform:scale(.85)}.rate.dn:active svg{transform:rotate(180deg) scale(.85)}
+.row.song.bad,.wr.bad{opacity:.38}  /* 싫어요 누른 곡: 일요일에 지워질 곡이라 흐리게 */
 
 /* 레코드 */
 .disc-wrap{position:relative;width:min(100%,250px);aspect-ratio:1;margin:12px auto 22px;flex:none}
@@ -233,7 +236,8 @@ html.sa body::before{position:absolute;height:var(--appH)}
 const CLIENT_ID = "29de7764-8008-441c-9e37-7e19fd1a496b";  // GWANG Player (2026-11-17 등록, 개인 계정 전용 · SPA)
 const MUSIC = "음악/유튜브MP3";
 const AUTH = "https://login.microsoftonline.com/consumers/oauth2/v2.0";
-const SCOPE = "Files.Read offline_access";
+const SCOPE = "Files.Read Files.ReadWrite.AppFolder offline_access";  // 음악은 읽기만, 쓰기는 Player 전용 폴더(앱/GWANG Player)에만 — 따봉·싫어요 저장(11-17)
+const SCOPE_V = 2;
 const GRAPH = "https://graph.microsoft.com/v1.0";
 const REDIRECT = location.origin + location.pathname;
 const K = "gwplayer.";  // 이 기기 브라우저에만 저장
@@ -304,6 +308,7 @@ async function tokenCall(body){
   if(!r.ok || !j.access_token) throw new Error(j.error_description || j.error || "로그인 실패");
   ls.set("tok", {at: j.access_token, rt: j.refresh_token, exp: Date.now() + j.expires_in * 1000});
   ls.set("was", true);  // 이 기기에서 로그인한 적 있음 → 다음엔 조용히 다시 로그인
+  ls.set("scopev", SCOPE_V);
   return j.access_token;
 }
 async function finishLogin(search){
@@ -325,12 +330,13 @@ async function token(force){
   refreshing ??= tokenCall({grant_type: "refresh_token", refresh_token: t.rt}).catch(() => { ls.del("tok"); return null; }).finally(() => refreshing = null);
   return refreshing;
 }
-async function graph(path){
+async function graph(path, opt = {}){
   for(let i = 0; i < 2; i++){
     const at = await token(i > 0);
     if(!at) throw Object.assign(new Error("로그인이 필요해요"), {login: true});
-    const r = await fetch(path.startsWith("http") ? path : GRAPH + path, {headers: {Authorization: "Bearer " + at}});
+    const r = await fetch(path.startsWith("http") ? path : GRAPH + path, {...opt, headers: {Authorization: "Bearer " + at, ...(opt.headers || {})}});
     if(r.status === 401) continue;
+    if(opt.raw) return r;
     if(!r.ok) throw new Error(r.status === 404 ? `OneDrive에 '${MUSIC}' 폴더가 없어요` : `OneDrive 응답 오류 (${r.status})`);
     return r.json();
   }
@@ -352,7 +358,7 @@ async function readFolder(url, path, depth){
   const folders = items.filter(x => x.folder).sort((a, b) => collator.compare(a.name, b.name));
   const files = items.filter(x => x.file && /\.mp3$/i.test(x.name)).sort((a, b) => collator.compare(a.name, b.name));
   files.forEach(f => { if(f["@microsoft.graph.downloadUrl"]) urls[f.id] = f["@microsoft.graph.downloadUrl"]; });
-  const kids = depth < 3 ? await Promise.all(folders.map(f => {
+  const kids = depth < 4 ? await Promise.all(folders.map(f => {  // 4단계까지(예: 노래›발라드›심규선›라이브, 11-17)
     const p = path ? path + "/" + f.name : f.name;
     return readFolder(`/me/drive/items/${f.id}/children?$top=999`, p, depth + 1).then(n => ({...n, name: f.name, path: p}));
   })) : [];
@@ -376,8 +382,38 @@ const find = (p, n = ROOT) => { if(p === LIKES) return likeNode(); if((n.path ||
 const byId = id => ALL.find(s => s.id === id);
 // 좋아요(11-17): 하트 누른 곡을 맨 위 '좋아요' 폴더로 — OneDrive 읽기만 해서 그 기기에만 저장
 const LIKES = "__likes";
-let likes = new Set(ls.get("likes", []));
-const likeNode = () => ({name: "좋아요", path: LIKES, kids: [], songs: [...likes].map(byId).filter(Boolean)});
+/* 따봉·싫어요(11-17): {곡 id: {r: 1 따봉 | -1 싫어요 | 0 지움, at, t 제목, p 폴더}} — 이 기기 + OneDrive 앱/GWANG Player/평가.json
+   집 PC 일요일 정리가 이 파일을 읽음: 싫어요 → 삭제, 신곡 폴더의 따봉 → 분류 폴더로 */
+let rate = ls.get("rate", {});
+for(const id of ls.get("likes", [])) rate[id] ??= {r: 1, at: 1};  // 예전 하트 옮겨 옴
+ls.del("likes");
+const rOf = id => rate[id]?.r || 0;
+const likeNode = () => ({name: "좋아요", path: LIKES, kids: [], songs: Object.keys(rate).filter(id => rate[id].r === 1).map(byId).filter(Boolean)});
+const RATE_FILE = "/me/drive/special/approot:/" + encodeURIComponent("평가.json") + ":/content";
+let rateT = 0, rateBusy = false;
+async function syncRate(){
+  if(rateBusy){ clearTimeout(rateT); rateT = setTimeout(syncRate, 1500); return; }
+  rateBusy = true;
+  try {
+    const r = await graph(RATE_FILE, {raw: true});
+    const remote = r.ok ? (await r.json()).rate || {} : {};
+    let changed = false;
+    for(const [id, v] of Object.entries(remote)) if(!rate[id] || (v.at || 0) > (rate[id].at || 0)) rate[id] = v;
+    for(const [id, v] of Object.entries(rate)){
+      const x = byId(id); if(x && (!v.t || v.p !== x.path)){ v.t = x.t; v.p = x.path; }  // 제목·폴더 채움(집 PC가 읽기 쉽게)
+      if(JSON.stringify(remote[id]) !== JSON.stringify(v)) changed = true;
+    }
+    ls.set("rate", rate);
+    if(changed) await graph(RATE_FILE, {method: "PUT", headers: {"Content-Type": "application/json"}, body: JSON.stringify({v: 1, saved: new Date().toISOString(), rate}, null, 1), raw: true});
+    const t = $("tree"); if(t && !q){ const k = t.scrollTop; t.innerHTML = treeHtml(); t.scrollTop = k; }
+  } catch(e){ if(e.login) return; }
+  finally { rateBusy = false; }
+}
+function setRate(s, r){
+  rate[s.id] = {r, at: Date.now(), t: s.t, p: s.path};
+  ls.set("rate", rate);
+  clearTimeout(rateT); rateT = setTimeout(syncRate, 1200);
+}
 const urlAt = {};  // 곡마다 주소 받은 시각(목록에서 받은 건 urlsAt)
 async function streamUrl(s){
   if(urls[s.id] && Date.now() - (urlAt[s.id] || urlsAt) < 50 * 60000) return urls[s.id];  // 주소는 약 1시간 유효
@@ -511,7 +547,7 @@ function mediaMeta(){
 
 /* ───────── 화면 ───────── */
 const I = {
-  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
+  thumb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v11"/><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9Z"/></svg>',
   play: '<svg class="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 5.5v13l10.5-6.5z"/></svg>',
   pause: '<svg class="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg>',
   prev: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 6v12l-9-6zM6 6h2v12H6z"/></svg>',
@@ -555,7 +591,7 @@ function setNode(node, on, anim){
 }
 function songRow(s, d, showPath){
   const on = song() === s || (song() && song().id === s.id);
-  return `<div class="row song${on ? " on" : ""}${shown ? "" : " paused"}" style="--d:${d}" data-song="${esc(s.id)}">
+  return `<div class="row song${on ? " on" : ""}${shown ? "" : " paused"}${rOf(s.id) === -1 ? " bad" : ""}" style="--d:${d}" data-song="${esc(s.id)}">
     <span class="ttl" title="${esc(s.t)}">${esc(s.t)}${showPath ? `<div class="meta ttl">${esc(crumbOf(s.path))}</div>` : ""}</span>
     <span class="eq"><i></i><i></i><i></i></span><span class="meta">${s.d ? fmt(s.d) : ""}</span></div>`;
 }
@@ -589,7 +625,7 @@ function fullScreen(){
     <div class="disc-wrap${shown ? " spin-on" : ""}${swipeIn ? " sw-in" : ""}" style="--sx:${swipeIn}"><div class="disc"><div class="rec"><i></i></div></div><div class="sleeve art cv">${I.note}</div></div>
     <div class="trow"><div><h2 class="ttl" title="${esc(s.t)}">${esc(s.t)}</h2>
     <div class="crumb meta">${I.folder}<span class="ttl">${esc(crumbOf(qName))} · ${cur + 1} / ${queue.length}</span></div></div>
-    <button class="ib heart${likes.has(s.id) ? " on" : ""}" data-a="like" title="좋아요">${I.heart}</button></div>
+    <span class="rates"><button class="ib rate up${rOf(s.id) === 1 ? " on" : ""}" data-a="up" title="따봉">${I.thumb}</button><button class="ib rate dn${rOf(s.id) === -1 ? " on" : ""}" data-a="down" title="싫어요(일요일에 지워져요)">${I.thumb}</button></span></div>
     ${seekHtml()}
     <div class="ctl">
       <button class="ib tg${shuf ? " on" : ""}" data-a="shuf" title="섞어 듣기">${I.shuf}</button>
@@ -621,7 +657,7 @@ function drawWheel(force){
   if(force || from !== wFrom || to !== wTo){
     wFrom = from; wTo = to; let h = "";
     for(let i = from; i <= to; i++){ const x = queue[i];
-      h += `<div class="wr${i === cur ? " now" : ""}" data-i="${i}" style="top:${(i + 2) * WH}px"><span class="no">${i === cur ? "▶" : i + 1}</span><span class="ttl">${esc(x.t)}</span><span class="meta">${x.d ? fmt(x.d) : ""}</span></div>`; }
+      h += `<div class="wr${i === cur ? " now" : ""}${rOf(x.id) === -1 ? " bad" : ""}" data-i="${i}" style="top:${(i + 2) * WH}px"><span class="no">${i === cur ? "▶" : i + 1}</span><span class="ttl">${esc(x.t)}</span><span class="meta">${x.d ? fmt(x.d) : ""}</span></div>`; }
     tr.innerHTML = h;
   }
   tr.querySelectorAll(".wr").forEach(r => r.classList.toggle("c", +r.dataset.i === c));
@@ -726,11 +762,14 @@ function bind(){
     const a = el.dataset.a;
     if(a === "toggle") return toggle();
     if(a === "top") return $("tree")?.scrollTo({top: 0, behavior: "smooth"});  // 왼쪽 위 이름 누르면 목록 맨 위로(11-17)
-    if(a === "like"){ const id = song()?.id; if(!id) return;
-      likes.has(id) ? likes.delete(id) : likes.add(id); ls.set("likes", [...likes]);
-      el.classList.toggle("on", likes.has(id));
+    if(a === "up" || a === "down"){ const s = song(); if(!s) return;
+      const want = a === "up" ? 1 : -1, r = rOf(s.id) === want ? 0 : want;
+      setRate(s, r);
+      document.querySelectorAll(".rate.up").forEach(b => b.classList.toggle("on", r === 1));
+      document.querySelectorAll(".rate.dn").forEach(b => b.classList.toggle("on", r === -1));
       const t = $("tree"); if(t && !q){ const k = t.scrollTop; t.innerHTML = treeHtml(); t.scrollTop = k; }
-      return toast(likes.has(id) ? "'좋아요'에 넣었어요" : "'좋아요'에서 뺐어요"); }
+      drawWheel(true);
+      return toast(r === 1 ? "따봉 — '좋아요'에 모였어요" : r === -1 ? "싫어요 — 일요일에 지워져요" : "평가를 지웠어요"); }
     if(a === "mute"){ audio.muted = !audio.muted; const r = $("vol"); if(r){ const v = audio.muted ? 0 : Math.round(audio.volume * 100); r.value = v; r.style.setProperty("--v", v + "%"); } el.innerHTML = audio.muted ? I.mute : I.vol; return; }
     if(a === "next") return go(1);
     if(a === "prev") return audio.currentTime > 3 ? (audio.currentTime = 0) : go(-1);
@@ -799,10 +838,12 @@ function showGate(msg){
 }
 async function boot(){
   const back = location.search.includes("code=") || location.search.includes("error=");
+  if(ls.get("tok", null) && ls.get("scopev", 1) < SCOPE_V){ ls.del("tok"); ls.set("needScope", true); }  // 권한이 늘어서(전용 폴더 쓰기) 한 번 다시 로그인
   try { await finishLogin(); } catch(e){ return showGate(e.message === "silent" ? "" : e.message); }
   // 로그인이 끝났으면(하루 지남) 버튼 없이 조용히 다시 로그인 — 방금 돌아온 길이면 다시 하지 않음(무한 반복 방지)
   if(!back && ls.get("was", false) && CLIENT_ID && !(await token()) && !(await login(true))) return showGate("하루가 지나 다시 로그인이 필요해요.");
-  if(!ls.get("tok", null)) return showGate();
+  if(!ls.get("tok", null)) return showGate(ls.get("needScope", false) ? "따봉·싫어요를 저장하려고 권한이 하나 늘었어요(Player 전용 폴더에만 쓰기). 한 번만 다시 로그인해 주세요." : "");
+  ls.del("needScope");
   shuf = ls.get("shuf", false); rep = ls.get("rep", false);
   $("root").innerHTML = `<div class="app" id="app"></div>`;
   const cached = ls.get("tree", null);
@@ -819,6 +860,7 @@ async function boot(){
     if(i >= 0){ queue = list; qName = last.q; cur = i; }
   }
   render(); mediaMeta();
+  syncRate();
   matchMedia("(min-width: 820px)").addEventListener("change", render);
   setInterval(() => { if(!playing()) loadTree().then(render).catch(() => {}); }, 45 * 60000);  // 재생 주소가 1시간이라 쉬는 동안 새로 받음
   addEventListener("pagehide", saveState);
