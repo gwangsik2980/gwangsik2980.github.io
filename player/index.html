@@ -230,6 +230,9 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .wsc.top.end{-webkit-mask-image:none;mask-image:none}
 .wsc{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-webkit-mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent);mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent)}
 .wsc::-webkit-scrollbar{display:none}
+/* 줄 맞추기는 브라우저 내장 스냅(11-17 밤 회장: 폰에서 손가락 멈칫할 때 직접 맞추기가 끼어들어 글자가 바에 끌려감) — 줄마다 빈 칸 하나, 아래끝 = scrollTop k줄 */
+.wsc{scroll-snap-type:y mandatory}
+.wsnap{margin-top:-44px;pointer-events:none}.wsnap i{display:block;height:44px;scroll-snap-align:end}
 .wtrack{position:sticky;top:0;height:100%;overflow:hidden}  /* 제자리에 붙은 창, 안의 줄만 L만큼 밀림(11-17 밤) */
 .wrows{position:relative}
 .wr{position:absolute;left:0;right:0;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--sub);font-size:14px;cursor:pointer;transition:color .2s}
@@ -696,7 +699,7 @@ function fullScreen(){
       <button class="ib tg${rep ? " on" : ""}${rep === 2 ? " one" : ""}" data-a="rep" title="${["반복", "목록 반복", "한 곡 반복"][rep]}">${I.rep}</button></div>
     ${wide ? volHtml() : ""}
     <div class="upnext"><div class="sub"><span>재생목록</span><span>${cur + 1} / ${queue.length}</span></div>
-      <div class="wheel"><div class="wsel"></div><div class="wsc" id="wsc"><div class="wtrack"><div class="wrows"></div></div><div style="height:${Math.max(0, queue.length - 1) * WH}px"></div></div></div></div></div></div>`;
+      <div class="wheel"><div class="wsel"></div><div class="wsc" id="wsc"><div class="wtrack"><div class="wrows"></div></div><div class="wsnap">${"<i></i>".repeat(queue.length)}</div></div></div></div></div></div>`;
 }
 function volHtml(){
   const v = audio.muted ? 0 : Math.round(audio.volume * 100);
@@ -737,16 +740,15 @@ function drawWheel(force, slide){
 function bindWheel(){
   const sc = $("wsc"); if(!sc) return;
   sc.scrollTop = wTop(); drawWheel(true, true);
-  // 멈추면 가장 가까운 줄로 맞춤(보이는 줄만 그려서 CSS 스냅 대신 직접 맞춤)
   // 마우스 휠은 한 칸 = 한 줄(11-17 밤 회장: 한 칸에 100px라 두세 줄씩 넘어감). 터치패드(작은 값)·폰 손가락은 그대로
-  let wt = null; sc.onwheel = e => { if(e.deltaMode === 0 && Math.abs(e.deltaY) < 50) return; e.preventDefault();
+  let wt = null; sc.onwheel = e => { if(e.deltaMode === 0 && Math.abs(e.deltaY) < 50) return; e.preventDefault(); sc.style.scrollSnapType = "none";  // JS로 미끄러지는 동안 스냅이 붙잡지 않게
     wt = Math.max(0, Math.min((wt ?? Math.round(sc.scrollTop / WH) * WH) + Math.sign(e.deltaY) * WH, (queue.length - 1) * WH));
     if(!glide) glide = requestAnimationFrame(step); };
   // 빨리 연달아 굴려도 끊고 다시 출발하지 않고 목표만 늘려 한 번에 미끄러짐
   let glide = 0; const step = () => { const g = wt ?? sc.scrollTop, dd = g - sc.scrollTop;
-    if(Math.abs(dd) < 1){ sc.scrollTop = g; glide = 0; return; } sc.scrollTop += Math.sign(dd) * Math.max(2, Math.abs(dd) * .3); glide = requestAnimationFrame(step); };
+    if(Math.abs(dd) < 2){ sc.scrollTop = g; glide = 0; sc.style.scrollSnapType = ""; return; } sc.scrollTop += Math.sign(dd) * Math.max(2, Math.abs(dd) * .3); glide = requestAnimationFrame(step); };
   let idle = 0; sc.onscroll = () => { drawWheel();  // 보이는 범위가 바뀔 때만 줄을 다시 만들어서 가벼움
-    clearTimeout(idle); idle = setTimeout(() => { wt = null; const t = Math.round(sc.scrollTop / WH) * WH; if(Math.abs(t - sc.scrollTop) > 1) sc.scrollTo({top: t, behavior: "smooth"}); }, 140); };
+    clearTimeout(idle); idle = setTimeout(() => { wt = null; }, 140); };
   sc.onclick = e => { const r = e.target.closest("[data-i]"); if(!r) return; const i = +r.dataset.i; i === cur ? toggle() : start(i); };
 }
 let busy = false;
