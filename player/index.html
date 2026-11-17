@@ -80,6 +80,7 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .pp.wait::before{content:"";position:absolute;inset:-1px;border-radius:50%;border:1.5px solid transparent;border-top-color:var(--white);animation:spin .9s linear infinite;z-index:2}
 
 /* 파형 진행 막대 */
+.totop{cursor:pointer;user-select:none}
 /* 재생바(11-17 회장 시안 1안): 시간 위, 얇은 흰 막대, 손대면 손잡이, 끄는 동안 이동할 시간 표시 */
 .times{display:flex;justify-content:space-between;margin-top:18px;color:rgba(242,242,240,.9);font-size:12.5px;font-variant-numeric:tabular-nums}
 .seek{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.2);margin-top:8px;cursor:pointer;touch-action:none;transition:height .2s var(--spring),margin .2s var(--spring)}
@@ -595,7 +596,7 @@ function render(){
   if(!$("app")) return;
   const keep = $("tree")?.scrollTop || 0, wide = isWide();
   $("app").className = "app " + (wide ? "wide" : "phone");
-  $("app").innerHTML = `<div class="hd"><span class="lab">GWANG · Player</span><span class="hacts"><span class="meta">${ALL.length ? ALL.length + "곡" : ""}</span>
+  $("app").innerHTML = `<div class="hd"><span class="lab totop" data-a="top" title="맨 위로">GWANG · Player</span><span class="hacts"><span class="meta">${ALL.length ? ALL.length + "곡" : ""}</span>
       <button class="ib${busy ? " spin" : ""}" data-a="reload" title="OneDrive에서 다시 읽기">${I.reload}</button><button class="ib" data-a="logout" title="로그아웃">${I.out}</button></span></div>
     <div class="body"><div class="list"><div class="search">${I.find}<input id="q" placeholder="곡 이름으로 찾기" value="${esc(q)}" enterkeyhint="search"></div>
       <div class="scroll" id="tree">${treeHtml()}</div>${wide ? "" : miniBar()}</div>${wide ? fullScreen() : ""}</div>${wide ? "" : fullScreen()}`;
@@ -681,6 +682,7 @@ function bind(){
     if(el._swiping) return;  // 옆으로 민 손가락은 '열기'로 치지 않음
     const a = el.dataset.a;
     if(a === "toggle") return toggle();
+    if(a === "top") return $("tree")?.scrollTo({top: 0, behavior: "smooth"});  // 왼쪽 위 이름 누르면 목록 맨 위로(11-17)
     if(a === "like"){ const id = song()?.id; if(!id) return;
       likes.has(id) ? likes.delete(id) : likes.add(id); ls.set("likes", [...likes]);
       el.classList.toggle("on", likes.has(id));
