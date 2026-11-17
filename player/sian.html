@@ -542,7 +542,7 @@ let pre = null, curBlob = null;  // 미리 받아 둔 다음 곡 {id, url}, 지�
 const audio = new Audio(); audio.preload = "auto";
 audio.volume = Math.min(1, Math.max(0, ls.get("vol", 1)));  // 볼륨은 그 기기에 기억(아이폰은 웹이 소리 크기를 못 바꿔서 막대를 안 보임)
 let queue = [], qName = "", cur = -1, shuf = false, rep = 0,  /* rep: 0 끔 · 1 지금 목록 반복 · 2 한 곡 반복(11-17 회장) */ full = false, q = "", loading = false;
-let open = new Set(ls.get("open", [])), shown = false, shownQ = "";
+let open = new Set(), shown = false, shownQ = "";
 const song = () => queue[cur];
 const playing = () => !audio.paused && !!audio.src;
 const dur = () => (isFinite(audio.duration) && audio.duration) || song()?.d || 0;
@@ -852,7 +852,7 @@ function newGridHtml(){
     const now = song()?.id === s.id, u = covAll[s.id]?.medium?.url;
     return `<div class="ng${now ? " now" : ""}" data-song="${esc(s.id)}" data-nc="${esc(s.id)}">${u ? `<img alt="" src="${esc(u)}">` : I.note}${now ? `<span class="eq"><i></i><i></i><i></i></span>` : ""}<span class="nt">${esc(artistOf(s.t)[0])}</span></div>`; };
   return `<div class="ngw${shown ? "" : " paused"}"><div class="ngh"><span class="ttl">신곡</span><span class="cnt">${songs.length}</span>${ppBtn("xs", `data-pf="${esc(nf.path)}" title="신곡 전체 재생"`, shown && shownQ === nf.path)}</div>
-    <div class="ngnote"><span class="nb">7</span>시안: 신곡은 표지 칸으로 맨 위, 좋아요는 그 아래 — 9곡 넘으면 옆으로 밀어 다음 장</div>
+    <div class="ngnote"><span class="nb">7</span>시안: 신곡은 표지 칸으로 맨 위, 좋아요는 그 아래 — 9곡 넘으면 옆으로 밀어 다음 장<br><span class="nb">8</span>켜면 폴더는 전부 접힘, 폴더 하나 열면 대분류까지 다른 폴더는 다 닫힘</div>
     <div class="ngp">${pages.map(pg => `<div class="ngpage">${pg.map(tile).join("")}</div>`).join("")}</div>
     ${pages.length > 1 ? `<div class="ngdots">${pages.map((_, i) => `<i${i ? "" : ' class="on"'}></i>`).join("")}</div>` : ""}
     ${newOpen ? `<div class="nglist">${songs.map(x => songRow(x, 0)).join("")}</div>` : ""}</div>`;
@@ -993,8 +993,8 @@ function bind(){
         open.add(p);
         // 한 폴더만 펼치기(11-17): 중·소분류를 펼치면 그 폴더로 가는 길(위 폴더들)만 남기고 다른 중·소분류는 전부 접음. 대분류는 그대로
         const cut = p.lastIndexOf("/");
-        if(cut > 0 || p === LIKES || p === CHECK){  // '좋아요' 폴더도 같이(열면 다른 폴더가 닫히고, 다른 폴더를 열면 좋아요가 닫힘 — 11-17)
-          const keep = q => q === p || q.startsWith(p + "/") || p.startsWith(q + "/") || (!q.includes("/") && q !== LIKES && q !== CHECK);
+        if(true){  // '좋아요' 폴더도 같이(열면 다른 폴더가 닫히고, 다른 폴더를 열면 좋아요가 닫힘 — 11-17)
+          const keep = q => q === p || q.startsWith(p + "/") || p.startsWith(q + "/");
           [...open].forEach(q => {
             if(keep(q)) return;
             open.delete(q);
@@ -1102,12 +1102,12 @@ async function boot(){
   shuf = ls.get("shuf", false); rep = +ls.get("rep", 0) || 0;  // 예전 true(켜짐)는 1
   $("root").innerHTML = `<div class="app" id="app"></div>`;
   const cached = ls.get("tree", null);
-  if(cached){ setTree(cached); ROOT.kids.forEach(n => open.add(n.path)); }
+  if(cached){ setTree(cached); }
   busy = true; render();
   try { await loadTree(); }
   catch(e){ if(e.login) return showGate(e.message); toast(e.message); }
   busy = false;
-  ROOT.kids.forEach(n => open.add(n.path));  // 열자마자 대분류는 늘 펼침(중분류가 바로 보이게), 그 아래는 지난번 상태 그대로
+  // (시안: 대분류 늘 펼침 뺌) 열자마자 대분류는 늘 펼침(중분류가 바로 보이게), 그 아래는 지난번 상태 그대로
   // 지난번 듣던 곡을 미니 플레이어에 다시 올려 둠(자동 재생은 안 함)
   const last = ls.get("last", null);
   if(last && !song()){
