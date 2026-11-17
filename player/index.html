@@ -223,7 +223,7 @@ html.sa body::before{position:absolute;height:var(--appH)}
 /* 재생목록 휠(11-17 회장 시안: 날짜 고르기 휠처럼 가운데 줄 강조) — 보이는 곳 근처 줄만 그림 */
 .wheel{position:relative;height:220px;margin-top:6px}
 .wsel{position:absolute;left:0;right:0;top:0;height:44px;border-radius:10px;background:#262626;pointer-events:none;will-change:transform}
-.wsel.anim{transition:transform .3s cubic-bezier(.2,.65,.3,.9)}
+.wsel.anim{transition:transform .22s cubic-bezier(.2,.65,.3,.9)}
 /* 11-17 회장: 첫 곡은 맨 윗줄, 셋째 곡부터 가운데 줄 — 위아래 빈칸 없음. 끝에 닿은 쪽은 흐리게 하지 않음 */
 .wsc.top{-webkit-mask-image:linear-gradient(#000 68%,transparent);mask-image:linear-gradient(#000 68%,transparent)}
 .wsc.end{-webkit-mask-image:linear-gradient(transparent,#000 32%);mask-image:linear-gradient(transparent,#000 32%)}
@@ -717,12 +717,12 @@ const wTop = () => cur * WH;
 function drawWheel(force, slide){
   const sc = $("wsc"); if(!sc) return;
   const tr = sc.firstElementChild, n = queue.length, s = sc.scrollTop;
-  const L = Math.max(0, Math.min(s - 2 * WH, (n - 5) * WH)), y = s - L, c = Math.round(s / WH);  // L: 목록이 실제로 밀린 만큼, c: 바 아래 줄(굵게)
+  const M = Math.max(0, (n - 5) * WH), L = Math.max(0, Math.min(s - 2 * WH, M)), c = Math.round(s / WH);  // L: 목록이 실제로 밀린 만큼, c: 바 아래 줄(굵게)
+  // 회색 바는 손가락을 픽셀마다 따라가지 않고 한 줄씩 칸을 옮김(11-17 밤 회장: 너무 예민) — 가운데 구간에선 가운데 줄 고정
+  const y = L > 0 && L < M ? 2 * WH : Math.max(0, Math.min(c * WH - L, 4 * WH));
   const rows = tr.firstElementChild; rows.style.transform = `translateY(${-L}px)`;
-  const bar = sc.previousElementSibling, now = performance.now();
-  if(slide && wBar !== null && wBar !== y){ bar.classList.remove("anim"); bar.style.transform = `translateY(${wBar}px)`; void bar.offsetWidth; bar.classList.add("anim"); wSlide = now + 350; }
-  else if(now > wSlide) bar.classList.remove("anim");  // 손으로 굴릴 땐 바로 따라옴
-  bar.style.transform = `translateY(${y}px)`; wBar = y;
+  const bar = sc.previousElementSibling;
+  bar.classList.toggle("anim", !!slide || wBar !== null); bar.style.transform = `translateY(${y}px)`; wBar = y;
   sc.classList.toggle("top", L < 1); sc.classList.toggle("end", L > (n - 5) * WH - 1);
   const cs = Math.round(L / WH), from = Math.max(0, cs - 10), to = Math.min(n - 1, cs + 15);  // 보이는 곳 근처만
   if(force || from !== wFrom || to !== wTo){
