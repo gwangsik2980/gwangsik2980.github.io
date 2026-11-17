@@ -131,7 +131,7 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .search svg{width:16px;height:16px;color:var(--mute);flex:none}
 .search input{flex:1;min-width:0;background:none;border:0;color:var(--text);font:inherit;font-size:16px;padding:9px 0;outline:none}
 .row{display:flex;align-items:center;gap:8px;padding:6px 6px 6px calc(6px + var(--d,0) * 16px);border-radius:var(--r-sm);min-height:42px;cursor:pointer;user-select:none}
-.row:hover{background:rgba(255,255,255,.04)}
+@media(hover:hover){.row:hover{background:rgba(255,255,255,.04)}} /* 폰은 스크롤 중 손가락 닿은 줄이 남아 보여서 마우스만 */
 .row .ttl{flex:1;min-width:0}
 .chev{flex:none;width:14px;color:var(--mute);font-size:16px;line-height:1;text-align:center;transition:transform .35s var(--spring)}
 .node.open>.row .chev{transform:rotate(90deg)}
