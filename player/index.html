@@ -724,7 +724,8 @@ function drawWheel(force, slide){
   const bar = sc.previousElementSibling;
   bar.classList.toggle("anim", !!slide || wBar !== null); bar.style.transform = `translateY(${y}px)`; wBar = y;
   sc.classList.toggle("top", L < 1); sc.classList.toggle("end", L > (n - 5) * WH - 1);
-  const cs = Math.round(L / WH), from = Math.max(0, cs - 10), to = Math.min(n - 1, cs + 15);  // 보이는 곳 근처만
+  // 보이는 곳 근처만 그리되 10줄 단위로만 다시 만듦(11-17 밤 회장: 한 줄마다 다시 만들어서 빨리 굴리면 드드득)
+  const cs = Math.floor(L / WH / 10) * 10, from = Math.max(0, cs - 15), to = Math.min(n - 1, cs + 30);
   if(force || from !== wFrom || to !== wTo){
     wFrom = from; wTo = to; let h = "";
     for(let i = from; i <= to; i++){ const x = queue[i];
@@ -740,7 +741,10 @@ function bindWheel(){
   // 마우스 휠은 한 칸 = 한 줄(11-17 밤 회장: 한 칸에 100px라 두세 줄씩 넘어감). 터치패드(작은 값)·폰 손가락은 그대로
   let wt = null; sc.onwheel = e => { if(e.deltaMode === 0 && Math.abs(e.deltaY) < 50) return; e.preventDefault();
     wt = Math.max(0, Math.min((wt ?? Math.round(sc.scrollTop / WH) * WH) + Math.sign(e.deltaY) * WH, (queue.length - 1) * WH));
-    sc.scrollTo({top: wt, behavior: "smooth"}); };
+    if(!glide) glide = requestAnimationFrame(step); };
+  // 빨리 연달아 굴려도 끊고 다시 출발하지 않고 목표만 늘려 한 번에 미끄러짐
+  let glide = 0; const step = () => { const g = wt ?? sc.scrollTop, dd = g - sc.scrollTop;
+    if(Math.abs(dd) < 1){ sc.scrollTop = g; glide = 0; return; } sc.scrollTop += Math.sign(dd) * Math.max(2, Math.abs(dd) * .3); glide = requestAnimationFrame(step); };
   let idle = 0; sc.onscroll = () => { drawWheel();  // 보이는 범위가 바뀔 때만 줄을 다시 만들어서 가벼움
     clearTimeout(idle); idle = setTimeout(() => { wt = null; const t = Math.round(sc.scrollTop / WH) * WH; if(Math.abs(t - sc.scrollTop) > 1) sc.scrollTo({top: t, behavior: "smooth"}); }, 140); };
   sc.onclick = e => { const r = e.target.closest("[data-i]"); if(!r) return; const i = +r.dataset.i; i === cur ? toggle() : start(i); };
