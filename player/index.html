@@ -530,8 +530,7 @@ function hSwipe(el, target, skip){
       const d = dx < 0 ? 1 : -1;
       target.classList.add("sw-out"); target.style.transform = `translateX(${-d * w * 1.1}px)`; target.style.opacity = 0;
       setTimeout(() => { swipeIn = d;
-        if(d < 0 && audio.currentTime > 3){ audio.currentTime = 0; render(); }  // 이전 버튼과 같게: 3초 넘게 들었으면 처음으로
-        else go(d); }, 180);
+        go(d); }, 180);
     } else { target.classList.add("sw-back"); target.style.transform = ""; target.style.opacity = ""; }
     setTimeout(() => { el._swiping = false; }, 50);
   };
@@ -572,7 +571,7 @@ function mediaMeta(){
     artwork: cv ? [{src: cv, sizes: "800x800", type: "image/jpeg"}] : []});  // 잠금화면 표지
   const h = (a, f) => { try { navigator.mediaSession.setActionHandler(a, f); } catch {} };
   h("play", () => audio.play()); h("pause", () => audio.pause());
-  h("previoustrack", () => audio.currentTime > 3 ? (audio.currentTime = 0) : go(-1)); h("nexttrack", () => go(1));
+  h("previoustrack", () => go(-1)); h("nexttrack", () => go(1));
   h("seekto", e => { audio.currentTime = e.seekTime; });
 }
 
@@ -790,7 +789,7 @@ function bind(){
   bindWheel();
   document.querySelectorAll("[data-a]").forEach(el => el.onclick = e => {
     e.stopPropagation();
-    if(el._swiping) return;  // 옆으로 민 손가락은 '열기'로 치지 않음
+    if(el._swiping || el.closest(".swipe-x")?._swiping) return;  // 옆으로 민 손가락은 '열기'·버튼 누름으로 치지 않음
     const a = el.dataset.a;
     if(a === "toggle") return toggle();
     if(a === "top") return $("tree")?.scrollTo({top: 0, behavior: "smooth"});  // 왼쪽 위 이름 누르면 목록 맨 위로(11-17)
@@ -804,7 +803,7 @@ function bind(){
       return; }  // 알림 없음(버튼 모양으로 충분 — 11-17 회장)
     if(a === "mute"){ audio.muted = !audio.muted; const r = $("vol"); if(r){ const v = audio.muted ? 0 : Math.round(audio.volume * 100); r.value = v; r.style.setProperty("--v", v + "%"); } el.innerHTML = audio.muted ? I.mute : I.vol; return; }
     if(a === "next") return go(1);
-    if(a === "prev") return audio.currentTime > 3 ? (audio.currentTime = 0) : go(-1);
+    if(a === "prev") return go(-1);  // 언제 눌러도 이전 곡(3초 넘게 들으면 처음으로 가던 규칙은 뺌, 11-17 회장)
     if(a === "shuf"){ shuf = !shuf; ls.set("shuf", shuf); return el.classList.toggle("on", shuf); }
     if(a === "rep"){ rep = !rep; ls.set("rep", rep); return el.classList.toggle("on", rep); }
     if(a === "open") return setFull(true);
@@ -825,7 +824,7 @@ function bind(){
   }
   if(!isWide()){
     const m = document.querySelector(".mini"), dw = document.querySelector(".disc-wrap");
-    if(m) hSwipe(m, m.querySelector(".mslide"), e => !!e.target.closest("button"));
+    if(m) hSwipe(m, m.querySelector(".mslide"));  // 버튼 위에서 시작해도 밀기 됨 — 왼쪽으로 밀면 손가락이 오른쪽 '다음' 버튼에서 시작해 안 넘어갔음(11-17)
     if(dw){ dw.classList.add("swipe-x"); hSwipe(dw, dw); }
   }
   const f = $("full");
