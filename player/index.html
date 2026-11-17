@@ -473,15 +473,17 @@ async function start(i, autoplay = true){
   if(my === startSeq) prefetchNext();
 }
 const topsOf = () => [...ROOT.kids.filter(n => n.name !== "모음집"), ...ROOT.kids.filter(n => n.name === "모음집")];  // 모음집은 맨 아래(11-17)
-// 폴더 마지막 곡에서 '다음' → 화면 순서로 다음 폴더 첫 곡, 맨 마지막 폴더면 맨 첫 폴더로(11-17 회장). 좋아요 목록은 그 안에서만 돎
-function nextFolder(){
-  if(cur < queue.length - 1 || qName === LIKES) return null;
+// 모든 곡을 한 줄로 순환(11-17 회장): 폴더 끝에서 '다음' → 화면 순서로 다음 폴더 첫 곡(맨 끝이면 맨 첫 폴더),
+// 폴더 첫 곡에서 '이전' → 이전 폴더 마지막 곡(맨 처음이면 맨 끝 폴더). 좋아요 목록은 그 안에서만 돎
+function adjFolder(d){
+  if((d > 0 ? cur < queue.length - 1 : cur > 0) || qName === LIKES) return null;
   const g = [], walk = n => { n.kids.forEach(walk); if(n.songs.length) g.push(n); };  // 화면과 같은 순서: 하위 폴더 → 그 폴더 곡
   topsOf().forEach(walk); if(ROOT.songs.length) g.push(ROOT);
   if(!g.length) return null;
   const k = g.findIndex(n => (n.path || "") === (song()?.path ?? ""));
-  return g[(k + 1) % g.length];
+  return g[((k < 0 ? 0 : k) + d + g.length) % g.length];
 }
+const nextFolder = () => adjFolder(1);
 function playList(list, name, i = 0){ queue = list; qName = name; start(shuf ? Math.floor(Math.random() * list.length) : i); }
 function toggle(){
   if(!song()) return ALL.length && playList(ALL, "", 0);
@@ -519,8 +521,8 @@ function hSwipe(el, target, skip){
 function go(d){
   if(!queue.length) return;
   if(shuf && d > 0 && queue.length > 1){ let n = shufNext; if(n < 0 || n === cur || n >= queue.length){ do n = Math.floor(Math.random() * queue.length); while(n === cur); } shufNext = -1; return start(n); }
-  const nf = d > 0 && !shuf && nextFolder();
-  if(nf){ queue = nf.songs; qName = nf.path || ""; return start(0); }
+  const nf = !shuf && adjFolder(d > 0 ? 1 : -1);
+  if(nf){ queue = nf.songs; qName = nf.path || ""; return start(d > 0 ? 0 : nf.songs.length - 1); }
   start((cur + d + queue.length) % queue.length);
 }
 audio.addEventListener("play", syncPlay);
