@@ -474,14 +474,15 @@ async function start(i, autoplay = true){
 }
 const topsOf = () => [...ROOT.kids.filter(n => n.name !== "모음집"), ...ROOT.kids.filter(n => n.name === "모음집")];  // 모음집은 맨 아래(11-17)
 // 모든 곡을 한 줄로 순환(11-17 회장): 폴더 끝에서 '다음' → 화면 순서로 다음 폴더 첫 곡(맨 끝이면 맨 첫 폴더),
-// 폴더 첫 곡에서 '이전' → 이전 폴더 마지막 곡(맨 처음이면 맨 끝 폴더). 좋아요 목록은 그 안에서만 돎
+// 폴더 첫 곡에서 '이전' → 이전 폴더 마지막 곡(맨 처음이면 맨 끝 폴더). 모음집은 순환에서 뺌(11-17 회장) — 모음집을 듣다 끝나면 맨 첫 폴더로.
+// 좋아요 목록은 그 안에서만 돎
 function adjFolder(d){
   if((d > 0 ? cur < queue.length - 1 : cur > 0) || qName === LIKES) return null;
   const g = [], walk = n => { n.kids.forEach(walk); if(n.songs.length) g.push(n); };  // 화면과 같은 순서: 하위 폴더 → 그 폴더 곡
-  topsOf().forEach(walk); if(ROOT.songs.length) g.push(ROOT);
+  topsOf().filter(n => n.name !== "모음집").forEach(walk); if(ROOT.songs.length) g.push(ROOT);
   if(!g.length) return null;
   const k = g.findIndex(n => (n.path || "") === (song()?.path ?? ""));
-  return g[((k < 0 ? 0 : k) + d + g.length) % g.length];
+  return k < 0 ? g[d > 0 ? 0 : g.length - 1] : g[(k + d + g.length) % g.length];
 }
 const nextFolder = () => adjFolder(1);
 function playList(list, name, i = 0){ queue = list; qName = name; start(shuf ? Math.floor(Math.random() * list.length) : i); }
