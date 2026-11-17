@@ -49,7 +49,7 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .app{position:fixed;inset:0;height:var(--appH);z-index:1;max-width:1120px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
 .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 10px;flex:none}
 .app.phone>.hd{padding-top:6px}  /* 폰 맨 위 여백 줄임(11-18 회장: 14→36으로 내렸다가 사파리에선 위가 비어 보여 다시 올림) */
-html.sa .app.phone>.hd{padding-top:36px}  /* 홈 화면 앱은 아이폰이 상태바 밑에 흐림을 깔아서 그 아래로(11-18 회장) */
+html.sa .app.phone>.hd{padding-top:20px}  /* 홈 화면 앱은 아이폰이 상태바 밑에 흐림을 깔아서 그 아래로 — 6px는 흐림, 36px는 너무 빔(11-18 회장) */
 .hd .lab{color:var(--sub)}
 .hacts{display:flex;align-items:center;gap:4px}
 .hacts .ib{width:32px;height:32px}
