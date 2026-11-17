@@ -101,6 +101,12 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .spin-on .disc{transform:translateX(18%)}
 .spin-on .rec{animation-play-state:running}
 @keyframes spin{to{transform:rotate(360deg)}}
+/* 옆으로 밀어 곡 넘기기(폰, 11-17): 미는 동안 손가락을 따라가고, 새 곡은 반대쪽에서 들어옴 */
+.swipe-x{touch-action:pan-y}
+.sw-back{transition:transform .4s var(--spring),opacity .4s var(--spring)}
+.sw-out{transition:transform .2s ease-in,opacity .2s ease-in}
+.sw-in{animation:swIn .42s var(--spring) both}
+@keyframes swIn{from{opacity:0;transform:translateX(calc(var(--sx,1) * 48px))}}
 
 /* 폴더 나무 */
 .search{margin:0 8px 8px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:0 10px;background:var(--char)}
@@ -142,6 +148,7 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 
 /* 미니 플레이어 */
 .mini{flex:none;margin:6px 10px calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:11px;padding:10px;border:1px solid var(--line);border-radius:var(--r);background:#0b0b0b;cursor:pointer}
+.mini .mslide{flex:1;min-width:0;display:flex;align-items:center;gap:11px}
 .mini .art{width:46px;height:46px;border-radius:8px}
 .mini .mid{flex:1;min-width:0;font-size:14px}
 .mini .mid .ttl:first-child{font-weight:600}
@@ -351,6 +358,34 @@ function toggle(){
   if(!audio.src) return start(cur);
   audio.paused ? audio.play().catch(() => start(cur)) : audio.pause();
 }
+let swipeIn = 0;  // 밀어서 넘긴 방향(1 다음, -1 이전) — 다음 그리기 때 새 표지가 들어오는 쪽
+// 옆으로 밀기: el 위에서 손가락 따라 target을 움직이고, 넘기면 go
+function hSwipe(el, target, skip){
+  let sx = null, sy = 0, dx = 0, t0 = 0, mode = null;
+  el.addEventListener("pointerdown", e => { if(skip && skip(e)) return; sx = e.clientX; sy = e.clientY; dx = 0; t0 = e.timeStamp; mode = null; });
+  el.addEventListener("pointermove", e => {
+    if(sx === null) return;
+    const mx = e.clientX - sx, my = e.clientY - sy;
+    if(!mode && Math.hypot(mx, my) > 8){ mode = Math.abs(mx) > Math.abs(my) ? "x" : "y"; if(mode === "x"){ try { el.setPointerCapture(e.pointerId); } catch {} el._swiping = true; target.classList.remove("sw-back", "sw-out", "sw-in"); } }
+    if(mode !== "x") return;
+    dx = mx; const w = target.offsetWidth || 300;
+    target.style.transform = `translateX(${dx}px)`; target.style.opacity = 1 - Math.min(.6, Math.abs(dx) / w * .8);
+  });
+  const end = e => {
+    if(sx === null) return; sx = null;
+    if(mode !== "x") return;
+    const w = target.offsetWidth || 300, v = Math.abs(dx) / Math.max(1, e.timeStamp - t0);
+    if(e.type === "pointerup" && (Math.abs(dx) > w / 3 || (v > .5 && Math.abs(dx) > 30))){
+      const d = dx < 0 ? 1 : -1;
+      target.classList.add("sw-out"); target.style.transform = `translateX(${-d * w * 1.1}px)`; target.style.opacity = 0;
+      setTimeout(() => { swipeIn = d;
+        if(d < 0 && audio.currentTime > 3){ audio.currentTime = 0; render(); }  // 이전 버튼과 같게: 3초 넘게 들었으면 처음으로
+        else go(d); }, 180);
+    } else { target.classList.add("sw-back"); target.style.transform = ""; target.style.opacity = ""; }
+    setTimeout(() => { el._swiping = false; }, 50);
+  };
+  el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end);
+}
 function go(d){
   if(!queue.length) return;
   if(shuf && d > 0 && queue.length > 1){ let n; do n = Math.floor(Math.random() * queue.length); while(n === cur); return start(n); }
@@ -440,7 +475,7 @@ function waveHtml(){
 function miniBar(){
   const s = song();
   if(!s) return "";
-  return `<div class="mini" data-a="open">${art()}<div class="mid"><div class="ttl">${esc(s.t)}</div><div class="meta ttl">${esc(crumbOf(qName))}</div><div class="mbar"><i style="width:${dur() ? audio.currentTime / dur() * 100 : 0}%"></i></div></div>
+  return `<div class="mini swipe-x" data-a="open"><div class="mslide${swipeIn ? " sw-in" : ""}" style="--sx:${swipeIn}">${art()}<div class="mid"><div class="ttl">${esc(s.t)}</div><div class="meta ttl">${esc(crumbOf(qName))}</div><div class="mbar"><i style="width:${dur() ? audio.currentTime / dur() * 100 : 0}%"></i></div></div></div>
     ${ppBtn("sm" + (loading ? " wait" : ""), 'data-a="toggle" title="재생/멈춤"', shown)}<button class="ib nx" data-a="next" title="다음 곡">${I.next}</button></div>`;
 }
 function fullScreen(){
@@ -449,7 +484,7 @@ function fullScreen(){
   const nexts = queue.slice(cur + 1, cur + 4);
   return `<div class="full${full ? " open" : ""}" id="full"><div class="inner">${wide ? `<span class="lab" style="margin-top:6px">Now Playing</span>` : `<div class="grab"></div>
     <div class="hd" style="padding:6px 0 0"><button class="ib" data-a="close" title="내리기">${I.down}</button><span class="lab">Now Playing</span><span style="width:22px"></span></div>`}
-    <div class="disc-wrap${shown ? " spin-on" : ""}"><div class="disc"><div class="rec"><i></i></div></div><div class="sleeve art">${I.note}</div></div>
+    <div class="disc-wrap${shown ? " spin-on" : ""}${swipeIn ? " sw-in" : ""}" style="--sx:${swipeIn}"><div class="disc"><div class="rec"><i></i></div></div><div class="sleeve art">${I.note}</div></div>
     <h2 class="ttl" title="${esc(s.t)}">${esc(s.t)}</h2>
     <div class="crumb meta">${I.folder}<span class="ttl">${esc(crumbOf(qName))} · ${cur + 1} / ${queue.length}</span></div>
     ${waveHtml()}
@@ -484,6 +519,7 @@ function render(){
     <div class="body"><div class="list"><div class="search">${I.find}<input id="q" placeholder="곡 이름으로 찾기" value="${esc(q)}" enterkeyhint="search"></div>
       <div class="scroll" id="tree">${treeHtml()}</div>${wide ? "" : miniBar()}</div>${wide ? fullScreen() : ""}</div>${wide ? "" : fullScreen()}`;
   $("tree").scrollTop = keep;
+  swipeIn = 0;
   bind(); syncPlay();
 }
 function syncPlay(){
@@ -560,6 +596,7 @@ function bind(){
   document.querySelectorAll("[data-q]").forEach(el => el.onclick = () => start(+el.dataset.q));
   document.querySelectorAll("[data-a]").forEach(el => el.onclick = e => {
     e.stopPropagation();
+    if(el._swiping) return;  // 옆으로 민 손가락은 '열기'로 치지 않음
     const a = el.dataset.a;
     if(a === "toggle") return toggle();
     if(a === "mute"){ audio.muted = !audio.muted; const r = $("vol"); if(r){ const v = audio.muted ? 0 : Math.round(audio.volume * 100); r.value = v; r.style.setProperty("--v", v + "%"); } el.innerHTML = audio.muted ? I.mute : I.vol; return; }
@@ -582,11 +619,17 @@ function bind(){
     w.onpointerup = () => { if(!dragging) return; dragging = false; w.classList.remove("drag"); if(dur()) audio.currentTime = p * dur(); progress(); saveState(); };
     w.onpointercancel = () => { dragging = false; w.classList.remove("drag"); progress(); };
   }
+  if(!isWide()){
+    const m = document.querySelector(".mini"), dw = document.querySelector(".disc-wrap");
+    if(m) hSwipe(m, m.querySelector(".mslide"), e => !!e.target.closest("button"));
+    if(dw){ dw.classList.add("swipe-x"); hSwipe(dw, dw); }
+  }
   const f = $("full");
   if(f && !isWide()){  // 큰 화면 끌어 내려 닫기
     let sy = null, dy = 0;
-    f.onpointerdown = e => { if(e.target.closest("button, .wave, [data-q]") || f.scrollTop > 0) return; sy = e.clientY; dy = 0; f.classList.add("drag"); f.setPointerCapture(e.pointerId); };
-    f.onpointermove = e => { if(sy === null) return; dy = Math.max(0, e.clientY - sy); f.style.transform = `translateY(${dy}px)`; };
+    f.onpointerdown = e => { if(e.target.closest("button, .wave, [data-q]") || f.scrollTop > 0) return; sy = e.clientY; dy = 0; f.classList.add("drag"); if(!e.target.closest(".disc-wrap")) f.setPointerCapture(e.pointerId); };  // 표지 위면 표지가 옆 밀기를 받게 잡지 않음
+    const sw = () => document.querySelector(".disc-wrap")?._swiping;  // 표지를 옆으로 미는 중이면 내리기 안 함
+    f.onpointermove = e => { if(sy === null) return; if(sw()){ f.style.transform = ""; dy = 0; return; } dy = Math.max(0, e.clientY - sy); f.style.transform = `translateY(${dy}px)`; };
     f.onpointerup = f.onpointercancel = () => { if(sy === null) return; sy = null; f.classList.remove("drag"); setFull(dy < 110); };
   }
 }
