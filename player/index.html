@@ -80,12 +80,22 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .pp.wait::before{content:"";position:absolute;inset:-1px;border-radius:50%;border:1.5px solid transparent;border-top-color:var(--white);animation:spin .9s linear infinite;z-index:2}
 
 /* 파형 진행 막대 */
-.wave{height:46px;display:flex;align-items:center;gap:2px;position:relative;cursor:pointer;touch-action:none;margin-top:18px}
-.wave i{flex:1;min-width:0;border-radius:2px;background:var(--line-hi);transition:background .35s}
-.wave i.on{background:var(--white)}
-.wave .head{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--white);border-radius:1px;transition:left .25s linear}
-.wave.drag .head{transition:none}
-.times{display:flex;justify-content:space-between;margin-top:6px}
+/* 재생바(11-17 회장 시안 1안): 시간 위, 얇은 흰 막대, 손대면 손잡이, 끄는 동안 이동할 시간 표시 */
+.times{display:flex;justify-content:space-between;margin-top:18px;color:rgba(242,242,240,.9);font-size:12.5px;font-variant-numeric:tabular-nums}
+.seek{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.2);margin-top:8px;cursor:pointer;touch-action:none;transition:height .2s var(--spring),margin .2s var(--spring)}
+.seek::before{content:"";position:absolute;inset:-12px 0}
+.seek .fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--white);transition:width .25s linear}
+.seek .dot{position:absolute;top:50%;width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;background:var(--white);opacity:0;transform:scale(.6);transition:opacity .25s,transform .25s var(--spring),left .25s linear}
+.seek .tip{position:absolute;bottom:18px;transform:translateX(-50%);background:var(--white);color:var(--ink);font-size:11.5px;font-weight:700;padding:3px 7px;border-radius:6px;opacity:0;transition:opacity .2s;pointer-events:none;font-variant-numeric:tabular-nums;white-space:nowrap}
+.seek:hover .dot,.seek.drag .dot{opacity:1;transform:scale(1)}
+.seek.drag{height:8px;margin-top:7px}
+.seek.drag .fill,.seek.drag .dot{transition:none}
+.seek.drag .tip{opacity:1}
+.trow{display:flex;align-items:flex-start;gap:10px}.trow>div{flex:1;min-width:0}
+.heart{flex:none;width:34px;height:34px;margin:-4px -6px 0 0}
+.heart svg{width:22px;height:22px;transition:transform .3s var(--spring)}
+.heart.on svg{fill:var(--white)}
+.heart:active svg{transform:scale(.85)}
 
 /* 레코드 */
 .disc-wrap{position:relative;width:min(100%,250px);aspect-ratio:1;margin:12px auto 22px;flex:none}
@@ -324,8 +334,12 @@ function setTree(t){
   ALL = flat(ROOT); walk(ROOT);
 }
 const allSongs = n => [...n.songs, ...n.kids.flatMap(allSongs)];
-const find = (p, n = ROOT) => { if((n.path || "") === p) return n; for(const k of n.kids){ const f = find(p, k); if(f) return f; } };
+const find = (p, n = ROOT) => { if(p === LIKES) return likeNode(); if((n.path || "") === p) return n; for(const k of n.kids){ const f = find(p, k); if(f) return f; } };
 const byId = id => ALL.find(s => s.id === id);
+// 좋아요(11-17): 하트 누른 곡을 맨 위 '좋아요' 폴더로 — OneDrive 읽기만 해서 그 기기에만 저장
+const LIKES = "__likes";
+let likes = new Set(ls.get("likes", []));
+const likeNode = () => ({name: "좋아요", path: LIKES, kids: [], songs: [...likes].map(byId).filter(Boolean)});
 async function streamUrl(s){
   if(urls[s.id] && Date.now() - urlsAt < 50 * 60000) return urls[s.id];  // 주소는 약 1시간 유효
   const j = await graph(`/me/drive/items/${s.id}`);
@@ -420,6 +434,7 @@ function mediaMeta(){
 
 /* ───────── 화면 ───────── */
 const I = {
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
   play: '<svg class="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 5.5v13l10.5-6.5z"/></svg>',
   pause: '<svg class="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg>',
   prev: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 6v12l-9-6zM6 6h2v12H6z"/></svg>',
@@ -437,13 +452,10 @@ const I = {
 };
 const art = () => `<div class="art">${I.note}</div>`;
 const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return s >= 3600 ? `${Math.floor(s/3600)}:${String(Math.floor(s%3600/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}` : `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; };
-const crumbOf = p => p ? p.split("/").join(" › ") : "전체";
+const crumbOf = p => p === LIKES ? "좋아요" : p ? p.split("/").join(" › ") : "전체";
 const ppBtn = (size, attrs, on) => `<button class="ib pp ${size}${on ? " on" : ""}" ${attrs}><span class="fill"></span>${I.play}${I.pause}</button>`;
 const isWide = () => matchMedia("(min-width: 820px)").matches;
 // 파형 모양(곡 이름으로 정해지는 모양 — 실제 소리 크기는 아님)
-const BARS = 54;
-function waveOf(id){ let s = 0; for(const c of id) s = (s * 31 + c.charCodeAt(0)) % 233280; let prev = 50;
-  return Array.from({length: BARS}, () => { s = (s * 9301 + 49297) % 233280; prev = prev * .45 + (18 + s / 233280 * 82) * .55; return Math.round(prev); }); }
 
 function nodeHtml(n, d){
   return `<div class="node${open.has(n.path) ? " open" : ""}" data-d="${d}">
@@ -476,14 +488,15 @@ function treeHtml(){
     const hit = ALL.filter(s => s.t.toLowerCase().includes(q.toLowerCase()));
     return hit.map(s => songRow(s, 0, true)).join("") || `<div class="empty">'${esc(q)}'에 맞는 곡이 없어요.</div>`;
   }
-  return ROOT.kids.map(n => nodeHtml(n, 0)).join("")
+  const ln = likeNode();
+  return (ln.songs.length ? nodeHtml(ln, 0) : "") + ROOT.kids.map(n => nodeHtml(n, 0)).join("")
     + (ROOT.songs.length ? `<div class="sub">맨 위에 있는 곡</div>` + ROOT.songs.map(s => songRow(s, 0)).join("") : "")
     + `<div class="gw-copy">© 2026 GWANG. All rights reserved.</div>`;
 }
-function waveHtml(){
-  const s = song(), w = waveOf(s.id), p = dur() ? audio.currentTime / dur() : 0;
-  return `<div class="wave" id="wave">${w.map((h, i) => `<i class="${i < p * BARS ? "on" : ""}" style="height:${h}%"></i>`).join("")}<b class="head" style="left:${p * 100}%"></b></div>
-    <div class="times meta"><span>${fmt(audio.currentTime)}</span><span>-${fmt(dur() - audio.currentTime)}</span></div>`;
+function seekHtml(){
+  const p = dur() ? audio.currentTime / dur() : 0;
+  return `<div class="times"><span>${fmt(audio.currentTime)}</span><span>-${fmt(dur() - audio.currentTime)}</span></div>
+    <div class="seek" id="seek"><div class="fill" style="width:${p * 100}%"></div><div class="dot" style="left:${p * 100}%"></div><div class="tip" style="left:${p * 100}%"></div></div>`;
 }
 function miniBar(){
   const s = song();
@@ -497,9 +510,10 @@ function fullScreen(){
   return `<div class="full${full ? " open" : ""}" id="full"><div class="inner">${wide ? `<span class="lab" style="margin-top:6px">Now Playing</span>` : `<div class="grab"></div>
     <div class="hd" style="padding:6px 0 0"><button class="ib" data-a="close" title="내리기">${I.down}</button><span class="lab">Now Playing</span><span style="width:22px"></span></div>`}
     <div class="disc-wrap${shown ? " spin-on" : ""}${swipeIn ? " sw-in" : ""}" style="--sx:${swipeIn}"><div class="disc"><div class="rec"><i></i></div></div><div class="sleeve art">${I.note}</div></div>
-    <h2 class="ttl" title="${esc(s.t)}">${esc(s.t)}</h2>
-    <div class="crumb meta">${I.folder}<span class="ttl">${esc(crumbOf(qName))} · ${cur + 1} / ${queue.length}</span></div>
-    ${waveHtml()}
+    <div class="trow"><div><h2 class="ttl" title="${esc(s.t)}">${esc(s.t)}</h2>
+    <div class="crumb meta">${I.folder}<span class="ttl">${esc(crumbOf(qName))} · ${cur + 1} / ${queue.length}</span></div></div>
+    <button class="ib heart${likes.has(s.id) ? " on" : ""}" data-a="like" title="좋아요">${I.heart}</button></div>
+    ${seekHtml()}
     <div class="ctl">
       <button class="ib tg${shuf ? " on" : ""}" data-a="shuf" title="섞어 듣기">${I.shuf}</button>
       <button class="ib" data-a="prev" title="이전 곡">${I.prev}</button>
@@ -571,9 +585,10 @@ function syncPlay(){
 function progress(){
   if(!song()) return;
   const p = dur() ? audio.currentTime / dur() : 0;
-  if(!$("wave")?.classList.contains("drag")){
-    document.querySelectorAll("#wave i").forEach((b, i) => b.classList.toggle("on", i < p * BARS));
-    document.querySelectorAll("#wave .head").forEach(h => h.style.left = p * 100 + "%");
+  const sk = $("seek");
+  if(sk && !sk.classList.contains("drag")){
+    sk.querySelector(".fill").style.width = p * 100 + "%";
+    sk.querySelectorAll(".dot, .tip").forEach(h => h.style.left = p * 100 + "%");
   }
   document.querySelectorAll(".times").forEach(x => x.innerHTML = `<span>${fmt(audio.currentTime)}</span><span>-${fmt(dur() - audio.currentTime)}</span>`);
   document.querySelectorAll(".mbar i").forEach(x => x.style.width = p * 100 + "%");
@@ -633,6 +648,11 @@ function bind(){
     if(el._swiping) return;  // 옆으로 민 손가락은 '열기'로 치지 않음
     const a = el.dataset.a;
     if(a === "toggle") return toggle();
+    if(a === "like"){ const id = song()?.id; if(!id) return;
+      likes.has(id) ? likes.delete(id) : likes.add(id); ls.set("likes", [...likes]);
+      el.classList.toggle("on", likes.has(id));
+      const t = $("tree"); if(t && !q){ const k = t.scrollTop; t.innerHTML = treeHtml(); t.scrollTop = k; }
+      return toast(likes.has(id) ? "'좋아요'에 넣었어요" : "'좋아요'에서 뺐어요"); }
     if(a === "mute"){ audio.muted = !audio.muted; const r = $("vol"); if(r){ const v = audio.muted ? 0 : Math.round(audio.volume * 100); r.value = v; r.style.setProperty("--v", v + "%"); } el.innerHTML = audio.muted ? I.mute : I.vol; return; }
     if(a === "next") return go(1);
     if(a === "prev") return audio.currentTime > 3 ? (audio.currentTime = 0) : go(-1);
@@ -643,11 +663,12 @@ function bind(){
     if(a === "reload") return reload();
     if(a === "logout") return confirm("로그아웃할까요? 다음에 다시 Microsoft 로그인이 필요해요.") && logout();
   });
-  const w = $("wave");
+  const w = $("seek");
   if(w){
     let dragging = false, p = 0;
     const at = e => { const r = w.getBoundingClientRect(); p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-      w.querySelectorAll("i").forEach((b, i) => b.classList.toggle("on", i < p * BARS)); w.querySelector(".head").style.left = p * 100 + "%"; };
+      w.querySelector(".fill").style.width = p * 100 + "%"; w.querySelectorAll(".dot, .tip").forEach(h => h.style.left = p * 100 + "%");
+      w.querySelector(".tip").textContent = fmt(p * dur()); };  // 끄는 동안 이동할 시간
     w.onpointerdown = e => { e.stopPropagation(); dragging = true; w.classList.add("drag"); w.setPointerCapture(e.pointerId); at(e); };
     w.onpointermove = e => { if(dragging) at(e); };
     w.onpointerup = () => { if(!dragging) return; dragging = false; w.classList.remove("drag"); if(dur()) audio.currentTime = p * dur(); progress(); saveState(); };
@@ -661,7 +682,7 @@ function bind(){
   const f = $("full");
   if(f && !isWide()){  // 큰 화면 끌어 내려 닫기
     let sy = null, dy = 0;
-    f.onpointerdown = e => { if(e.target.closest("button, .wave, .wheel") || f.scrollTop > 0) return; sy = e.clientY; dy = 0; f.classList.add("drag"); if(!e.target.closest(".disc-wrap")) f.setPointerCapture(e.pointerId); };  // 표지 위면 표지가 옆 밀기를 받게 잡지 않음
+    f.onpointerdown = e => { if(e.target.closest("button, .seek, .wheel") || f.scrollTop > 0) return; sy = e.clientY; dy = 0; f.classList.add("drag"); if(!e.target.closest(".disc-wrap")) f.setPointerCapture(e.pointerId); };  // 표지 위면 표지가 옆 밀기를 받게 잡지 않음
     const sw = () => document.querySelector(".disc-wrap")?._swiping;  // 표지를 옆으로 미는 중이면 내리기 안 함
     f.onpointermove = e => { if(sy === null) return; if(sw()){ f.style.transform = ""; dy = 0; return; } dy = Math.max(0, e.clientY - sy); f.style.transform = `translateY(${dy}px)`; };
     f.onpointerup = f.onpointercancel = () => { if(sy === null) return; sy = null; f.classList.remove("drag"); setFull(dy < 110); };
