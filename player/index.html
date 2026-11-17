@@ -720,7 +720,7 @@ function miniBar(){
   const s = song();
   if(!s) return "";
   return `<div class="mini swipe-x" data-a="open"><div class="mslide${swipeIn ? " sw-in" : ""}" style="--sx:${swipeIn}">${art()}<div class="mid"><div class="ttl">${esc(s.t)}</div><div class="meta ttl">${esc(crumbOf(qName))}</div><div class="mbar"><i style="width:${dur() ? audio.currentTime / dur() * 100 : 0}%"></i></div></div></div>
-    ${ppBtn("sm" + (loading ? " wait" : ""), 'data-a="toggle" title="재생/멈춤"', shown)}<button class="ib nx" data-a="next" title="다음 곡">${I.next}</button></div>`;
+    <button class="ib nx" data-a="prev" title="이전 곡">${I.prev}</button>${ppBtn("sm" + (loading ? " wait" : ""), 'data-a="toggle" title="재생/멈춤"', shown)}<button class="ib nx" data-a="next" title="다음 곡">${I.next}</button></div>`;
 }
 function fullScreen(){
   const s = song(), wide = isWide();
