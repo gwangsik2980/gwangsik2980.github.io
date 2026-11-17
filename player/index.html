@@ -209,7 +209,18 @@ html.sa .app.phone .full{position:absolute}
 html.sa body::before{position:absolute;height:var(--appH)}
 
 .app.phone .full.drag{transition:none}
-.full .inner{width:min(100%,420px);margin:0 auto;display:flex;flex-direction:column}
+.full .inner{width:min(100%,420px);margin:0 auto;display:flex;flex-direction:column;position:relative}
+.ib.more{width:32px;height:32px;margin-right:-6px;color:var(--sub);position:relative}
+.ib.more svg{width:20px;height:20px}
+.ib.more.on::after{content:"";position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--white)}  /* 타이머 켜짐 */
+.smenu{position:absolute;right:0;top:52px;z-index:8;min-width:112px;background:#232323;border:1px solid var(--line-hi);border-radius:12px;padding:0;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,.5);opacity:0;transform:translateY(-6px) scale(.97);transform-origin:top right;pointer-events:none;transition:opacity .16s,transform .2s var(--spring)}
+.smenu.open{opacity:1;transform:none;pointer-events:auto}
+.smenu .sh{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line-hi);font-size:15px;font-weight:600;color:var(--text)}
+.smenu .sh svg{width:18px;height:18px;flex:none}
+.smenu .sh small{margin-left:auto;font-size:12px;font-weight:500;color:var(--mute)}
+.smenu button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--text);font:inherit;font-size:15px;padding:9px 14px;cursor:pointer}
+.smenu button:active{background:rgba(255,255,255,.06)}
+.smenu button.off{color:var(--mute);border-top:1px solid var(--line-hi)}
 .grab{width:38px;height:4px;border-radius:2px;background:var(--line-hi);margin:12px auto 0}
 .app.wide .full{width:380px;flex:none;border-left:1px solid var(--line);padding-top:4px;overflow-y:auto;background:transparent}
 .full h2{margin:0;font-size:19px;line-height:1.35}
@@ -657,6 +668,8 @@ const I = {
   next: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6v12l9-6zM16 6h2v12h-2z"/></svg>',
   shuf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h3.5c2 0 3.2 1 4.3 2.7l2.4 4.6C14.3 16 15.5 17 17.5 17H21M18 14l3 3-3 3M3 17h3.5c1.3 0 2.2-.4 3-1.2M14 8.2c.8-.8 1.7-1.2 3.5-1.2H21M18 4l3 3-3 3"/></svg>',
   rep: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l3 3-3 3M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3M20 13v2a3 3 0 0 1-3 3H4"/></svg>',
+  more: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5.5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="18.5" r="1.7"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
   down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>',
   note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg>',
   folder: '<svg class="fic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 7.5V18a1.5 1.5 0 0 0 1.5 1.5h15A1.5 1.5 0 0 0 21 18V9a1.5 1.5 0 0 0-1.5-1.5h-7.8L9.8 5H4.5A1.5 1.5 0 0 0 3 6.5z"/></svg>',
@@ -725,8 +738,8 @@ function miniBar(){
 function fullScreen(){
   const s = song(), wide = isWide();
   if(!s) return wide ? `<div class="full"><div class="empty">폴더 옆 ▶를 누르면<br>그 폴더를 재생목록으로 틀어요.</div></div>` : "";
-  return `<div class="full${full ? " open" : ""}" id="full"><div class="inner">${wide ? `<span class="lab" style="margin-top:6px">Now Playing</span>` : `<div class="grab"></div>
-    <div class="hd" style="padding:6px 0 0"><button class="ib" data-a="close" title="내리기">${I.down}</button><span class="lab">Now Playing</span><span style="width:22px"></span></div>`}
+  return `<div class="full${full ? " open" : ""}" id="full"><div class="inner">${wide ? `<div class="hd" style="padding:6px 0 0"><span class="lab">Now Playing</span>${moreBtn()}</div>` : `<div class="grab"></div>
+    <div class="hd" style="padding:6px 0 0"><button class="ib" data-a="close" title="내리기">${I.down}</button><span class="lab">Now Playing</span>${moreBtn()}</div>`}${sleepMenu()}
     <div class="disc-wrap${shown ? " spin-on" : ""}${swipeIn ? " sw-in" : ""}" style="--sx:${swipeIn}"><div class="disc"><div class="rec"><i></i></div></div><div class="sleeve art cv">${I.note}</div></div>
     <div class="trow"><div><h2 class="ttl" title="${esc(s.t)}">${esc(s.t)}</h2>
     <div class="crumb meta">${I.folder}<span class="ttl">${esc(crumbOf(qName))} · ${cur + 1} / ${queue.length}</span></div></div>
@@ -742,6 +755,29 @@ function fullScreen(){
     <div class="upnext"><div class="sub"><span>재생목록</span><span>${cur + 1} / ${queue.length}</span></div>
       <div class="qlist" id="qlist">${qlistHtml()}</div></div></div></div>`;
 }
+// 수면 타이머(11-18 회장): 큰 화면 오른쪽 위 점 세 개 → 반달 '수면 타이머' 5·15·30·60분. 시간이 되면 멈춤
+let sleepAt = 0, sleepT = 0;
+const moreBtn = () => `<button class="ib more${sleepAt ? " on" : ""}" data-a="more" title="더보기" aria-haspopup="true">${I.more}</button>`;
+const sleepLeft = () => Math.max(1, Math.ceil((sleepAt - Date.now()) / 60000));
+function sleepMenu(){
+  return `<div class="smenu" id="smenu" role="menu"><div class="sh" aria-label="수면 타이머">${I.moon}${sleepAt ? `<small>${sleepLeft()}분 남음</small>` : ""}</div>
+    ${[5, 15, 30, 60].map(m => `<button data-sleep="${m}" role="menuitem">${m}분</button>`).join("")}${sleepAt ? `<button data-sleep="0" role="menuitem" class="off">끄기</button>` : ""}</div>`;
+}
+function setSleep(m){
+  clearTimeout(sleepT); sleepAt = m ? Date.now() + m * 60000 : 0;
+  if(m) sleepT = setTimeout(sleepCheck, m * 60000 + 500);
+  document.querySelectorAll(".ib.more").forEach(b => b.classList.toggle("on", !!sleepAt));
+  toast(m ? `${m}분 뒤에 멈춰요` : "수면 타이머를 껐어요");
+}
+function sleepCheck(){ if(sleepAt && Date.now() >= sleepAt){ sleepAt = 0; clearTimeout(sleepT); audio.pause(); document.querySelectorAll(".ib.more").forEach(b => b.classList.remove("on")); } }
+audio.addEventListener("timeupdate", sleepCheck);  // 화면이 꺼져 타이머가 늦어도 재생 중엔 이걸로 멈춤
+document.addEventListener("click", e => {
+  const m = $("smenu"); if(!m) return;
+  const b = e.target.closest("[data-sleep]");
+  if(b){ setSleep(+b.dataset.sleep); m.classList.remove("open"); return; }
+  if(e.target.closest('[data-a="more"]')){ m.outerHTML = sleepMenu(); $("smenu").classList.add("open"); return; }  // 열 때마다 남은 시간 새로
+  if(!e.target.closest("#smenu")) m.classList.remove("open");
+}, true);  // 캡처: 버튼 클릭은 bind()에서 stopPropagation 되므로
 function volHtml(){
   const v = audio.muted ? 0 : Math.round(audio.volume * 100);
   return `<div class="vol"><button class="ib" data-a="mute" title="소리 끄기/켜기">${v ? I.vol : I.mute}</button><input type="range" id="vol" min="0" max="100" value="${v}" style="--v:${v}%" aria-label="볼륨"></div>`;
@@ -959,6 +995,7 @@ function bind(){
     if(a === "rep"){ rep = (rep + 1) % 3; ls.set("rep", rep); el.title = ["반복", "목록 반복", "한 곡 반복"][rep]; el.classList.toggle("one", rep === 2); return el.classList.toggle("on", rep > 0); }
     if(a === "open") return setFull(true);
     if(a === "close") return setFull(false);
+    if(a === "more") return;  // 수면 타이머 메뉴는 아래 document 클릭에서
     if(a === "reload") return reload();
     if(a === "logout") return confirm("로그아웃할까요? 다음에 다시 Microsoft 로그인이 필요해요.") && logout();
   });
