@@ -585,9 +585,9 @@ function adjFolder(d){
   return k < 0 ? g[d > 0 ? 0 : g.length - 1] : g[(k + d + g.length) % g.length];
 }
 const nextFolder = () => adjFolder(1);
-function playList(list, name, i = 0){ queue = list; qName = name; start(shuf ? Math.floor(Math.random() * list.length) : i); }
+function playList(list, name, i){ queue = list; qName = name; start(i ?? (shuf ? Math.floor(Math.random() * list.length) : 0)); }  // 곡을 직접 누르면 셔플이어도 그 곡부터(11-18 회장), 폴더 ▶만 무작위 시작
 function toggle(){
-  if(!song()) return ALL.length && playList(ALL, "", 0);
+  if(!song()) return ALL.length && playList(ALL, "");
   if(!audio.src) return start(cur);
   audio.paused ? audio.play().catch(() => start(cur)) : audio.pause();
 }
