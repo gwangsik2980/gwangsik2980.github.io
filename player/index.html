@@ -711,13 +711,20 @@ document.addEventListener("input", e => {
 const WH = 44;  // 휠 한 줄 높이
 let wFrom = -1, wTo = -1, wBar = null;  // wBar: 회색 바가 있던 자리(곡이 바뀌면 거기서 미끄러짐)
 const wTop = () => Math.max(0, Math.min(cur - 2, queue.length - 5)) * WH;  // 지금 곡을 가운데에, 끝에선 붙임
+// 회색 바 자리(11-17 회장): 늘 가운데 줄. 단 맨 위에 붙어 있고 지금 곡이 1·2번이면 그 줄, 맨 아래에 붙어 있고 끝 두 곡이면 그 줄
+function wBarY(sc){
+  const s = sc.scrollTop, max = sc.scrollHeight - sc.clientHeight, n = queue.length, y = cur * WH - s;
+  if(n <= 5) return cur * WH;
+  if(s < 2 && cur < 2) return y;
+  if(s > max - 2 && cur > n - 3) return y;
+  return 2 * WH;
+}
 function drawWheel(force, slide){
   const sc = $("wsc"); if(!sc) return;
-  const tr = sc.firstElementChild, c = cur, n = queue.length;
-  const bar = sc.previousElementSibling, y = cur * WH - sc.scrollTop;  // 회색 바 = 지금 곡 줄
-  if(slide && wBar !== null && wBar !== y){ bar.classList.remove("anim"); bar.style.transform = `translateY(${wBar}px)`; void bar.offsetWidth; bar.classList.add("anim"); }
-  else if(!slide) bar.classList.remove("anim");
-  bar.style.transform = `translateY(${y}px)`; wBar = y;
+  const tr = sc.firstElementChild, n = queue.length;
+  const bar = sc.previousElementSibling, y = wBarY(sc), c = Math.round((sc.scrollTop + y) / WH);  // c: 바 아래 줄(굵게)
+  if(slide && wBar !== null && wBar !== y){ bar.classList.remove("anim"); bar.style.transform = `translateY(${wBar}px)`; void bar.offsetWidth; }
+  bar.classList.add("anim"); bar.style.transform = `translateY(${y}px)`; wBar = y;
   sc.classList.toggle("top", sc.scrollTop < 2); sc.classList.toggle("end", sc.scrollTop > sc.scrollHeight - sc.clientHeight - 2);
   const cs = Math.round(sc.scrollTop / WH), from = Math.max(0, cs - 10), to = Math.min(n - 1, cs + 15);  // 보이는 곳 근처만
   if(force || from !== wFrom || to !== wTo){
