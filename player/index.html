@@ -234,6 +234,14 @@ const REDIRECT = location.origin + location.pathname;
 const K = "gwplayer.";  // 이 기기 브라우저에만 저장
 
 const $ = id => document.getElementById(id);
+// 로그인 창·숨은 칸으로 돌아온 경우: 결과를 Player에 넘기고 끝(앱을 띄우지 않음)
+const AUTH_CHILD = /[?&](code|error)=/.test(location.search) && (window.opener || window.parent !== window || window.name === "gwlogin");
+if(AUTH_CHILD){
+  const msg = {gwauth: location.search};
+  try { localStorage.setItem("gwplayer.authret", JSON.stringify(location.search)); } catch {}
+  try { (window.opener || window.parent).postMessage(msg, location.origin); } catch {}
+  if(window.parent === window) setTimeout(() => window.close(), 300);
+}
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ls = {get(k, d){ try { return JSON.parse(localStorage.getItem(K + k)) ?? d; } catch { return d; } },
             set(k, v){ try { localStorage.setItem(K + k, JSON.stringify(v)); } catch {} },
@@ -246,17 +254,44 @@ function toast(msg){
 
 /* ───────── 로그인 (PKCE: 비밀값 없이 이 페이지에서 바로) ───────── */
 const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-// silent: Microsoft에 이미 로그인돼 있으면 화면 없이 바로 돌아옴(하루 지나 로그인이 끝났을 때 자동으로)
-async function login(silent){
+/* 11-17: Microsoft 화면을 Player 안에서 열면 '뒤로 갈 기록'이 남아 아이폰 가장자리 밀기로 그 화면이 다시 보였음
+   → 로그인은 작은 창(팝업)에서, 하루 지난 자동 로그인은 숨은 칸(iframe)에서 하고 결과만 받아 옴. Player 기록은 그대로 */
+async function authUrl(silent){
   const verifier = b64url(crypto.getRandomValues(new Uint8Array(48)));
   const challenge = b64url(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)));
   const state = b64url(crypto.getRandomValues(new Uint8Array(16)));
-  sessionStorage.setItem(K + "pkce", JSON.stringify({verifier, state}));
-  if(silent) sessionStorage.setItem(K + "silent", "1");
+  ls.set("pkce", {verifier, state, silent: !!silent});  // 창·숨은 칸과 같이 보려고 localStorage
   const p = {client_id: CLIENT_ID, response_type: "code", redirect_uri: REDIRECT,
     scope: SCOPE, code_challenge: challenge, code_challenge_method: "S256", state, response_mode: "query"};
   if(silent) p.prompt = "none";
-  location.replace(`${AUTH}/authorize?` + new URLSearchParams(p));  // 기록에 안 남게(뒤로 가기로 로그인 화면이 다시 뜨던 것, 11-17)
+  return `${AUTH}/authorize?` + new URLSearchParams(p);
+}
+// 돌아온 주소(?code=…)를 기다림: 창/숨은 칸이 postMessage로 보내거나, localStorage에 남김
+function waitAuth(ms, isOpen){
+  return new Promise(res => {
+    let done = false, t, poll;
+    const fin = v => { if(done) return; done = true; clearTimeout(t); clearInterval(poll); removeEventListener("message", onMsg); removeEventListener("storage", onSt); ls.del("authret"); res(v); };
+    const onMsg = e => { if(e.origin === location.origin && e.data?.gwauth) fin(e.data.gwauth); };
+    const onSt = () => { const v = ls.get("authret", null); if(v) fin(v); };
+    addEventListener("message", onMsg); addEventListener("storage", onSt);
+    poll = setInterval(() => { onSt(); if(isOpen && !isOpen()) setTimeout(() => fin(ls.get("authret", null)), 400); }, 500);
+    if(ms) t = setTimeout(() => fin(null), ms);
+  });
+}
+async function login(silent){
+  if(silent){  // 숨은 칸에서 조용히(Microsoft에 로그인돼 있으면 화면 없이)
+    const f = document.createElement("iframe"); f.style.display = "none"; f.src = await authUrl(true); document.body.append(f);
+    const ret = await waitAuth(8000); f.remove();
+    if(ret && await finishLogin(ret).then(() => true, () => false)) return true;
+    return false;
+  }
+  const w = window.open("about:blank", "gwlogin", "width=480,height=680");
+  if(!w){ location.replace(await authUrl(false)); return; }  // 창이 막히면 예전 방식
+  w.location = await authUrl(false);
+  const ret = await waitAuth(0, () => !w.closed);
+  if(!ret) return showGate("로그인 창이 닫혔어요. 다시 눌러 주세요.");
+  try { await finishLogin(ret); } catch(e){ return showGate(e.message); }
+  boot();
 }
 async function tokenCall(body){
   const r = await fetch(`${AUTH}/token`, {method: "POST", body: new URLSearchParams({client_id: CLIENT_ID, scope: SCOPE, ...body})});
@@ -266,15 +301,13 @@ async function tokenCall(body){
   ls.set("was", true);  // 이 기기에서 로그인한 적 있음 → 다음엔 조용히 다시 로그인
   return j.access_token;
 }
-async function finishLogin(){
-  const u = new URL(location.href), code = u.searchParams.get("code"), err = u.searchParams.get("error");
+async function finishLogin(search){
+  const u = new URL(REDIRECT + (search ?? location.search)), code = u.searchParams.get("code"), err = u.searchParams.get("error");
   if(!code && !err) return;
-  history.replaceState(null, "", REDIRECT);
-  const wasSilent = sessionStorage.getItem(K + "silent"); sessionStorage.removeItem(K + "silent");
-  if(err && wasSilent) return;  // 조용히 시도했는데 Microsoft 로그인이 필요함 → 버튼 화면으로
+  if(search == null) history.replaceState(null, "", REDIRECT);
+  const p = ls.get("pkce", {}); ls.del("pkce");
+  if(err && p.silent) throw new Error("silent");  // 조용히 시도했는데 Microsoft 로그인이 필요함 → 버튼 화면으로
   if(err) throw new Error(err === "access_denied" ? "로그인을 취소했어요." : `Microsoft 로그인 중 오류가 났어요(${err}). 잠시 뒤 다시 로그인해 주세요. ${u.searchParams.get("error_description") || ""}`);
-  const p = JSON.parse(sessionStorage.getItem(K + "pkce") || "{}");
-  sessionStorage.removeItem(K + "pkce");
   if(!p.verifier || p.state !== u.searchParams.get("state")) throw new Error("로그인 확인값이 맞지 않아요. 다시 로그인해 주세요.");
   await tokenCall({grant_type: "authorization_code", code, redirect_uri: REDIRECT, code_verifier: p.verifier});
 }
@@ -713,23 +746,20 @@ function showGate(msg){
     <span class="lab">GWANG · Player</span><h1>내 OneDrive 음악</h1>
     <p>Microsoft 계정으로 로그인하면 OneDrive '${esc(MUSIC)}' 폴더의 곡을 바로 들어요. 이 화면은 곡을 <b>읽기만</b> 하고, 곡은 OneDrive와 이 기기 사이에서만 오가요.</p>
     ${msg ? `<div class="warn">${esc(msg)}</div>` : ""}
-    ${CLIENT_ID ? `<button class="btn white" id="go">Microsoft로 로그인</button>` : `<div class="warn">아직 앱 등록 전이에요. 파일 안 CLIENT_ID를 채워야 로그인할 수 있어요.</div>`}
+    ${CLIENT_ID ? `<button class="btn white" id="go">Microsoft로 로그인</button>
+    <button class="btn" id="go2" style="border:0;color:var(--mute);font-size:12.5px;padding:8px 4px">로그인 창이 안 돌아오면: 이 화면에서 로그인</button>` : `<div class="warn">아직 앱 등록 전이에요. 파일 안 CLIENT_ID를 채워야 로그인할 수 있어요.</div>`}
     <span class="gw-copy" style="margin:12px 0 0">© 2026 GWANG. All rights reserved.</span></div></div>`;
   if($("go")) $("go").onclick = () => login(false);
+  if($("go2")) $("go2").onclick = async () => location.replace(await authUrl(false));  // 예전 방식(창 없이 이 화면에서)
 }
 async function boot(){
   const back = location.search.includes("code=") || location.search.includes("error=");
-  try { await finishLogin(); } catch(e){ return showGate(e.message); }
+  try { await finishLogin(); } catch(e){ return showGate(e.message === "silent" ? "" : e.message); }
   // 로그인이 끝났으면(하루 지남) 버튼 없이 조용히 다시 로그인 — 방금 돌아온 길이면 다시 하지 않음(무한 반복 방지)
-  if(!back && ls.get("was", false) && CLIENT_ID && !(await token())) return login(true);
+  if(!back && ls.get("was", false) && CLIENT_ID && !(await token()) && !(await login(true))) return showGate("하루가 지나 다시 로그인이 필요해요.");
   if(!ls.get("tok", null)) return showGate();
   shuf = ls.get("shuf", false); rep = ls.get("rep", false);
   $("root").innerHTML = `<div class="app" id="app"></div>`;
-  // 아이폰 홈 화면 앱: 화면 가장자리에서 미는 '뒤로 가기' 몸짓을 막음 — 지난 로그인 화면으로 넘어가던 것(11-17).
-  // 기록을 새로 쌓으면 오히려 뒤로 갈 곳이 생겨서, 가장자리 18px에서 시작한 손가락만 시스템 몸짓으로 못 가게 함
-  if(navigator.standalone || matchMedia("(display-mode: standalone)").matches){
-    document.addEventListener("touchstart", e => { const x = e.touches[0].clientX; if(x < 18 || x > innerWidth - 18) e.preventDefault(); }, {passive: false});
-  }
   const cached = ls.get("tree", null);
   if(cached){ setTree(cached); ROOT.kids.forEach(n => open.add(n.path)); }
   busy = true; render();
@@ -748,7 +778,8 @@ async function boot(){
   setInterval(() => { if(!playing()) loadTree().then(render).catch(() => {}); }, 45 * 60000);  // 재생 주소가 1시간이라 쉬는 동안 새로 받음
   addEventListener("pagehide", saveState);
 }
-boot();
+if(AUTH_CHILD) document.body.innerHTML = '<p style="color:#b4b4b0;font:14px Pretendard,sans-serif;text-align:center;margin-top:40vh">로그인했어요. 이 창은 닫혀요.</p>';
+else boot();
 </script>
 </body>
 </html>
