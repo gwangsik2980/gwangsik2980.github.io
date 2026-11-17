@@ -192,25 +192,32 @@ function toast(msg){
 
 /* ───────── 로그인 (PKCE: 비밀값 없이 이 페이지에서 바로) ───────── */
 const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-async function login(){
+// silent: Microsoft에 이미 로그인돼 있으면 화면 없이 바로 돌아옴(하루 지나 로그인이 끝났을 때 자동으로)
+async function login(silent){
   const verifier = b64url(crypto.getRandomValues(new Uint8Array(48)));
   const challenge = b64url(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)));
   const state = b64url(crypto.getRandomValues(new Uint8Array(16)));
   sessionStorage.setItem(K + "pkce", JSON.stringify({verifier, state}));
-  location.href = `${AUTH}/authorize?` + new URLSearchParams({client_id: CLIENT_ID, response_type: "code", redirect_uri: REDIRECT,
-    scope: SCOPE, code_challenge: challenge, code_challenge_method: "S256", state, response_mode: "query", prompt: "select_account"});
+  if(silent) sessionStorage.setItem(K + "silent", "1");
+  const p = {client_id: CLIENT_ID, response_type: "code", redirect_uri: REDIRECT,
+    scope: SCOPE, code_challenge: challenge, code_challenge_method: "S256", state, response_mode: "query"};
+  if(silent) p.prompt = "none";
+  location.href = `${AUTH}/authorize?` + new URLSearchParams(p);
 }
 async function tokenCall(body){
   const r = await fetch(`${AUTH}/token`, {method: "POST", body: new URLSearchParams({client_id: CLIENT_ID, scope: SCOPE, ...body})});
   const j = await r.json();
   if(!r.ok || !j.access_token) throw new Error(j.error_description || j.error || "로그인 실패");
   ls.set("tok", {at: j.access_token, rt: j.refresh_token, exp: Date.now() + j.expires_in * 1000});
+  ls.set("was", true);  // 이 기기에서 로그인한 적 있음 → 다음엔 조용히 다시 로그인
   return j.access_token;
 }
 async function finishLogin(){
   const u = new URL(location.href), code = u.searchParams.get("code"), err = u.searchParams.get("error");
   if(!code && !err) return;
   history.replaceState(null, "", REDIRECT);
+  const wasSilent = sessionStorage.getItem(K + "silent"); sessionStorage.removeItem(K + "silent");
+  if(err && wasSilent) return;  // 조용히 시도했는데 Microsoft 로그인이 필요함 → 버튼 화면으로
   if(err) throw new Error(err === "access_denied" ? "로그인을 취소했어요." : `Microsoft 로그인 중 오류가 났어요(${err}). 잠시 뒤 다시 로그인해 주세요. ${u.searchParams.get("error_description") || ""}`);
   const p = JSON.parse(sessionStorage.getItem(K + "pkce") || "{}");
   sessionStorage.removeItem(K + "pkce");
@@ -238,7 +245,7 @@ async function graph(path){
   ls.del("tok");
   throw Object.assign(new Error("로그인이 필요해요"), {login: true});
 }
-function logout(){ ls.del("tok"); ls.del("tree"); audio.pause(); location.href = REDIRECT; }
+function logout(){ ls.del("tok"); ls.del("tree"); ls.del("was"); audio.pause(); location.href = REDIRECT; }
 
 /* ───────── OneDrive 폴더 읽기 (대·중·소 3단계) ───────── */
 let ROOT = {kids: [], songs: []}, ALL = [], urls = {}, urlsAt = 0;
@@ -520,10 +527,13 @@ function showGate(msg){
     ${msg ? `<div class="warn">${esc(msg)}</div>` : ""}
     ${CLIENT_ID ? `<button class="btn white" id="go">Microsoft로 로그인</button>` : `<div class="warn">아직 앱 등록 전이에요. 파일 안 CLIENT_ID를 채워야 로그인할 수 있어요.</div>`}
     <span class="gw-copy" style="margin:12px 0 0">© 2026 GWANG. All rights reserved.</span></div></div>`;
-  if($("go")) $("go").onclick = login;
+  if($("go")) $("go").onclick = () => login(false);
 }
 async function boot(){
+  const back = location.search.includes("code=") || location.search.includes("error=");
   try { await finishLogin(); } catch(e){ return showGate(e.message); }
+  // 로그인이 끝났으면(하루 지남) 버튼 없이 조용히 다시 로그인 — 방금 돌아온 길이면 다시 하지 않음(무한 반복 방지)
+  if(!back && ls.get("was", false) && CLIENT_ID && !(await token())) return login(true);
   if(!ls.get("tok", null)) return showGate();
   shuf = ls.get("shuf", false); rep = ls.get("rep", false);
   $("root").innerHTML = `<div class="app" id="app"></div>`;
