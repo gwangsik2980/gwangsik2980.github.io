@@ -48,7 +48,7 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 /* 보이는 화면에 딱 맞게 고정(아이폰 홈 화면 앱에서 height:100%가 화면보다 커져 아래가 잘리던 것 — 11-17) */
 .app{position:fixed;inset:0;height:var(--appH);z-index:1;max-width:1120px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
 .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 10px;flex:none}
-.app.phone>.hd{padding-top:26px}  /* 폰은 맨 위가 상태바 밑이라 흐릿해서 아래로(11-18 회장) */
+.app.phone>.hd{padding-top:36px}  /* 폰은 맨 위가 상태바 밑이라 흐릿해서 아래로(11-18 회장) */
 .hd .lab{color:var(--sub)}
 .hacts{display:flex;align-items:center;gap:4px}
 .hacts .ib{width:32px;height:32px}
@@ -277,7 +277,13 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .ngdots{display:flex;justify-content:center;gap:5px;margin-top:10px}
 .ngdots i{width:5px;height:5px;border-radius:50%;background:var(--line-hi);transition:background .2s}
 .ngdots i.on{background:var(--white)}
-.nglist{margin-top:6px}
+/* 전체 보기 목록: 폴더 펼치기처럼 높이가 늘며 줄이 차례로 들어옴(11-18 회장: 툭 나와서) */
+.ngl{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s cubic-bezier(.2,.65,.3,.9)}
+.ngl.open{grid-template-rows:1fr}
+.ngl-in{min-height:0;overflow:hidden}.ngl-in>:first-child{margin-top:6px}
+.ngl-in.in>*{animation:rowIn .42s cubic-bezier(.34,1.4,.64,1) both;animation-delay:calc(var(--i,12) * 50ms)}
+.ngl:not(.open) .ngl-in>*{opacity:0;transition:opacity .18s}
+@media (prefers-reduced-motion:reduce){.ngl{transition:none}.ngl-in.in>*{animation:none}}
 .qlist.paused .eq i{animation-play-state:paused}
 .ql{transition:transform .14s cubic-bezier(.2,.65,.3,.9),background-color .14s}
 .ql.press{transform:scale(.97);background:rgba(255,255,255,.07);transition-duration:.06s}
@@ -812,11 +818,16 @@ function newGridHtml(){
   return `<div class="ngw${shown ? "" : " paused"}"><div class="ngh"><span class="ttl">신곡</span><span class="cnt">${songs.length}</span>${ppBtn("xs", `data-pf="${esc(nf.path)}" title="신곡 전체 재생"`, shown && shownQ === nf.path)}</div>
     <div class="ngp">${pages.map(pg => `<div class="ngpage">${pg.map(tile).join("")}</div>`).join("")}</div>
     ${pages.length > 1 ? `<div class="ngdots">${pages.map((_, i) => `<i${i ? "" : ' class="on"'}></i>`).join("")}</div>` : ""}
-    ${newOpen ? `<div class="nglist">${songs.map(x => songRow(x, 0)).join("")}</div>` : ""}</div>`;
+    <div class="ngl${newOpen ? " open" : ""}"><div class="ngl-in">${songs.map(x => songRow(x, 0)).join("")}</div></div></div>`;
 }
 function bindNew(){
   const t = $("tree"); if(!t) return;
-  t.addEventListener("click", e => { if(!e.target.closest("[data-ngmore]")) return; e.stopPropagation(); newOpen = !newOpen; const k = t.scrollTop; t.innerHTML = treeHtml(); t.scrollTop = k; bindNewInner(); }, true);
+  t.addEventListener("click", e => { if(!e.target.closest("[data-ngmore]")) return; e.stopPropagation(); newOpen = !newOpen;
+    const g = t.querySelector(".ngl"), m = t.querySelector("[data-ngmore]"), box = g?.firstElementChild; if(!g) return;
+    m.classList.toggle("open", newOpen); m.title = newOpen ? "접기" : "전체 보기"; m.setAttribute("aria-label", newOpen ? "신곡 목록 접기" : "신곡 전체 보기");
+    box.classList.remove("in");
+    if(newOpen){ [...box.children].forEach((c, i) => c.style.setProperty("--i", Math.min(i, 12))); void box.offsetWidth; box.classList.add("in"); }
+    g.classList.toggle("open", newOpen); }, true);  // 다시 그리지 않고 열고 닫기만(모션)
   pressable(t, ".ng");
   bindNewInner();
 }
