@@ -725,10 +725,10 @@ async function boot(){
   if(!ls.get("tok", null)) return showGate();
   shuf = ls.get("shuf", false); rep = ls.get("rep", false);
   $("root").innerHTML = `<div class="app" id="app"></div>`;
-  // 아이폰 가장자리 밀기(뒤로 가기)가 지난 로그인 화면으로 가지 않게 앱 안에 붙잡아 둠 — 큰 재생 화면이 열려 있으면 닫기로 씀(11-17)
-  if(navigator.standalone || matchMedia("(display-mode: standalone)").matches){  // 앱으로 열었을 때만(브라우저 탭에선 뒤로 가기 그대로)
-    history.pushState({gw: 1}, "");
-    addEventListener("popstate", () => { if(full) setFull(false); history.pushState({gw: 1}, ""); });
+  // 아이폰 홈 화면 앱: 화면 가장자리에서 미는 '뒤로 가기' 몸짓을 막음 — 지난 로그인 화면으로 넘어가던 것(11-17).
+  // 기록을 새로 쌓으면 오히려 뒤로 갈 곳이 생겨서, 가장자리 18px에서 시작한 손가락만 시스템 몸짓으로 못 가게 함
+  if(navigator.standalone || matchMedia("(display-mode: standalone)").matches){
+    document.addEventListener("touchstart", e => { const x = e.touches[0].clientX; if(x < 18 || x > innerWidth - 18) e.preventDefault(); }, {passive: false});
   }
   const cached = ls.get("tree", null);
   if(cached){ setTree(cached); ROOT.kids.forEach(n => open.add(n.path)); }
