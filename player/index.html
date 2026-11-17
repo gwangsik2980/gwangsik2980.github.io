@@ -165,6 +165,11 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .paused .eq i{animation-play-state:paused}
 @keyframes eq{0%,100%{height:30%}50%{height:100%}}
 .empty{color:var(--mute);font-size:13px;padding:28px 6px;text-align:center;line-height:1.6}
+/* 처음 불러올 때(11-17 회장): 로딩 중 + 점이 하나씩 늘어남(0→4개) */
+.loading{font-weight:600;font-size:20px;letter-spacing:-.01em;color:var(--sub);text-align:center;padding:72px 6px;white-space:nowrap}
+.loading .dots{display:inline-block;width:0;overflow:hidden;vertical-align:bottom;text-align:left;animation:dots 2s steps(5,jump-none) infinite}
+.loading .dots i{display:inline-block;width:.5em;font-style:normal;letter-spacing:0}
+@keyframes dots{to{width:2em}}
 .sub{font-size:12px;color:var(--mute);margin:14px 6px 4px}
 
 /* 미니 플레이어 */
@@ -628,6 +633,7 @@ function songRow(s, d, showPath){
     <span class="eq"><i></i><i></i><i></i></span><span class="meta">${s.d ? fmt(s.d) : ""}</span></div>`;
 }
 function treeHtml(){
+  if(!ALL.length && busy) return `<div class="loading">로딩 중<span class="dots"><i>.</i><i>.</i><i>.</i><i>.</i></span></div>`;
   if(!ALL.length) return `<div class="empty">곡이 없어요.<br>유튜브MP3로 받은 곡이 OneDrive '${esc(MUSIC)}'에 올라가면 여기 보여요.</div>`;
   if(q){
     const hit = ALL.filter(s => s.t.toLowerCase().includes(q.toLowerCase()));
