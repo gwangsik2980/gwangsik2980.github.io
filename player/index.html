@@ -599,7 +599,8 @@ function treeHtml(){
     return hit.map(s => songRow(s, 0, true)).join("") || `<div class="empty">'${esc(q)}'에 맞는 곡이 없어요.</div>`;
   }
   const ln = likeNode();
-  return (ln.songs.length ? nodeHtml(ln, 0) : "") + ROOT.kids.map(n => nodeHtml(n, 0)).join("")
+  const tops = [...ROOT.kids.filter(n => n.name !== "모음집"), ...ROOT.kids.filter(n => n.name === "모음집")];  // 모음집은 맨 아래(11-17)
+  return (ln.songs.length ? nodeHtml(ln, 0) : "") + tops.map(n => nodeHtml(n, 0)).join("")
     + (ROOT.songs.length ? `<div class="sub">맨 위에 있는 곡</div>` + ROOT.songs.map(s => songRow(s, 0)).join("") : "")
     + `<div class="gw-copy">© 2026 GWANG. All rights reserved.</div>`;
 }
