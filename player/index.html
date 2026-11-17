@@ -935,7 +935,7 @@ async function reload(){
     if(![document.querySelector("style"), document.querySelector("script:not([src])")].every(x => h.includes(x.textContent))) return location.reload();
   } catch {}
   busy = true; render();
-  try { await loadTree(); toast("OneDrive에서 다시 읽었어요"); }
+  try { await loadTree(); }  // 다 읽었다는 알림 없음(11-18 회장 — 버튼 누른 뒤 알림은 안 띄움, 오류만)
   catch(e){ if(e.login) return showGate(e.message); toast(e.message); }
   busy = false; render();
 }
