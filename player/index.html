@@ -48,7 +48,7 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 /* 보이는 화면에 딱 맞게 고정(아이폰 홈 화면 앱에서 height:100%가 화면보다 커져 아래가 잘리던 것 — 11-17) */
 .app{position:fixed;inset:0;height:var(--appH);z-index:1;max-width:1120px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
 .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 10px;flex:none}
-.app.phone>.hd{padding-top:36px}  /* 폰은 맨 위가 상태바 밑이라 흐릿해서 아래로(11-18 회장) */
+.app.phone>.hd{padding-top:6px}  /* 폰 맨 위 여백 줄임(11-18 회장: 14→36으로 내렸다가 사파리에선 위가 비어 보여 다시 올림) */
 .hd .lab{color:var(--sub)}
 .hacts{display:flex;align-items:center;gap:4px}
 .hacts .ib{width:32px;height:32px}
