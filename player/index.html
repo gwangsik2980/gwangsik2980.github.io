@@ -708,8 +708,7 @@ function treeHtml(){
   const ln = likeNode(), cn = checkNode();
   const tops = topsOf();
   return newGridHtml() + (ln.songs.length ? nodeHtml(ln, 0) : "") + (cn.songs.length ? nodeHtml(cn, 0) : "") + tops.filter(n => n.name !== "신곡").map(n => nodeHtml(n, 0)).join("")
-    + (ROOT.songs.length ? `<div class="sub">맨 위에 있는 곡</div>` + ROOT.songs.map(s => songRow(s, 0)).join("") : "")
-    + `<div class="gw-copy">© 2026 GWANG. All rights reserved.</div>`;
+    + (ROOT.songs.length ? `<div class="sub">맨 위에 있는 곡</div>` + ROOT.songs.map(s => songRow(s, 0)).join("") : "");  // 목록 끝 저작권 줄은 뺌(11-18 회장)
 }
 function seekHtml(){
   const p = dur() ? audio.currentTime / dur() : 0;
