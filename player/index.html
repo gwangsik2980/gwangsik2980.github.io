@@ -378,14 +378,29 @@ const byId = id => ALL.find(s => s.id === id);
 const LIKES = "__likes";
 let likes = new Set(ls.get("likes", []));
 const likeNode = () => ({name: "좋아요", path: LIKES, kids: [], songs: [...likes].map(byId).filter(Boolean)});
+const urlAt = {};  // 곡마다 주소 받은 시각(목록에서 받은 건 urlsAt)
 async function streamUrl(s){
-  if(urls[s.id] && Date.now() - urlsAt < 50 * 60000) return urls[s.id];  // 주소는 약 1시간 유효
+  if(urls[s.id] && Date.now() - (urlAt[s.id] || urlsAt) < 50 * 60000) return urls[s.id];  // 주소는 약 1시간 유효
   const j = await graph(`/me/drive/items/${s.id}`);
+  urlAt[s.id] = Date.now();
   return urls[s.id] = j["@microsoft.graph.downloadUrl"];
+}
+// 다음 곡 미리 준비(11-17 '시작 전 1~2초 딜레이'): 다음 곡 주소를 미리 받아 두고 그 서버에 미리 연결
+let shufNext = -1;
+const preconn = new Set();
+async function prefetchNext(){
+  if(!queue.length) return;
+  const n = shuf && queue.length > 1 ? (shufNext = (() => { let k; do k = Math.floor(Math.random() * queue.length); while(k === cur); return k; })())
+                                     : (cur + 1) % queue.length;
+  try {
+    const u = await streamUrl(queue[n]);
+    const o = new URL(u).origin;
+    if(!preconn.has(o)){ preconn.add(o); const l = document.createElement("link"); l.rel = "preconnect"; l.href = o; l.crossOrigin = ""; document.head.append(l); }
+  } catch {}
 }
 
 /* ───────── 재생 ───────── */
-const audio = new Audio(); audio.preload = "metadata";
+const audio = new Audio(); audio.preload = "auto";
 audio.volume = Math.min(1, Math.max(0, ls.get("vol", 1)));  // 볼륨은 그 기기에 기억(아이폰은 웹이 소리 크기를 못 바꿔서 막대를 안 보임)
 let queue = [], qName = "", cur = -1, shuf = false, rep = false, full = false, q = "", loading = false;
 let open = new Set(ls.get("open", [])), shown = false, shownQ = "";
@@ -403,19 +418,25 @@ let startSeq = 0;
 async function start(i, autoplay = true){
   saveState(); const my = ++startSeq;
   cur = i; const s = song(); if(!s) return;
-  loading = true; render();
+  loading = true;
   try {
-    audio.src = await streamUrl(s);
+    const u = await streamUrl(s);  // 미리 받아 둔 곡이면 바로
+    if(my !== startSeq) return;
+    audio.src = u;
     const at = posMap[s.id];
     if(at) audio.currentTime = at;
-    if(autoplay) await audio.play();
+    const p = autoplay ? audio.play() : null;  // 소리부터 출발시키고 화면은 그다음에(화면 그리기가 재생을 늦추지 않게)
+    render();
+    if(p) await p;
   } catch(e){
+    render();
     if(e.login) return showGate(e.message);
     if(my !== startSeq || e.name === "AbortError") return;  // 빨리 넘기면 앞 곡 재생이 끊기며 나는 'The operation was aborted' — 알릴 일 아님(11-17)
     if(e.name === "NotAllowedError") toast("재생 버튼을 한 번 더 눌러 주세요");
     else toast(e.message || "재생하지 못했어요");
   } finally { loading = false; syncPlay(); }
   mediaMeta(); saveState();
+  if(my === startSeq) prefetchNext();
 }
 function playList(list, name, i = 0){ queue = list; qName = name; start(shuf ? Math.floor(Math.random() * list.length) : i); }
 function toggle(){
@@ -453,7 +474,7 @@ function hSwipe(el, target, skip){
 }
 function go(d){
   if(!queue.length) return;
-  if(shuf && d > 0 && queue.length > 1){ let n; do n = Math.floor(Math.random() * queue.length); while(n === cur); return start(n); }
+  if(shuf && d > 0 && queue.length > 1){ let n = shufNext; if(n < 0 || n === cur || n >= queue.length){ do n = Math.floor(Math.random() * queue.length); while(n === cur); } shufNext = -1; return start(n); }
   start((cur + d + queue.length) % queue.length);
 }
 audio.addEventListener("play", syncPlay);
