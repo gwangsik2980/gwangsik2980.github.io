@@ -89,6 +89,7 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 
 /* 파형 진행 막대 */
 .totop{cursor:pointer;user-select:none}
+.totop{display:inline-flex;align-items:center;gap:6px}.emb{width:20px;height:20px;flex:none;color:var(--mute)}  /* 이름 글자와 같은 색 선 그림 — 칠한 타일은 튀어서(11-18 회장) */
 /* 재생바(11-17 회장 시안 1안): 시간 위, 얇은 흰 막대, 손대면 손잡이, 끄는 동안 이동할 시간 표시 */
 .times{display:flex;justify-content:space-between;margin-top:18px;color:rgba(242,242,240,.9);font-size:12.5px;font-variant-numeric:tabular-nums}
 .seek{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.2);margin-top:8px;cursor:pointer;touch-action:none;transition:height .2s var(--spring),margin .2s var(--spring)}
@@ -107,7 +108,7 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 .rate.dn svg{transform:rotate(180deg)}
 .rate.on svg{fill:var(--white)}
 .rate:active svg{transform:scale(.85)}.rate.dn:active svg{transform:rotate(180deg) scale(.85)}
-.row.song.bad,.wr.bad{opacity:.38}  /* 싫어요 누른 곡: 일요일에 지워질 곡이라 흐리게 */
+.row.song.bad{opacity:.38}  /* 싫어요 누른 곡: 일요일에 지워질 곡이라 흐리게 */
 
 /* 레코드 */
 .disc-wrap{position:relative;width:min(100%,250px);aspect-ratio:1;margin:12px auto 22px;flex:none}
@@ -131,8 +132,14 @@ body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.
 @keyframes swIn{from{opacity:0;transform:translateX(calc(var(--sx,1) * 48px))}}
 
 /* 폴더 나무 */
-.search{margin:0 8px 8px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:0 10px;background:var(--char)}
+.search{margin:0 16px 8px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:0 10px;background:var(--char)}
 .search svg{width:16px;height:16px;color:var(--mute);flex:none}
+.fchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 16px 10px;flex:none;overscroll-behavior-x:contain}
+.fchips::-webkit-scrollbar{display:none}
+.fchip{flex:none;border:0;background:#232323;color:var(--text);font-family:inherit;font-size:13.5px;font-weight:500;line-height:1;padding:9px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;transition:transform .14s,background-color .14s;-webkit-tap-highlight-color:transparent}
+.fchip.on{background:var(--white);color:var(--ink);font-weight:600}
+.fchip.press{transform:scale(.95);background:#2e2e2e;transition-duration:.06s}
+.fchip.on.press{background:#d8d8d6}
 .search input{flex:1;min-width:0;background:none;border:0;color:var(--text);font:inherit;font-size:16px;padding:9px 0;outline:none}
 .row{display:flex;align-items:center;gap:8px;padding:6px 6px 6px calc(6px + var(--d,0) * 16px);border-radius:var(--r-sm);min-height:42px;cursor:pointer;user-select:none}
 @media(hover:hover){.row:hover{background:rgba(255,255,255,.04)}} /* 폰은 스크롤 중 손가락 닿은 줄이 남아 보여서 마우스만 */
@@ -220,32 +227,59 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .vol input::-moz-range-thumb{width:10px;height:10px;border-radius:50%;background:var(--white);border:0}
 .vol input:hover::-webkit-slider-thumb{transform:scale(1.3)}
 .upnext .sub{margin:0 0 6px;display:flex;justify-content:space-between}
-/* 재생목록 휠(11-17 회장 시안: 날짜 고르기 휠처럼 가운데 줄 강조) — 보이는 곳 근처 줄만 그림 */
-.wheel{position:relative;height:220px;margin-top:6px}
-.wsel{position:absolute;left:0;right:0;top:0;height:44px;border-radius:10px;background:#262626;pointer-events:none;will-change:transform}
-.wsel.anim{transition:transform .22s cubic-bezier(.2,.65,.3,.9)}
-/* 11-17 회장: 첫 곡은 맨 윗줄, 셋째 곡부터 가운데 줄 — 위아래 빈칸 없음. 끝에 닿은 쪽은 흐리게 하지 않음 */
-.wsc.top{-webkit-mask-image:linear-gradient(#000 68%,transparent);mask-image:linear-gradient(#000 68%,transparent)}
-.wsc.end{-webkit-mask-image:linear-gradient(transparent,#000 32%);mask-image:linear-gradient(transparent,#000 32%)}
-.wsc.top.end{-webkit-mask-image:none;mask-image:none}
-.wsc{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-webkit-mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent);mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent)}
-.wsc::-webkit-scrollbar{display:none}
-/* 줄 맞추기는 브라우저 내장 스냅(11-17 밤 회장: 폰에서 손가락 멈칫할 때 직접 맞추기가 끼어들어 글자가 바에 끌려감) — 줄마다 빈 칸 하나, 아래끝 = scrollTop k줄 */
-.wsc{scroll-snap-type:y mandatory}
-.wsnap{margin-top:-44px;pointer-events:none}.wsnap i{display:block;height:44px;scroll-snap-align:end}
-.wtrack{position:sticky;top:0;height:100%;overflow:hidden}  /* 제자리에 붙은 창, 안의 줄만 L만큼 밀림(11-17 밤) */
-.wrows{position:relative}
-.wr{position:absolute;left:0;right:0;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--sub);font-size:14px;cursor:pointer;transition:color .2s}
-.wr .ttl{flex:1;min-width:0;text-align:center}
-.wr .meta{flex:none;width:34px;text-align:right}
-.wr .no{flex:none;width:34px;color:var(--mute);font-size:12px;font-variant-numeric:tabular-nums}
-.wr.c{color:var(--text);font-weight:700}
-.wr.now .no{color:var(--white)}
 
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:20;background:var(--white);color:var(--ink);font-size:13.5px;font-weight:600;padding:9px 14px;border-radius:var(--r-sm);pointer-events:none;max-width:calc(100% - 32px);animation:up .25s var(--spring)}
 @keyframes up{from{transform:translate(-50%,10px);opacity:0}}
 .gw-copy{display:inline-block;margin:18px 6px 4px;padding:4px 0 8px;font-size:12px;color:var(--mute)}  /* ㄴ자 선은 회장이 빼라 함(11-17, Player만) */
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation-play-state:paused!important}}
+
+/* 재생목록(11-18 회장, 유튜브 뮤직 '다음 트랙'): 회색 바 휠 대신 그냥 목록 — 줄마다 작은 표지·제목/가수 두 줄, 지금 곡만 표지 위 막대 */
+.qlist{height:220px;margin-top:6px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.qlist::-webkit-scrollbar{display:none}
+.ql{height:44px;display:flex;align-items:center;gap:10px;padding:0 10px;color:var(--sub);font-size:14px;cursor:pointer;border-radius:10px}
+.ql .ttl{flex:1;min-width:0}
+.ql .meta{flex:none;width:34px;text-align:right}
+.ql.now{color:var(--text)}
+.ql.now .ttl{font-weight:700}
+.ql.now .eq{display:flex}
+.ql.bad{opacity:.38}
+.ql.two{height:56px}
+.ql .th{position:relative;flex:none;width:40px;height:40px;border-radius:4px;background:#262626;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--mute)}
+.ql .th svg{width:16px;height:16px}
+.ql .th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ql .th .eq{position:absolute;inset:0;margin:auto;z-index:1}
+.ql.now .th::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.ql .tt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ql .tt .a{font-size:12.5px;color:var(--mute);font-weight:400}
+/* 신곡 표지 칸(11-18 회장, 유튜브 뮤직 '빠른 선곡'): 목록 맨 위 3칸, 9곡 넘으면 옆으로 넘김, 끝 칸 점 세 개 = 전체 보기 */
+.ngw{margin:4px 0 12px}
+.ngh{display:flex;align-items:center;gap:8px;padding:6px 6px 8px}
+.ngh .ttl{flex:1;font-size:16px;font-weight:700}
+.ngp{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.ngp::-webkit-scrollbar{display:none}
+.ngpage{flex:none;width:100%;box-sizing:border-box;scroll-snap-align:start;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 6px;align-content:start}
+.app.wide .ngpage{grid-template-columns:repeat(5,1fr)}
+.ng{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#1d1d1d;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mute);transition:transform .14s cubic-bezier(.2,.65,.3,.9),filter .14s;-webkit-tap-highlight-color:transparent}
+.ng>svg{width:26px;height:26px}
+.ng img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ng:not(.more)::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 52%,rgba(0,0,0,.78))}
+.ng .nt{position:absolute;left:8px;right:8px;bottom:7px;z-index:1;color:#fff;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.ng .eq{position:absolute;top:8px;right:8px;z-index:1;display:flex}
+.ngw.paused .eq i{animation-play-state:paused}
+.ng.now{outline:1.5px solid var(--white);outline-offset:-1.5px}
+.ng.press{transform:scale(.95);filter:brightness(.8);transition-duration:.06s}
+.ng.more{background:radial-gradient(120% 90% at 85% 10%,#2a2a2a,transparent 60%),linear-gradient(160deg,#1a1a1a,#0b0b0b);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.ng.more .dots{position:absolute;inset:0}
+.ng.more .dots i{position:absolute;width:19%;aspect-ratio:1;border-radius:50%;background:#bdbdbd;transform:translate(-50%,-50%)}
+.ng.more .dots i:nth-child(1){left:28%;top:26%}.ng.more .dots i:nth-child(2){left:50%;top:50%}.ng.more .dots i:nth-child(3){left:72%;top:74%}
+.ng.more.open .dots i{background:var(--white)}
+.ngdots{display:flex;justify-content:center;gap:5px;margin-top:10px}
+.ngdots i{width:5px;height:5px;border-radius:50%;background:var(--line-hi);transition:background .2s}
+.ngdots i.on{background:var(--white)}
+.nglist{margin-top:6px}
+.qlist.paused .eq i{animation-play-state:paused}
+.ql{transition:transform .14s cubic-bezier(.2,.65,.3,.9),background-color .14s}
+.ql.press{transform:scale(.97);background:rgba(255,255,255,.07);transition-duration:.06s}
 </style>
 </head>
 <body>
@@ -481,7 +515,7 @@ let pre = null, curBlob = null;  // 미리 받아 둔 다음 곡 {id, url}, 지�
 const audio = new Audio(); audio.preload = "auto";
 audio.volume = Math.min(1, Math.max(0, ls.get("vol", 1)));  // 볼륨은 그 기기에 기억(아이폰은 웹이 소리 크기를 못 바꿔서 막대를 안 보임)
 let queue = [], qName = "", cur = -1, shuf = false, rep = 0,  /* rep: 0 끔 · 1 지금 목록 반복 · 2 한 곡 반복(11-17 회장) */ full = false, q = "", loading = false;
-let open = new Set(ls.get("open", [])), shown = false, shownQ = "";
+let open = new Set(), shown = false, shownQ = "";  // 켜면 폴더는 전부 접힘(11-18 회장 — 대분류 늘 펼침·지난 펼침 상태 안 씀)
 const song = () => queue[cur];
 const playing = () => !audio.paused && !!audio.src;
 const dur = () => (isFinite(audio.duration) && audio.duration) || song()?.d || 0;
@@ -666,7 +700,7 @@ function treeHtml(){
   }
   const ln = likeNode(), cn = checkNode();
   const tops = topsOf();
-  return (ln.songs.length ? nodeHtml(ln, 0) : "") + (cn.songs.length ? nodeHtml(cn, 0) : "") + tops.map(n => nodeHtml(n, 0)).join("")
+  return newGridHtml() + (ln.songs.length ? nodeHtml(ln, 0) : "") + (cn.songs.length ? nodeHtml(cn, 0) : "") + tops.filter(n => n.name !== "신곡").map(n => nodeHtml(n, 0)).join("")
     + (ROOT.songs.length ? `<div class="sub">맨 위에 있는 곡</div>` + ROOT.songs.map(s => songRow(s, 0)).join("") : "")
     + `<div class="gw-copy">© 2026 GWANG. All rights reserved.</div>`;
 }
@@ -699,7 +733,7 @@ function fullScreen(){
       <button class="ib tg${rep ? " on" : ""}${rep === 2 ? " one" : ""}" data-a="rep" title="${["반복", "목록 반복", "한 곡 반복"][rep]}">${I.rep}</button></div>
     ${wide ? volHtml() : ""}
     <div class="upnext"><div class="sub"><span>재생목록</span><span>${cur + 1} / ${queue.length}</span></div>
-      <div class="wheel"><div class="wsel"></div><div class="wsc" id="wsc"><div class="wtrack"><div class="wrows"></div></div><div class="wsnap">${"<i></i>".repeat(queue.length)}</div></div></div></div></div></div>`;
+      <div class="qlist" id="qlist">${qlistHtml()}</div></div></div></div>`;
 }
 function volHtml(){
   const v = audio.muted ? 0 : Math.round(audio.volume * 100);
@@ -712,53 +746,106 @@ document.addEventListener("input", e => {
   audio.muted = v === 0;
   const b = e.target.previousElementSibling; if(b) b.innerHTML = v ? I.vol : I.mute;
 });
-const WH = 44;  // 휠 한 줄 높이
-let wFrom = -1, wTo = -1, wBar = null, wSlide = 0;  // wBar: 회색 바가 있던 자리(곡이 바뀌면 거기서 미끄러짐)
-// 휠(11-17 밤 회장): 굴린 만큼 = 고른 줄 번호. 처음 두 줄·끝 두 줄 구간에선 목록은 멈추고 회색 바가 맨 위·맨 아래 줄까지 움직이고,
-// 그 사이에선 바는 가운데 줄에 있고 목록이 움직임 → 위아래 빈칸 없이 첫 곡·끝 곡도 바로 고를 수 있음
-const wTop = () => cur * WH;
-function drawWheel(force, slide){
-  const sc = $("wsc"); if(!sc) return;
-  const tr = sc.firstElementChild, n = queue.length, s = sc.scrollTop;
-  const M = Math.max(0, (n - 5) * WH), L = Math.max(0, Math.min(s - 2 * WH, M)), c = Math.round(s / WH);  // L: 목록이 실제로 밀린 만큼, c: 바 아래 줄(굵게)
-  // 회색 바는 손가락을 픽셀마다 따라가지 않고 한 줄씩 칸을 옮김(11-17 밤 회장: 너무 예민) — 가운데 구간에선 가운데 줄 고정
-  const y = L > 0 && L < M ? 2 * WH : Math.max(0, Math.min(c * WH - L, 4 * WH));
-  const rows = tr.firstElementChild; rows.style.transform = `translateY(${-L}px)`;
-  const bar = sc.previousElementSibling;
-  bar.classList.toggle("anim", !!slide || wBar !== null); bar.style.transform = `translateY(${y}px)`; wBar = y;
-  sc.classList.toggle("top", L < 1); sc.classList.toggle("end", L > (n - 5) * WH - 1);
-  // 보이는 곳 근처만 그리되 10줄 단위로만 다시 만듦(11-17 밤 회장: 한 줄마다 다시 만들어서 빨리 굴리면 드드득)
-  const cs = Math.floor(L / WH / 10) * 10, from = Math.max(0, cs - 15), to = Math.min(n - 1, cs + 30);
-  if(force || from !== wFrom || to !== wTo){
-    wFrom = from; wTo = to; let h = "";
-    for(let i = from; i <= to; i++){ const x = queue[i];
-      h += `<div class="wr${i === cur ? " now" : ""}${rOf(x.id) === -1 ? " bad" : ""}" data-i="${i}" style="top:${i * WH}px"><span class="no">${i === cur ? "▶" : i + 1}</span><span class="ttl">${esc(x.t)}</span><span class="meta">${x.d ? fmt(x.d) : ""}</span></div>`; }
-    rows.innerHTML = h;
-  }
-  tr.querySelectorAll(".wr").forEach(r => r.classList.toggle("c", +r.dataset.i === c));
+
+// 재생목록(11-18 회장): 회색 바 휠 대신 그냥 목록(손가락 따라 미끄러지기만, 렉 없음) — 줄마다 작은 표지·제목/가수 두 줄
+const artistOf = t => { const k = t.lastIndexOf(" - "); return k > 0 ? [t.slice(0, k), t.slice(k + 3)] : [t, ""]; };
+let pressI = null;
+function qlistHtml(){
+  const eq = `<span class="eq"><i></i><i></i><i></i></span>`;
+  return queue.map((x, i) => { const now = i === cur, [t, a] = artistOf(x.t);
+    return `<div class="ql two${now ? " now" : ""}${rOf(x.id) === -1 ? " bad" : ""}" data-i="${i}"><span class="th" data-c="${i}">${I.note}${now ? eq : ""}</span><span class="tt"><span class="ttl">${esc(t)}</span><span class="a ttl">${esc(a)}</span></span><span class="meta">${x.d ? fmt(x.d) : ""}</span></div>`; }).join("");
 }
-function bindWheel(){
-  const sc = $("wsc"); if(!sc) return;
-  sc.scrollTop = wTop(); drawWheel(true, true);
-  // 마우스 휠은 한 칸 = 한 줄(11-17 밤 회장: 한 칸에 100px라 두세 줄씩 넘어감). 터치패드(작은 값)·폰 손가락은 그대로
-  let wt = null; sc.onwheel = e => { if(e.deltaMode === 0 && Math.abs(e.deltaY) < 50) return; e.preventDefault(); sc.style.scrollSnapType = "none";  // JS로 미끄러지는 동안 스냅이 붙잡지 않게
-    wt = Math.max(0, Math.min((wt ?? Math.round(sc.scrollTop / WH) * WH) + Math.sign(e.deltaY) * WH, (queue.length - 1) * WH));
-    if(!glide) glide = requestAnimationFrame(step); };
-  // 빨리 연달아 굴려도 끊고 다시 출발하지 않고 목표만 늘려 한 번에 미끄러짐
-  let glide = 0; const step = () => { const g = wt ?? sc.scrollTop, dd = g - sc.scrollTop;
-    if(Math.abs(dd) < 2){ sc.scrollTop = g; glide = 0; sc.style.scrollSnapType = ""; return; } sc.scrollTop += Math.sign(dd) * Math.max(2, Math.abs(dd) * .3); glide = requestAnimationFrame(step); };
-  let idle = 0; sc.onscroll = () => { drawWheel();  // 보이는 범위가 바뀔 때만 줄을 다시 만들어서 가벼움
-    clearTimeout(idle); idle = setTimeout(() => { wt = null; }, 140); };
-  sc.onclick = e => { const r = e.target.closest("[data-i]"); if(!r) return; const i = +r.dataset.i; i === cur ? toggle() : start(i); };
+function bindList(){
+  const L = $("qlist"); if(!L) return;
+  L.classList.toggle("paused", audio.paused);
+  const r = L.querySelector(`[data-i="${cur}"]`); if(r) L.scrollTop = Math.max(0, r.offsetTop - L.offsetTop - r.offsetHeight);  // 지금 곡이 둘째 줄
+  L.onclick = e => { const x = e.target.closest("[data-i]"); if(!x) return; const i = +x.dataset.i; pressI = i; i === cur ? toggle() : start(i); };
+  pressable(L, ".ql");
+  if(pressI != null){ const p = L.querySelector(`[data-i="${pressI}"]`); pressI = null;  // 곡이 바뀌어 새로 그려져도 누른 줄이 눌림에서 돌아옴
+    if(p){ p.classList.add("press"); requestAnimationFrame(() => requestAnimationFrame(() => p.classList.remove("press"))); } }
+  // 표지는 보이는 줄만, 폴더마다 한 번에 받아 둔 작은 표지(96px)로
+  const io = new IntersectionObserver(es => es.forEach(en => { if(!en.isIntersecting) return; io.unobserve(en.target);
+    const el = en.target; thumbsOf(queue[+el.dataset.c]).then(th => { const u = th.small?.url; if(!u) return; const im = new Image(); im.alt = ""; im.decoding = "async"; im.onerror = () => im.remove(); im.src = u; el.prepend(im); }); }), {root: L, rootMargin: "160px 0px"});
+  L.querySelectorAll("[data-c]").forEach(el => io.observe(el));
 }
+// 중분류 칩 띠(11-18 회장, 유튜브 뮤직 위 칩): 검색칸 아래, 누르면 그 폴더만 열고 거기로, 다시 누르면 접힘
+const midFolders = () => topsOf().filter(n => n.name !== "신곡").flatMap(n => n.kids);
+function fchipsHtml(){
+  const ks = midFolders(); if(!ks.length) return "";
+  return `<div class="fchips" id="fchips">${ks.map(k => `<button class="fchip${open.has(k.path) ? " on" : ""}" data-fc="${esc(k.path)}">${esc(k.name)}</button>`).join("")}</div>`;
+}
+function bindFchips(){
+  const b = $("fchips"); if(!b) return;
+  pressable(b, ".fchip");
+  b.onclick = e => { const c = e.target.closest("[data-fc]"); if(!c) return;
+    const p = c.dataset.fc, t = $("tree"), was = open.has(p);
+    open = new Set(was ? [] : [p.split("/")[0], p]); ls.set("open", [...open]);  // 다시 누르면 접힘
+    q = ""; const qi = $("q"); if(qi) qi.value = "";
+    t.innerHTML = treeHtml(); bindNewInner();
+    b.querySelectorAll(".fchip").forEach(x => x.classList.toggle("on", open.has(x.dataset.fc)));
+    const row = t.querySelector(`[data-f="${CSS.escape(p)}"]`);
+    if(row && !was) t.scrollTo({top: row.getBoundingClientRect().top - t.getBoundingClientRect().top + t.scrollTop - 4, behavior: "smooth"});
+    else t.scrollTo({top: 0, behavior: "smooth"});
+    c.scrollIntoView({inline: "nearest", block: "nearest", behavior: "smooth"}); };
+}
+// 트리에서 폴더를 직접 열고 닫아도 칩 표시가 따라감
+document.addEventListener("click", () => setTimeout(() => document.querySelectorAll(".fchip").forEach(x => x.classList.toggle("on", open.has(x.dataset.fc)))), true);
+// 신곡 표지 칸(11-18 회장)
+let newOpen = false;
+const covAll = {}, covAsk = {};
+function thumbsOf(s){  // 폴더 하나 = OneDrive 한 번, 작은·중간 표지 주소 둘 다 담아 둠
+  if(s.id in covAll) return Promise.resolve(covAll[s.id]);
+  const p = s.path || "";
+  covAsk[p] ??= children(`/me/drive/root:/${enc(p ? MUSIC + "/" + p : MUSIC)}:/children?$top=999&$select=id&$expand=thumbnails`)
+    .then(items => items.forEach(x => { covAll[x.id] = x.thumbnails?.[0] || {}; })).catch(() => {});
+  return covAsk[p].then(() => covAll[s.id] || {});
+}
+function newGridHtml(){
+  const nf = ROOT.kids.find(n => n.name === "신곡"); if(!nf) return "";
+  const songs = allSongs(nf); if(!songs.length) return "";
+  const per = isWide() ? 10 : 9, items = [...songs, null], pages = [];
+  for(let i = 0; i < items.length; i += per) pages.push(items.slice(i, i + per));
+  const tile = s => { if(!s) return `<div class="ng more${newOpen ? " open" : ""}" data-ngmore role="button" aria-label="${newOpen ? "신곡 목록 접기" : "신곡 전체 보기"}" title="${newOpen ? "접기" : "전체 보기"}"><span class="dots"><i></i><i></i><i></i></span></div>`;
+    const now = song()?.id === s.id, u = covAll[s.id]?.medium?.url;
+    return `<div class="ng${now ? " now" : ""}" data-song="${esc(s.id)}" data-nc="${esc(s.id)}">${u ? `<img alt="" src="${esc(u)}">` : I.note}${now ? `<span class="eq"><i></i><i></i><i></i></span>` : ""}<span class="nt">${esc(artistOf(s.t)[0])}</span></div>`; };
+  return `<div class="ngw${shown ? "" : " paused"}"><div class="ngh"><span class="ttl">신곡</span><span class="cnt">${songs.length}</span>${ppBtn("xs", `data-pf="${esc(nf.path)}" title="신곡 전체 재생"`, shown && shownQ === nf.path)}</div>
+    <div class="ngp">${pages.map(pg => `<div class="ngpage">${pg.map(tile).join("")}</div>`).join("")}</div>
+    ${pages.length > 1 ? `<div class="ngdots">${pages.map((_, i) => `<i${i ? "" : ' class="on"'}></i>`).join("")}</div>` : ""}
+    ${newOpen ? `<div class="nglist">${songs.map(x => songRow(x, 0)).join("")}</div>` : ""}</div>`;
+}
+function bindNew(){
+  const t = $("tree"); if(!t) return;
+  t.addEventListener("click", e => { if(!e.target.closest("[data-ngmore]")) return; e.stopPropagation(); newOpen = !newOpen; const k = t.scrollTop; t.innerHTML = treeHtml(); t.scrollTop = k; bindNewInner(); }, true);
+  pressable(t, ".ng");
+  bindNewInner();
+}
+function bindNewInner(){
+  const t = $("tree"); if(!t) return;
+  t.querySelectorAll("[data-nc]").forEach(el => { if(el.querySelector("img")) return; const s = byId(el.dataset.nc); if(!s) return;
+    thumbsOf(s).then(th => { const u = th.medium?.url; if(!u || el.querySelector("img")) return; const im = new Image(); im.alt = ""; im.decoding = "async"; im.onerror = () => im.remove(); im.src = u; el.querySelector("svg")?.remove(); el.prepend(im); }); });
+  const P = t.querySelector(".ngp"), D = t.querySelectorAll(".ngdots i");
+  if(P && D.length) P.onscroll = () => { const k = Math.round(P.scrollLeft / P.clientWidth); D.forEach((d, i) => d.classList.toggle("on", i === k)); };
+}
+// 누름 느낌(목록 줄·신곡 칸 같이 씀): 손가락이 잠깐 머물면 눌림, 쓸면 바로 풀림
+function pressable(box, sel){
+  let pr = null, pt = 0;
+  const unpress = () => { clearTimeout(pt); pr?.classList.remove("press"); pr = null; };
+  box.addEventListener("pointerdown", e => { unpress(); pr = e.target.closest(sel); if(pr) pt = setTimeout(() => pr?.classList.add("press"), 60); });
+  box.addEventListener("pointerup", () => { const r = pr; clearTimeout(pt); pr = null; if(r){ r.classList.add("press"); setTimeout(() => r.classList.remove("press"), 120); } });
+  box.addEventListener("pointercancel", unpress); box.addEventListener("scroll", unpress, {passive: true, capture: true});
+}
+audio.addEventListener("play", () => document.querySelector(".ngw")?.classList.remove("paused"));
+audio.addEventListener("pause", () => document.querySelector(".ngw")?.classList.add("paused"));
+audio.addEventListener("play", () => $("qlist")?.classList.remove("paused"));
+audio.addEventListener("pause", () => $("qlist")?.classList.add("paused"));
 let busy = false;
 function render(){
   if(!$("app")) return;
   const keep = $("tree")?.scrollTop || 0, wide = isWide();
   $("app").className = "app " + (wide ? "wide" : "phone");
-  $("app").innerHTML = `<div class="hd"><span class="lab totop" data-a="top" title="맨 위로">GWANG · Player</span><span class="hacts"><span class="meta">${ALL.length ? ALL.length + "곡" : ""}</span>
+  $("app").innerHTML = `<div class="hd"><span class="lab totop" data-a="top" title="맨 위로"><svg class="emb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="5.5"/><g transform="translate(6 6.125) scale(.5)" stroke-width="2.8"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></g></svg>GWANG · Player</span><span class="hacts"><span class="meta">${ALL.length ? ALL.length + "곡" : ""}</span>
       <button class="ib${busy ? " spin" : ""}" data-a="reload" title="OneDrive에서 다시 읽기">${I.reload}</button><button class="ib" data-a="logout" title="로그아웃">${I.out}</button></span></div>
-    <div class="body"><div class="list"><div class="search">${I.find}<input id="q" placeholder="곡 이름으로 찾기" value="${esc(q)}" enterkeyhint="search"></div>
+    <div class="body"><div class="list"><div class="search">${I.find}<input id="q" placeholder="곡 이름으로 찾기" value="${esc(q)}" enterkeyhint="search"></div>${fchipsHtml()}
       <div class="scroll" id="tree">${treeHtml()}</div>${wide ? "" : miniBar()}</div>${wide ? fullScreen() : ""}</div>${wide ? "" : fullScreen()}`;
   $("tree").scrollTop = keep;
   swipeIn = 0;
@@ -821,8 +908,8 @@ function bind(){
         open.add(p);
         // 한 폴더만 펼치기(11-17): 중·소분류를 펼치면 그 폴더로 가는 길(위 폴더들)만 남기고 다른 중·소분류는 전부 접음. 대분류는 그대로
         const cut = p.lastIndexOf("/");
-        if(cut > 0 || p === LIKES || p === CHECK){  // '좋아요' 폴더도 같이(열면 다른 폴더가 닫히고, 다른 폴더를 열면 좋아요가 닫힘 — 11-17)
-          const keep = q => q === p || q.startsWith(p + "/") || p.startsWith(q + "/") || (!q.includes("/") && q !== LIKES && q !== CHECK);
+        if(true){  // '좋아요' 폴더도 같이(열면 다른 폴더가 닫히고, 다른 폴더를 열면 좋아요가 닫힘 — 11-17)
+          const keep = q => q === p || q.startsWith(p + "/") || p.startsWith(q + "/");
           [...open].forEach(q => {
             if(keep(q)) return;
             open.delete(q);
@@ -838,7 +925,7 @@ function bind(){
   };
   const qi = $("q");
   qi.oninput = () => { q = qi.value.trim(); $("tree").innerHTML = treeHtml(); };
-  bindWheel();
+  bindList(); bindNew(); bindFchips();
   document.querySelectorAll("[data-a]").forEach(el => el.onclick = e => {
     e.stopPropagation();
     if(el._swiping || el.closest(".swipe-x")?._swiping) return;  // 옆으로 민 손가락은 '열기'·버튼 누름으로 치지 않음
@@ -851,7 +938,7 @@ function bind(){
       document.querySelectorAll(".rate.up").forEach(b => b.classList.toggle("on", r === 1));
       document.querySelectorAll(".rate.dn").forEach(b => b.classList.toggle("on", r === -1));
       const t = $("tree"); if(t && !q){ const k = t.scrollTop; t.innerHTML = treeHtml(); t.scrollTop = k; }
-      drawWheel(true);
+      $("qlist")?.querySelector(`[data-i="${cur}"]`)?.classList.toggle("bad", r === -1);
       return; }  // 알림 없음(버튼 모양으로 충분 — 11-17 회장)
     if(a === "mute"){ audio.muted = !audio.muted; const r = $("vol"); if(r){ const v = audio.muted ? 0 : Math.round(audio.volume * 100); r.value = v; r.style.setProperty("--v", v + "%"); } el.innerHTML = audio.muted ? I.mute : I.vol; return; }
     if(a === "next") return go(1);
@@ -930,12 +1017,11 @@ async function boot(){
   shuf = ls.get("shuf", false); rep = +ls.get("rep", 0) || 0;  // 예전 true(켜짐)는 1
   $("root").innerHTML = `<div class="app" id="app"></div>`;
   const cached = ls.get("tree", null);
-  if(cached){ setTree(cached); ROOT.kids.forEach(n => open.add(n.path)); }
+  if(cached){ setTree(cached); }
   busy = true; render();
   try { await loadTree(); }
   catch(e){ if(e.login) return showGate(e.message); toast(e.message); }
   busy = false;
-  ROOT.kids.forEach(n => open.add(n.path));  // 열자마자 대분류는 늘 펼침(중분류가 바로 보이게), 그 아래는 지난번 상태 그대로
   // 지난번 듣던 곡을 미니 플레이어에 다시 올려 둠(자동 재생은 안 함)
   const last = ls.get("last", null);
   if(last && !song()){
