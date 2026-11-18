@@ -502,9 +502,12 @@ async function syncRate(){
       if(JSON.stringify(remote[id]) !== JSON.stringify(v)) changed = true;
     }
     ls.set("rate", rate);
-    if(changed) await graph(RATE_FILE, {method: "PUT", headers: {"Content-Type": "application/json"}, body: JSON.stringify({v: 1, saved: new Date().toISOString(), rate}, null, 1), raw: true});
+    if(changed){
+      const w = await graph(RATE_FILE, {method: "PUT", headers: {"Content-Type": "application/json"}, body: JSON.stringify({v: 1, saved: new Date().toISOString(), rate}, null, 1), raw: true});
+      if(!w.ok) rateT = setTimeout(syncRate, 30000);  // 11-19: 올리기 실패를 무시해 👎가 폰에만 남던 것 — 30초 뒤 다시
+    }
     const t = $("tree"); if(t && !q){ const k = t.scrollTop; t.innerHTML = treeHtml(); t.scrollTop = k; }
-  } catch(e){ if(e.login) return; }
+  } catch(e){ if(e.login) return; clearTimeout(rateT); rateT = setTimeout(syncRate, 30000); }  // 인터넷 끊김 등 — 다시
   finally { rateBusy = false; }
 }
 function setRate(s, r){
@@ -1173,7 +1176,7 @@ async function boot(){
   matchMedia("(min-width: 820px)").addEventListener("change", render);
   setInterval(() => { if(!playing()) loadTree().then(render).catch(() => {}); }, 45 * 60000);  // 재생 주소가 1시간이라 쉬는 동안 새로 받음
   addEventListener("pagehide", saveState);
-  document.addEventListener("visibilitychange", () => { if(!document.hidden && song()) prefetchNext(); });  // 잠금 풀고 돌아오면 다음 곡 다시 미리 받기
+  document.addEventListener("visibilitychange", () => { if(!document.hidden){ syncRate(); if(song()) prefetchNext(); } });  // 잠금 풀고 돌아오면 다음 곡 다시 미리 받기
 }
 if(AUTH_CHILD) document.body.innerHTML = '<p style="color:#b4b4b0;font:14px Pretendard,sans-serif;text-align:center;margin-top:40vh">로그인했어요. 이 창은 닫혀요.</p>';
 else boot();
