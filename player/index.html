@@ -755,7 +755,7 @@ function fullScreen(){
   if(!s) return wide ? `<div class="full"><div class="empty">폴더 옆 ▶를 누르면<br>그 폴더를 재생목록으로 틀어요.</div></div>` : "";
   return `<div class="full${full ? " open" : ""}" id="full"><div class="inner">${wide ? `<div class="hd" style="padding:6px 0 0"><span class="lab">Now Playing</span>${moreBtn()}</div>` : `<div class="grab"></div>
     <div class="hd" style="padding:6px 0 0"><button class="ib" data-a="close" title="내리기">${I.down}</button><span class="lab">Now Playing</span>${moreBtn()}</div>`}${sleepMenu()}
-    <div class="disc-wrap${shown ? " spin-on" : ""}${swipeIn ? " sw-in" : ""}" style="--sx:${swipeIn}"><div class="disc"><div class="rec"><i></i></div></div><div class="sleeve art cv">${I.note}</div></div>
+    <div data-a="toggle" class="disc-wrap${shown ? " spin-on" : ""}${swipeIn ? " sw-in" : ""}" style="--sx:${swipeIn}"><div class="disc"><div class="rec"><i></i></div></div><div class="sleeve art cv">${I.note}</div></div>
     <div class="trow"><div><h2 class="ttl" title="${esc(s.t)}">${esc(s.t)}</h2>
     <div class="crumb meta">${I.folder}<span class="ttl">${esc(crumbOf(qName))} · ${cur + 1} / ${queue.length}</span></div></div>
     <span class="rates"><button class="ib rate up${rOf(s.id) === 1 ? " on" : ""}" data-a="up" title="따봉">${I.thumb}</button><button class="ib rate dn${rOf(s.id) === -1 ? " on" : ""}" data-a="down" title="싫어요(일요일에 지워져요)">${I.thumb}</button></span></div>
@@ -1051,7 +1051,7 @@ function bind(){
   bindList(); bindNew(); bindFchips();
   document.querySelectorAll("[data-a]").forEach(el => el.onclick = e => {
     e.stopPropagation();
-    if(el._swiping || el.closest(".swipe-x")?._swiping) return;  // 옆으로 민 손가락은 '열기'·버튼 누름으로 치지 않음
+    if(el._swiping || el.closest(".swipe-x")?._swiping || el.closest(".full")?._drag) return;  // 옆으로 민 손가락은 '열기'·버튼 누름으로 치지 않음
     const a = el.dataset.a;
     if(a === "toggle") return toggle();
     if(a === "top") return $("tree")?.scrollTo({top: 0, behavior: "smooth"});  // 왼쪽 위 이름 누르면 목록 맨 위로(11-17)
@@ -1104,11 +1104,11 @@ function bind(){
   const f = $("full");
   if(f && !isWide()){  // 큰 화면 끌어 내려 닫기
     let sy = null, c = null, D = 1, p = 1;
-    f.onpointerdown = e => { if(e.target.closest("button, .seek, .wheel, .smenu") || f.scrollTop > 0) return; sy = e.clientY; c = null; p = 1; if(!e.target.closest(".disc-wrap")) f.setPointerCapture(e.pointerId); };  // 표지 위면 표지가 옆 밀기를 받게 잡지 않음
+    f.onpointerdown = e => { f._drag = false; if(e.target.closest("button, .seek, .wheel, .smenu") || f.scrollTop > 0) return; sy = e.clientY; c = null; p = 1; if(!e.target.closest(".disc-wrap")) f.setPointerCapture(e.pointerId); };  // 표지 위면 표지가 옆 밀기를 받게 잡지 않음
     const sw = () => document.querySelector(".disc-wrap")?._swiping;  // 표지를 옆으로 미는 중이면 내리기 안 함
     f.onpointermove = e => { if(sy === null) return; const dy = e.clientY - sy;
       if(sw()){ if(c){ p = 1; applyP(c, 1); } return; }
-      if(!c){ if(dy < 8) return; c = morphCtx(); if(!c) return sy = null; startMorph(c); tuck(c.dw); D = Math.max(200, c.S.top - c.T.top); }
+      if(!c){ if(dy < 8) return; c = morphCtx(); if(!c) return sy = null; f._drag = true; startMorph(c); tuck(c.dw); D = Math.max(200, c.S.top - c.T.top); }
       p = Math.max(0, Math.min(1, 1 - dy / D)); applyP(c, p); };  // 끌어내린 만큼 표지가 미니 표지 쪽으로 작아짐
     f.onpointerup = f.onpointercancel = () => { if(sy === null) return; sy = null; if(!c) return; const k = c; c = null;
       p < .8 ? tween(k, p, 0, 300, () => settle(k, false)) : tween(k, p, 1, 260, () => settle(k, true)); };
