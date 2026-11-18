@@ -534,7 +534,7 @@ async function prefetchNext(){
     if(!preconn.has(o)){ preconn.add(o); const l = document.createElement("link"); l.rel = "preconnect"; l.href = o; l.crossOrigin = ""; document.head.append(l); }
     // 다음 곡 파일을 통째로 미리 받아 둠 → '다음'을 누르면 받을 것 없이 바로 재생(11-17 회장).
     // 15분 넘는 곡(모음집 등)은 너무 커서 안 받음. 미리 받은 곡은 늘 하나만 들고 있음
-    if(pre?.id === t.id || !(t.d > 0 && t.d <= 900)) return;
+    if(document.hidden || pre?.id === t.id || !(t.d > 0 && t.d <= 900)) return;  // 잠금화면에선 통째로 받지 않음(주소·미리 연결까지만)
     if(pre){ URL.revokeObjectURL(pre.url); pre = null; }
     const r = await fetch(u);
     if(!r.ok) return;
@@ -567,7 +567,7 @@ async function start(i, autoplay = true){
   loading = true;
   try {
     // 미리 통째로 받아 둔 다음 곡이면 그 파일로(누르자마자 재생, 11-17 회장), 아니면 주소로
-    const pb = pre && pre.id === s.id ? pre.url : null;
+    const pb = !document.hidden && pre && pre.id === s.id ? pre.url : null;  // 잠금화면에선 미리 받은 파일 안 씀 — 소리 없이 시간만 가는 일 의심(11-18 회장)
     if(pb) pre = null;
     const u = pb || await streamUrl(s);
     if(my !== startSeq) return;
@@ -1173,6 +1173,7 @@ async function boot(){
   matchMedia("(min-width: 820px)").addEventListener("change", render);
   setInterval(() => { if(!playing()) loadTree().then(render).catch(() => {}); }, 45 * 60000);  // 재생 주소가 1시간이라 쉬는 동안 새로 받음
   addEventListener("pagehide", saveState);
+  document.addEventListener("visibilitychange", () => { if(!document.hidden && song()) prefetchNext(); });  // 잠금 풀고 돌아오면 다음 곡 다시 미리 받기
 }
 if(AUTH_CHILD) document.body.innerHTML = '<p style="color:#b4b4b0;font:14px Pretendard,sans-serif;text-align:center;margin-top:40vh">로그인했어요. 이 창은 닫혀요.</p>';
 else boot();
