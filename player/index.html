@@ -312,8 +312,8 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .ql.press{transform:scale(.97);background:rgba(255,255,255,.07);transition-duration:.06s}
 /* 고른 곡 칸(11-18 회장, 유튜브 뮤직처럼): 듣는 곡 줄 뒤에 둥근 회색 칸, 폴더 목록도 누르면 같은 회색으로 눌림 */
 .row.song.on,.ql.now{background:rgba(255,255,255,.07)}
-.row.song{transition:transform .14s cubic-bezier(.2,.65,.3,.9),background-color .14s}
-.row.song.press{transform:scale(.98);background:rgba(255,255,255,.07);transition-duration:.06s}
+.row.song,.row.fold{transition:transform .14s cubic-bezier(.2,.65,.3,.9),background-color .14s}
+.row.song.press,.row.fold.press{transform:scale(.98);background:rgba(255,255,255,.07);transition-duration:.06s}
 </style>
 </head>
 <body>
@@ -885,7 +885,7 @@ function bindNew(){
     box.classList.remove("in");
     if(newOpen){ [...box.children].forEach((c, i) => c.style.setProperty("--i", Math.min(i, 12))); void box.offsetWidth; box.classList.add("in"); }
     g.classList.toggle("open", newOpen); }, true);  // 다시 그리지 않고 열고 닫기만(모션)
-  pressable(t, ".ng, .row.song");
+  pressable(t, ".ng, .row.song, .row.fold");
   bindNewInner();
 }
 function bindNewInner(){
@@ -899,7 +899,7 @@ function bindNewInner(){
 function pressable(box, sel){
   let pr = null, pt = 0;
   const unpress = () => { clearTimeout(pt); pr?.classList.remove("press"); pr = null; };
-  box.addEventListener("pointerdown", e => { unpress(); pr = e.target.closest(sel); if(pr) pt = setTimeout(() => pr?.classList.add("press"), 60); });
+  box.addEventListener("pointerdown", e => { unpress(); pr = e.target.closest("button") ? null : e.target.closest(sel); if(pr) pt = setTimeout(() => pr?.classList.add("press"), 60); });
   box.addEventListener("pointerup", () => { const r = pr; clearTimeout(pt); pr = null; if(r){ r.classList.add("press"); setTimeout(() => r.classList.remove("press"), 120); } });
   box.addEventListener("pointercancel", unpress); box.addEventListener("scroll", unpress, {passive: true, capture: true});
 }
