@@ -200,8 +200,19 @@ html.sa .app.phone>.hd{padding-top:20px}  /* 홈 화면 앱은 아이폰이 상�
 /* 큰 재생 화면 */
 .full{background:#121212;display:flex;flex-direction:column;padding:0 24px 24px;overflow-x:hidden}
 .full>*{flex-shrink:0}
-.app.phone .full{position:fixed;inset:0;height:var(--appH);z-index:5;transform:translateY(100%);transition:transform .5s var(--spring);overflow-y:auto;border-radius:24px 24px 0 0;touch-action:pan-y;padding-top:env(safe-area-inset-top);padding-bottom:calc(24px + env(safe-area-inset-bottom))}
-.app.phone .full.open{transform:none}
+.app.phone .full{position:fixed;inset:0;height:var(--appH);z-index:5;visibility:hidden;pointer-events:none;background:rgba(18,18,18,var(--p,0));overflow-y:auto;touch-action:pan-y;padding-top:env(safe-area-inset-top);padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+.app.phone .full.open{visibility:visible;pointer-events:auto;--p:1}
+/* 열고 닫기(11-18 회장, 유튜브 뮤직처럼): 표지 하나가 미니 표지 ↔ 큰 표지 사이를 커졌다 작아졌다(JS가 --p·--o·표지 transform), 나머지는 흐려졌다 나타남 */
+.app.phone .full .inner>:not(.disc-wrap):not(.smenu){opacity:var(--o,1)}
+.app.phone .full.morph{overflow:hidden}
+.app.phone .full.morph .disc-wrap{will-change:transform}
+.app.phone .full.anim{transition:background-color var(--ms) ease}
+.app.phone .full.anim .disc-wrap{transition:transform var(--ms) cubic-bezier(.32,.72,0,1)}
+.app.phone .full.anim .inner>:not(.disc-wrap):not(.smenu){transition:opacity calc(var(--ms) * .5) ease var(--od,0s)}
+.app.phone .full .disc-wrap{transform-origin:0 0}
+.disc-wrap.tuck .sleeve,.disc-wrap.tuck .disc{transition-duration:.26s}  /* 닫을 때 CD를 먼저 빨리 표지 속으로 */
+.mini.hide-art .art{visibility:hidden}
+.app.phone .mini{touch-action:none}  /* 위로 끌어 올려 열기 */
 /* 홈 화면 앱(html.sa): 고정(fixed) 판은 아이폰이 알려 준 짧은 높이(화면-상단바)에서 잘려서, 페이지에 놓인 판(absolute)으로 화면 높이만큼 그림(11-17) */
 html.sa,html.sa body{height:var(--appH)}
 html.sa .app{position:absolute;top:0;left:0;right:0;bottom:auto}
@@ -272,7 +283,7 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .ngp::-webkit-scrollbar{display:none}
 .ngpage{flex:none;width:100%;box-sizing:border-box;scroll-snap-align:start;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 6px;align-content:start}
 .app.wide .ngpage{grid-template-columns:repeat(5,1fr)}
-.ng{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#1d1d1d;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mute);transition:transform .14s cubic-bezier(.2,.65,.3,.9),filter .14s;-webkit-tap-highlight-color:transparent}
+.ng{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#1d1d1d;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mute);transition:transform .32s var(--spring),filter .32s var(--spring);-webkit-tap-highlight-color:transparent}
 .ng>svg{width:26px;height:26px}
 .ng img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .ng:not(.more)::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 52%,rgba(0,0,0,.78))}
@@ -280,7 +291,7 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .ng .eq{position:absolute;top:8px;right:8px;z-index:1;display:flex}
 .ngw.paused .eq i{animation-play-state:paused}
 .ng.now{outline:1.5px solid var(--white);outline-offset:-1.5px}
-.ng.press{transform:scale(.95);filter:brightness(.8);transition-duration:.06s}
+.ng.press{transform:scale(.97);filter:brightness(.82);transition-duration:.14s;transition-timing-function:ease-out}  /* 11-18 회장: 부드럽게 — 덜 줄고 천천히 풀림 */
 .ng.more{background:radial-gradient(120% 90% at 85% 10%,#2a2a2a,transparent 60%),linear-gradient(160deg,#1a1a1a,#0b0b0b);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
 .ng.more .dots{position:absolute;inset:0}
 .ng.more .dots i{position:absolute;width:19%;aspect-ratio:1;border-radius:50%;background:#bdbdbd;transform:translate(-50%,-50%)}
@@ -908,6 +919,7 @@ function render(){
   $("tree").scrollTop = keep;
   swipeIn = 0;
   bind(); syncPlay(); paintCover();
+  if(openFrom){ const o = openFrom; openFrom = null; if(!isWide()) openFull(o.r, o.img); }  // 그리자마자(화면에 나오기 전) 열기 시작
 }
 function syncPlay(){
   requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -933,6 +945,52 @@ function progress(){
   document.querySelectorAll(".mbar i").forEach(x => x.style.width = p * 100 + "%");
 }
 function setFull(on){ full = on; const f = $("full"); if(!f) return; f.style.transform = ""; f.classList.toggle("open", on); }
+// 큰 화면 열고 닫기 모션(11-18 회장, 유튜브 뮤직처럼): 표지 하나가 미니 표지 ↔ 큰 표지 사이를 커졌다 작아졌다, 나머지는 흐려졌다 나타남.
+// 닫을 땐 CD를 먼저 표지 속에 넣고 줄어듦. p: 0 닫힘 ~ 1 열림
+let anim = 0, openFrom = null;
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function morphCtx(src){
+  const f = $("full"), dw = f?.querySelector(".disc-wrap"); if(!dw) return null;
+  dw.style.transform = "";
+  const S = src || document.querySelector(".mini .art")?.getBoundingClientRect();
+  return S ? {f, dw, T: dw.getBoundingClientRect(), S} : null;
+}
+function applyP(c, p){
+  c.f.style.setProperty("--p", p.toFixed(3));
+  c.f.style.setProperty("--o", Math.max(0, p * 2 - 1).toFixed(3));  // 글자·버튼은 뒤쪽 절반에서 나타남
+  const q = 1 - p, k = c.S.width / c.T.width;
+  c.dw.style.transform = `translate(${(c.S.left - c.T.left) * q}px,${(c.S.top - c.T.top) * q}px) scale(${k + (1 - k) * p})`;
+}
+// 저절로 가는 구간은 CSS 전환으로(브라우저가 그리기 전용으로 돌려 렉·끊김 없음, 11-18 회장), 손가락으로 끌 때만 applyP를 바로
+function tween(c, a, b, ms, done){
+  clearTimeout(anim); if(RM) ms = 1;
+  c.f.classList.remove("anim"); applyP(c, a); void c.f.offsetWidth;  // 시작 모습을 먼저 확정
+  c.f.style.setProperty("--ms", ms + "ms"); c.f.style.setProperty("--od", b > a ? Math.round(ms * .35) + "ms" : "0ms");  // 열 땐 글자가 조금 늦게
+  c.f.classList.add("anim"); applyP(c, b);
+  anim = setTimeout(done, ms + 40);
+}
+function settle(c, open){
+  full = open; c.f.classList.toggle("open", open); c.f.classList.remove("morph", "anim");
+  ["--p", "--o", "--ms", "--od"].forEach(k => c.f.style.removeProperty(k)); c.dw.style.transform = ""; c.dw.classList.remove("tuck");
+  document.querySelector(".mini")?.classList.remove("hide-art");
+  if(open && playing()) requestAnimationFrame(() => c.dw.classList.add("spin-on"));  // 표지가 다 커진 뒤 CD가 나옴
+}
+function tuck(dw){ if(!dw.classList.contains("spin-on")) return false; dw.classList.add("tuck"); dw.classList.remove("spin-on"); return true; }
+function startMorph(c){ clearTimeout(anim); c.f.classList.remove("anim"); c.f.classList.add("open", "morph"); full = true; document.querySelector(".mini")?.classList.add("hide-art"); }
+function openFull(src, img){
+  if(isWide()) return setFull(true);
+  const c = morphCtx(src); if(!c) return setFull(true);
+  c.dw.classList.remove("spin-on");
+  const sl = c.dw.querySelector(".sleeve");  // 신곡 칸에서 열 때 큰 표지가 아직 없으면 칸 표지를 먼저 씀
+  if(img && sl && !sl.querySelector("img")){ const i = new Image(); i.alt = ""; i.src = img; sl.append(i); sl.classList.add("has"); }
+  startMorph(c); applyP(c, 0); tween(c, 0, 1, 460, () => settle(c, true));
+}
+function closeFull(){
+  const c = !isWide() && morphCtx(); if(!c) return setFull(false);
+  startMorph(c);
+  const go = () => tween(c, 1, 0, 420, () => settle(c, false));
+  tuck(c.dw) ? setTimeout(go, 240) : go();
+}
 async function reload(){
   // 11-18 회장(B안): 올라간 Player가 지금 것과 다르면 앱째로 새로고침, 같으면 목록만(음악 안 끊김)
   try { const h = await (await fetch(location.pathname, {cache: "reload"})).text();
@@ -955,7 +1013,10 @@ function bind(){
     const s = e.target.closest("[data-song]");
     if(s){
       const x = byId(s.dataset.song);
-      if(song()?.id === x.id) return toggle();
+      // 신곡 칸(폰): 누르면 그 칸 표지에서 큰 화면이 커지며 열림(11-18 회장). 듣는 칸이면 멈추지 않고 열기만
+      const tile = s.classList.contains("ng") && !isWide() ? {r: s.getBoundingClientRect(), img: s.querySelector("img")?.src} : null;
+      if(song()?.id === x.id) return tile ? openFull(tile.r, tile.img) : toggle();
+      if(tile) openFrom = tile;
       // 좋아요·확인 필요 안에서 누르면 그 목록끼리 재생(11-17 회장), 아니면 곡이 있는 폴더
       const hp = s.closest(".node")?.querySelector(":scope>.row").dataset.f, vp = hp === LIKES || hp === CHECK ? hp : x.path;
       const list = find(vp)?.songs || [x];
@@ -1007,8 +1068,8 @@ function bind(){
     if(a === "prev") return go(-1);  // 언제 눌러도 이전 곡(3초 넘게 들으면 처음으로 가던 규칙은 뺌, 11-17 회장)
     if(a === "shuf"){ shuf = !shuf; ls.set("shuf", shuf); return el.classList.toggle("on", shuf); }
     if(a === "rep"){ rep = (rep + 1) % 3; ls.set("rep", rep); el.title = ["반복", "목록 반복", "한 곡 반복"][rep]; el.classList.toggle("one", rep === 2); return el.classList.toggle("on", rep > 0); }
-    if(a === "open") return setFull(true);
-    if(a === "close") return setFull(false);
+    if(a === "open") return el._dragged ? undefined : openFull();  // 끌어 올린 뒤 따라오는 클릭은 무시
+    if(a === "close") return closeFull();
     if(a === "more") return;  // 수면 타이머 메뉴는 아래 document 클릭에서
     if(a === "reload") return reload();
     if(a === "logout") return confirm("로그아웃할까요? 다음에 다시 Microsoft 로그인이 필요해요.") && logout();
@@ -1026,16 +1087,31 @@ function bind(){
   }
   if(!isWide()){
     const m = document.querySelector(".mini"), dw = document.querySelector(".disc-wrap");
-    if(m) hSwipe(m, m.querySelector(".mslide"));  // 버튼 위에서 시작해도 밀기 됨 — 왼쪽으로 밀면 손가락이 오른쪽 '다음' 버튼에서 시작해 안 넘어갔음(11-17)
+    if(m) hSwipe(m, m.querySelector(".mslide"));
+    if(m){  // 미니 플레이어를 위로 끌어 올리면 손가락 따라 큰 화면이 열림(11-18 회장)
+      let sy = null, sx = 0, c = null, D = 1, p = 0;
+      m.addEventListener("pointerdown", e => { if(e.target.closest("button")) return; sy = e.clientY; sx = e.clientX; c = null; p = 0; });
+      m.addEventListener("pointermove", e => { if(sy === null || m._swiping) return; const dy = sy - e.clientY;
+        if(!c){ if(dy < 10 || dy < Math.abs(e.clientX - sx)) return; c = morphCtx(); if(!c) return sy = null;
+          m._dragged = true; try { m.setPointerCapture(e.pointerId); } catch {} c.dw.classList.remove("spin-on"); startMorph(c); D = Math.max(200, c.S.top - c.T.top); }
+        p = Math.max(0, Math.min(1, dy / D)); applyP(c, p); });
+      const up = () => { if(sy === null) return; sy = null; if(!c) return; const k = c; c = null;
+        p > .2 ? tween(k, p, 1, 320, () => settle(k, true)) : tween(k, p, 0, 220, () => settle(k, false)); setTimeout(() => m._dragged = false, 60); };
+      m.addEventListener("pointerup", up); m.addEventListener("pointercancel", up);
+    }  // 버튼 위에서 시작해도 밀기 됨 — 왼쪽으로 밀면 손가락이 오른쪽 '다음' 버튼에서 시작해 안 넘어갔음(11-17)
     if(dw){ dw.classList.add("swipe-x"); hSwipe(dw, dw); }
   }
   const f = $("full");
   if(f && !isWide()){  // 큰 화면 끌어 내려 닫기
-    let sy = null, dy = 0;
-    f.onpointerdown = e => { if(e.target.closest("button, .seek, .wheel") || f.scrollTop > 0) return; sy = e.clientY; dy = 0; f.classList.add("drag"); if(!e.target.closest(".disc-wrap")) f.setPointerCapture(e.pointerId); };  // 표지 위면 표지가 옆 밀기를 받게 잡지 않음
+    let sy = null, c = null, D = 1, p = 1;
+    f.onpointerdown = e => { if(e.target.closest("button, .seek, .wheel, .smenu") || f.scrollTop > 0) return; sy = e.clientY; c = null; p = 1; if(!e.target.closest(".disc-wrap")) f.setPointerCapture(e.pointerId); };  // 표지 위면 표지가 옆 밀기를 받게 잡지 않음
     const sw = () => document.querySelector(".disc-wrap")?._swiping;  // 표지를 옆으로 미는 중이면 내리기 안 함
-    f.onpointermove = e => { if(sy === null) return; if(sw()){ f.style.transform = ""; dy = 0; return; } dy = Math.max(0, e.clientY - sy); f.style.transform = `translateY(${dy}px)`; };
-    f.onpointerup = f.onpointercancel = () => { if(sy === null) return; sy = null; f.classList.remove("drag"); setFull(dy < 110); };
+    f.onpointermove = e => { if(sy === null) return; const dy = e.clientY - sy;
+      if(sw()){ if(c){ p = 1; applyP(c, 1); } return; }
+      if(!c){ if(dy < 8) return; c = morphCtx(); if(!c) return sy = null; startMorph(c); tuck(c.dw); D = Math.max(200, c.S.top - c.T.top); }
+      p = Math.max(0, Math.min(1, 1 - dy / D)); applyP(c, p); };  // 끌어내린 만큼 표지가 미니 표지 쪽으로 작아짐
+    f.onpointerup = f.onpointercancel = () => { if(sy === null) return; sy = null; if(!c) return; const k = c; c = null;
+      p < .8 ? tween(k, p, 0, 300, () => settle(k, false)) : tween(k, p, 1, 260, () => settle(k, true)); };
   }
 }
 
