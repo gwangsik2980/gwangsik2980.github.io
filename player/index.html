@@ -24,6 +24,7 @@
 *{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:#3a3a3a transparent;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;touch-action:manipulation}  /* 앱처럼: 두 번 톡톡 확대 막기 */
 body{margin:0;background:#101010;color:var(--text);font-family:Pretendard,"Malgun Gothic",sans-serif;letter-spacing:-.01em;overflow:hidden}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input{-webkit-user-select:text;user-select:text}  /* 앱처럼: 길게 눌러도 글이 잡히지 않음, 검색칸만 예외(11-18 회장) */
 body::before{content:"";position:fixed;inset:0;background:var(--noise);opacity:.14;pointer-events:none;z-index:0}
 .lab{font-family:var(--display);font-stretch:125%;font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
 .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
