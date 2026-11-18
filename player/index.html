@@ -486,12 +486,13 @@ let checkSet = new Set(ls.get("check", []));
 const checkNode = () => ({name: "확인 필요", path: CHECK, kids: [], songs: ALL.filter(s => !rOf(s.id) && checkSet.has(s.path + "/" + s.t))});
 const CHECK_FILE = "/me/drive/special/approot:/" + encodeURIComponent("확인필요.json") + ":/content";
 const RATE_FILE = "/me/drive/special/approot:/" + encodeURIComponent("평가.json") + ":/content";
-let rateT = 0, rateBusy = false;
+let rateT = 0, rateBusy = false, rateErr = 0;  // rateErr: 저장 실패 알림은 한 번만
 async function syncRate(){
   if(rateBusy){ clearTimeout(rateT); rateT = setTimeout(syncRate, 1500); return; }
   rateBusy = true;
   try {
     const r = await graph(RATE_FILE, {raw: true});
+    if(!r.ok && r.status !== 404) throw new Error("읽기 " + r.status);  // 못 읽고 올리면 집 PC 표시를 덮어씀
     const remote = r.ok ? (await r.json()).rate || {} : {};
     const c = await graph(CHECK_FILE, {raw: true});
     if(c.ok){ const paths = (await c.json()).paths || []; checkSet = new Set(paths); ls.set("check", paths); }
@@ -504,10 +505,10 @@ async function syncRate(){
     ls.set("rate", rate);
     if(changed){
       const w = await graph(RATE_FILE, {method: "PUT", headers: {"Content-Type": "application/json"}, body: JSON.stringify({v: 1, saved: new Date().toISOString(), rate}, null, 1), raw: true});
-      if(!w.ok) rateT = setTimeout(syncRate, 30000);  // 11-19: 올리기 실패를 무시해 👎가 폰에만 남던 것 — 30초 뒤 다시
+      if(!w.ok){ rateT = setTimeout(syncRate, 30000); if(!rateErr){ rateErr = 1; toast(`평가 저장 실패 (${w.status})`); } }  // 11-19: 올리기 실패를 무시해 👎가 폰에만 남던 것 — 30초 뒤 다시
     }
     const t = $("tree"); if(t && !q){ const k = t.scrollTop; t.innerHTML = treeHtml(); t.scrollTop = k; }
-  } catch(e){ if(e.login) return; clearTimeout(rateT); rateT = setTimeout(syncRate, 30000); }  // 인터넷 끊김 등 — 다시
+  } catch(e){ if(!rateErr){ rateErr = 1; toast("평가 저장 실패 (" + e.message + ")"); } if(e.login) return; clearTimeout(rateT); rateT = setTimeout(syncRate, 30000); }  // 인터넷 끊김 등 — 다시
   finally { rateBusy = false; }
 }
 function setRate(s, r){
