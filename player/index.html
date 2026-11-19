@@ -453,7 +453,7 @@ async function readFolder(url, path, depth){
     const p = path ? path + "/" + f.name : f.name;
     return readFolder(`/me/drive/items/${f.id}/children?$top=999`, p, depth + 1).then(n => ({...n, name: f.name, path: p}));
   })) : [];
-  return {kids, songs: files.map(f => ({id: f.id, t: f.name.replace(/\.mp3$/i, ""), d: Math.round((f.audio?.duration || 0) / 1000), path}))};
+  return {kids, songs: files.map(f => ({id: f.id, t: f.name.replace(/\.mp3$/i, ""), d: Math.round((f.audio?.duration || 0) / 1000), z: f.size || 0, path}))};  // z 파일 크기 — OneDrive가 이 곡들 길이(d)를 안 줘서 늘 0(11-19)
 }
 const enc = p => p.split("/").map(encodeURIComponent).join("/");
 async function loadTree(){
@@ -529,6 +529,7 @@ let shufNext = -1;
 const preconn = new Set();
 async function prefetchNext(){
   if(!queue.length) return;
+  const cid = song()?.id;
   const nf = !shuf && nextFolder();
   const n = shuf && queue.length > 1 ? (shufNext = (() => { let k; do k = Math.floor(Math.random() * queue.length); while(k === cur); return k; })())
                                      : (cur + 1) % queue.length;
@@ -537,22 +538,83 @@ async function prefetchNext(){
     const u = await streamUrl(t);
     const o = new URL(u).origin;
     if(!preconn.has(o)){ preconn.add(o); const l = document.createElement("link"); l.rel = "preconnect"; l.href = o; l.crossOrigin = ""; document.head.append(l); }
-    // 다음 곡 파일을 통째로 미리 받아 둠 → '다음'을 누르면 받을 것 없이 바로 재생(11-17 회장).
-    // 15분 넘는 곡(모음집 등)은 너무 커서 안 받음. 미리 받은 곡은 늘 하나만 들고 있음
-    if(document.hidden || pre?.id === t.id || !(t.d > 0 && t.d <= 900)) return;  // 잠금화면에선 통째로 받지 않음(주소·미리 연결까지만)
-    if(pre){ URL.revokeObjectURL(pre.url); pre = null; }
-    const r = await fetch(u);
+    // 다음 곡 파일을 통째로 미리 받아 둠 → 곡이 바뀔 때 받을 것 없이 바로 재생(11-17 회장). 잠금 중에도 받고 씀.
+    // 11-19 '순서대로' 1단계: 조건이 곡 길이(15분 이하)였는데 OneDrive가 길이를 안 줘서 852곡 전부 걸러져 한 번도 안 돌았음 → 파일 크기로(25MB 이하 — 보통 곡은 가장 큰 게 24MB, 모음집은 32MB부터라 안 받음).
+    // 미리 받은 곡은 늘 하나. 받기는 지금 곡이 10초 나온 뒤에 시작하고(preWant → timeupdate), 곡을 넘기면 받던 것은 취소(LTE 데이터)
+    if(pre?.id === t.id || !(t.z ? t.z <= 25e6 : t.d > 0 && t.d <= 900)) return;
+    if(song()?.id !== cid || t.id === cid) return;  // 주소를 받는 사이에 곡이 바뀌었으면 그만(새 곡 쪽이 다시 부름). 다음 곡이 지금 곡이면(한 곡짜리 목록) 받을 것 없음
+    preWant = {id: t.id, u, for: cid};
+  } catch {}
+}
+async function prefetchBlob(w){
+  if(pre){ URL.revokeObjectURL(pre.url); pre = null; }
+  const ac = preAbort = new AbortController();
+  try {
+    const r = await fetch(w.u, {signal: ac.signal});
     if(!r.ok) return;
     const b = await r.blob();
-    if(song()?.id === t.id) return;  // 받는 사이에 이미 그 곡으로 넘어갔으면 버림
-    if(pre) URL.revokeObjectURL(pre.url);  // 빨리 넘겨 두 번 받았으면 앞의 것은 버림
-    pre = {id: t.id, url: URL.createObjectURL(b)};
+    if(ac.signal.aborted || song()?.id === w.id) return;  // 받는 사이에 곡이 바뀌었으면 버림
+    pre = {id: w.id, url: URL.createObjectURL(b)};
   } catch {}
 }
 let pre = null, curBlob = null;  // 미리 받아 둔 다음 곡 {id, url}, 지금 틀고 있는 미리 받은 파일 주소
+let preWant = null, preAbort = null;  // 받으려고 기다리는 다음 곡 {id, u, for 지금 곡}, 받는 중인 요청
+
+/* 곡 전환 기록(11-19 '순서대로'): 잠금 중 다음 곡이 소리 없이 '재생 중'으로만 뜨는 일이 가끔만 생겨서,
+   고친 게 들었는지를 느낌이 아니라 숫자로 보려고 아이폰에서만 전환마다 한 줄 남김 → OneDrive 앱/GWANG Player/진단_아이폰.json (집 PC에서 읽음).
+   {at 넘긴 때, h 화면 꺼짐, b 미리 받은 파일 씀, w 왜(e 끝남·y 미리 넘김·u 손으로), s 단계(1 미리 받기·2 +무음 지킴이),
+    ms 소리가 나기까지(없으면 끝내 안 남), v 그 사이 앱을 열었음, x 소리 전에 또 넘김(몇 ms 만에), p 소리 전에 멈춤(몇 ms 만에)}
+   — h·v가 1이고 ms가 크면 '앱을 열 때까지 못 시작'. ms 없이 x·p가 몇 초 이상이면 소리 없이 걸려 있던 곡을 넘기거나 멈춘 것 */
+const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+let diagUse = IOS, diagName = "진단_아이폰.json", diag = ls.get("diag", []), diagCur = null, diagT = 0, why = "u", diagDirty = diag.length > 0;
+const diagSave = () => { diagDirty = true; ls.set("diag", diag); };
+function diagStart(o){
+  if(!diagUse) return;
+  if(diagCur) diagCur.x = Date.now() - diagCur.at;
+  diag.push(diagCur = {...o, v: 0}); if(diag.length > 300) diag = diag.slice(-300);
+  diagSave();
+}
+function diagDone(){  // 새 곡이 1초 나갔을 때(timeupdate) — '재생 중' 표시가 아니라 실제로 시간이 흐른 것을 기준으로
+  diagCur.ms = Math.max(0, Date.now() - diagCur.at - Math.round(audio.currentTime * 1000));
+  diagCur = null; diagSave(); diagLater();
+}
+function diagLater(){ if(diagUse && diagDirty && !document.hidden){ clearTimeout(diagT); diagT = setTimeout(diagSend, 4000); } }  // 올리기는 화면이 보일 때만(잠금 중 전환에 끼어들지 않게)
+async function diagSend(){
+  try { const r = await graph("/me/drive/special/approot:/" + encodeURIComponent(diagName) + ":/content", {method: "PUT", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({v: 1, saved: new Date().toISOString(), ua: navigator.userAgent, sa: !!(navigator.standalone || matchMedia("(display-mode: standalone)").matches), log: diag}), raw: true}); if(r.ok) diagDirty = false; } catch {}
+}
 
 /* ───────── 재생 ───────── */
 const audio = new Audio(); audio.preload = "auto";
+/* 무음 지킴이(11-19 회장 1번): 아이폰은 잠금 중 곡이 바뀌는 틈에 소리가 끊기면 웹앱 소리를 닫고 앱을 열 때까지 안 열어 줌
+   (다음 곡이 소리 없이 '재생 중'으로만 뜸 — 근거·경위는 도구/유튜브MP3/잠금화면_무음_분석.md).
+   → 안 들리는 작은 소리를 재생 내내 같이 틀어 소리가 끊긴 적 없는 상태로 둠. 회장이 멈추면 같이 멈춤. 아이폰·아이패드에서만 */
+const KEEP_STAGE = false;  // 11-19 회장 '순서대로': 1단계(다음 곡 미리 받기)만 먼저 써 봄. 그래도 생기면 true로(2단계) — 이 한 줄만 바꾸면 됨
+let keepUse = KEEP_STAGE && IOS;
+let keep = null, soundAt = 0;  // soundAt: 주 오디오가 마지막으로 소리를 낸(내려고 한) 때
+function keepOn(){
+  if(!keepUse) return;
+  if(!keep){
+    // 30초짜리 WAV(8kHz·16비트·모노), 값은 ±1(-90dB, 안 들림) — 완전 0이면 '소리 없음'으로 볼까 봐 0은 안 씀
+    const sr = 8000, n = sr * 30, b = new DataView(new ArrayBuffer(44 + n * 2)), w = (o, t) => [...t].forEach((c, i) => b.setUint8(o + i, c.charCodeAt(0)));
+    w(0, "RIFF"); b.setUint32(4, 36 + n * 2, true); w(8, "WAVEfmt "); b.setUint32(16, 16, true); b.setUint16(20, 1, true); b.setUint16(22, 1, true);
+    b.setUint32(24, sr, true); b.setUint32(28, sr * 2, true); b.setUint16(32, 2, true); b.setUint16(34, 16, true); w(36, "data"); b.setUint32(40, n * 2, true);
+    for(let i = 0; i < n; i++) b.setInt16(44 + i * 2, i % 400 < 200 ? 1 : -1, true);
+    keep = new Audio(URL.createObjectURL(new Blob([b], {type: "audio/wav"}))); keep.loop = true;
+    // 주 오디오가 2분 넘게 소리를 못 내면 지킴이도 멈춤(배터리, 다른 앱 소리 막지 않게) — 다시 소리가 나면 켜짐
+    keep.addEventListener("timeupdate", () => { if(Date.now() - soundAt > 120000) keepOff(); });
+  }
+  if(keep.paused) keep.play().catch(() => {});  // 첫 번은 손가락 터치 안에서 불려야 아이폰이 허락함(start·toggle 맨 앞에서 부름)
+}
+function keepOff(){ keep?.pause(); }
+// 잠금화면 시간은 직접 알려 줌 — 안 그러면 아이폰이 무음 지킴이(30초짜리)의 시간을 보일 수 있음
+let posAt = 0;
+function posState(){
+  const ms = navigator.mediaSession, d = dur();
+  if(!keepUse || !ms?.setPositionState || !(d > 0)) return;  // 지킴이를 켤 때만(1단계에선 잠금화면 시간 표시도 예전 그대로)
+  posAt = Date.now();
+  try { ms.setPositionState({duration: d, position: Math.min(Math.max(0, audio.currentTime || 0), d), playbackRate: 1}); } catch {}
+}
 audio.volume = Math.min(1, Math.max(0, ls.get("vol", 1)));  // 볼륨은 그 기기에 기억(아이폰은 웹이 소리 크기를 못 바꿔서 막대를 안 보임)
 let queue = [], qName = "", cur = -1, shuf = false, rep = 0,  /* rep: 0 끔 · 1 지금 목록 반복 · 2 한 곡 반복(11-17 회장) */ full = false, q = "", loading = false;
 let open = new Set(), shown = false, shownQ = "";  // 켜면 폴더는 전부 접힘(11-18 회장 — 대분류 늘 펼침·지난 펼침 상태 안 씀)
@@ -567,17 +629,21 @@ function saveState(){
 }
 let startSeq = 0;
 async function start(i, autoplay = true){
-  saveState(); const my = ++startSeq;
+  saveState(); const my = ++startSeq, t0 = Date.now(), w = why; why = "u";
   cur = i; const s = song(); if(!s) return;
+  preWant = null; preAbort?.abort();  // 받으려던·받던 다음 곡은 그만(곡이 바뀜)
+  if(autoplay){ soundAt = Date.now(); keepOn(); }  // await보다 앞(손가락 터치 안)
   loading = true;
   try {
-    // 미리 통째로 받아 둔 다음 곡이면 그 파일로(누르자마자 재생, 11-17 회장), 아니면 주소로
-    const pb = !document.hidden && pre && pre.id === s.id ? pre.url : null;  // 잠금화면에선 미리 받은 파일 안 씀 — 소리 없이 시간만 가는 일 의심(11-18 회장)
+    // 미리 통째로 받아 둔 다음 곡이면 그 파일로(누르자마자 재생, 11-17 회장), 아니면 주소로. 잠금 중에도 씀(11-19 되돌림)
+    const pb = pre && pre.id === s.id ? pre.url : null;
     if(pb) pre = null;
     const u = pb || await streamUrl(s);
     if(my !== startSeq) return;
     const old = curBlob;
     audio.src = u;
+    posState();
+    if(autoplay) diagStart({at: t0, h: +document.hidden, b: +!!pb, w, s: keepUse ? 2 : 1});
     curBlob = pb;
     if(old && old !== u) URL.revokeObjectURL(old);
     const p = autoplay ? audio.play() : null;  // 소리부터 출발시키고 화면은 그다음에(화면 그리기가 재생을 늦추지 않게)
@@ -610,7 +676,7 @@ function playList(list, name, i){ queue = list; qName = name; start(i ?? (shuf ?
 function toggle(){
   if(!song()) return ALL.length && playList(ALL, "");
   if(!audio.src) return start(cur);
-  audio.paused ? audio.play().catch(() => start(cur)) : audio.pause();
+  audio.paused ? (soundAt = Date.now(), keepOn(), audio.play().catch(() => start(cur))) : audio.pause();
 }
 let swipeIn = 0;  // 밀어서 넘긴 방향(1 다음, -1 이전) — 다음 그리기 때 새 표지가 들어오는 쪽
 // 옆으로 밀기: el 위에서 손가락 따라 target을 움직이고, 넘기면 go
@@ -646,21 +712,27 @@ function go(d){
   if(nf){ queue = nf.songs; qName = nf.path || ""; return start(d > 0 ? 0 : nf.songs.length - 1); }
   start((cur + d + queue.length) % queue.length);
 }
-audio.addEventListener("play", syncPlay);
-audio.addEventListener("pause", () => { syncPlay(); saveState(); });
+audio.addEventListener("play", () => { soundAt = Date.now(); keepOn(); syncPlay(); });
+audio.addEventListener("playing", () => { soundAt = Date.now(); keepOn(); posState(); });
+// 곡이 끝나며 오는 멈춤(ended)에는 지킴이를 끄지 않음 — 그 틈을 메우는 게 지킴이의 일
+audio.addEventListener("pause", () => { if(!audio.ended){ keepOff(); if(diagCur){ diagCur.p = Date.now() - diagCur.at; diagCur = null; diagSave(); } } syncPlay(); saveState(); posState(); });
+audio.addEventListener("seeked", posState); audio.addEventListener("durationchange", posState);
 // 11-19 회장 A안: 잠금 중 곡이 '끝남'까지 가면 소리가 잠깐 쉬고, 아이폰 홈 화면 앱은 그 뒤 다음 곡을 소리 없이 틂 →
 // 화면이 꺼져 있으면 끝나기 0.5초 전에 미리 넘겨 소리가 쉬는 순간을 안 만듦(화면 켜져 있을 땐 원래대로 끝까지)
 let earlyAt = 0;
 audio.addEventListener("timeupdate", () => {
   progress(); if(Math.floor(audio.currentTime) % 5 === 0) saveState();
+  soundAt = Date.now(); if(soundAt - posAt > 10000) posState();
+  if(diagCur && audio.currentTime >= 1) diagDone();
+  if(preWant && audio.currentTime >= 10){ const w = preWant; preWant = null; if(w.for === song()?.id) prefetchBlob(w); }
   const left = audio.duration - audio.currentTime;
   if(!isFinite(left)) return;
   if(left > 1) earlyAt = 0;
-  else if(document.hidden && !audio.paused && !earlyAt && left < .5){ earlyAt = Date.now(); rep === 2 ? (audio.currentTime = 0) : go(1); }
+  else if(document.hidden && !audio.paused && !earlyAt && left < .5){ earlyAt = Date.now(); rep === 2 ? (audio.currentTime = 0) : (why = "y", go(1)); }
 });
 audio.addEventListener("ended", () => { if(Date.now() - earlyAt < 3000) return;  // 미리 넘겼는데 끝남이 겹쳐 온 것 — 두 곡 넘어가지 않게
-  rep === 2 ? (audio.currentTime = 0, audio.play()) : go(1); });
-audio.addEventListener("error", () => { if(audio.src) { urlsAt = 0; toast("곡을 불러오지 못했어요 — 다시 눌러 주세요"); } });
+  rep === 2 ? (audio.currentTime = 0, audio.play()) : (why = "e", go(1)); });
+audio.addEventListener("error", () => { if(audio.src) { urlsAt = 0; keepOff(); toast("곡을 불러오지 못했어요 — 다시 눌러 주세요"); } });
 // 표지 주소: 곡마다 한 번만 OneDrive에 물어봄(표지가 없으면 그림 주소가 깨져서 음표가 그대로 보임)
 const covers = {};
 async function coverOf(s){
@@ -1203,7 +1275,7 @@ async function boot(){
   matchMedia("(min-width: 820px)").addEventListener("change", render);
   setInterval(() => { if(!playing()) loadTree().then(render).catch(() => {}); }, 45 * 60000);  // 재생 주소가 1시간이라 쉬는 동안 새로 받음
   addEventListener("pagehide", saveState);
-  document.addEventListener("visibilitychange", () => { if(!document.hidden){ syncRate(); if(song()) prefetchNext(); } });  // 잠금 풀고 돌아오면 다음 곡 다시 미리 받기
+  document.addEventListener("visibilitychange", () => { if(!document.hidden){ if(diagCur) diagCur.v = 1; diagLater(); syncRate(); } });  // 앱으로 돌아오면 평가 다시 맞춤(다음 곡 미리 받기는 곡 시작 때 한 번이면 됨 — 여기서 또 부르면 셔플이 새 곡을 뽑아 또 받음)
 }
 if(AUTH_CHILD) document.body.innerHTML = '<p style="color:#b4b4b0;font:14px Pretendard,sans-serif;text-align:center;margin-top:40vh">로그인했어요. 이 창은 닫혀요.</p>';
 else boot();
