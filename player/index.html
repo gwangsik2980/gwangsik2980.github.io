@@ -939,11 +939,8 @@ audio.addEventListener("pause", () => document.querySelector(".ngw")?.classList.
 audio.addEventListener("play", () => $("qlist")?.classList.remove("paused"));
 audio.addEventListener("pause", () => $("qlist")?.classList.add("paused"));
 let busy = false;
-let renderLater = false;  // 11-19 회장: 화면 꺼져 있을 땐 다시 그리지 않음(폴더 ▶ 수백 곡 목록을 곡 넘길 때마다 그리면 잠금 중 무거움) — 돌아오면 한 번
 function render(){
   if(!$("app")) return;
-  if(document.hidden){ renderLater = true; return; }
-  renderLater = false;
   const keep = $("tree")?.scrollTop || 0, wide = isWide();
   $("app").className = "app " + (wide ? "wide" : "phone");
   $("app").innerHTML = `<div class="hd"><span class="lab totop" data-a="top" title="맨 위로"><svg class="emb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="5.5"/><g transform="translate(6 6.125) scale(.5)" stroke-width="2.8"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></g></svg>GWANG · Player</span><span class="hacts"><span class="meta">${ALL.length ? ALL.length + "곡" : ""}</span>
@@ -1206,7 +1203,7 @@ async function boot(){
   matchMedia("(min-width: 820px)").addEventListener("change", render);
   setInterval(() => { if(!playing()) loadTree().then(render).catch(() => {}); }, 45 * 60000);  // 재생 주소가 1시간이라 쉬는 동안 새로 받음
   addEventListener("pagehide", saveState);
-  document.addEventListener("visibilitychange", () => { if(!document.hidden){ if(renderLater) render(); syncRate(); if(song()) prefetchNext(); } });  // 잠금 풀고 돌아오면 다음 곡 다시 미리 받기
+  document.addEventListener("visibilitychange", () => { if(!document.hidden){ syncRate(); if(song()) prefetchNext(); } });  // 잠금 풀고 돌아오면 다음 곡 다시 미리 받기
 }
 if(AUTH_CHILD) document.body.innerHTML = '<p style="color:#b4b4b0;font:14px Pretendard,sans-serif;text-align:center;margin-top:40vh">로그인했어요. 이 창은 닫혀요.</p>';
 else boot();
