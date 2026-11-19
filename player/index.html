@@ -648,8 +648,18 @@ function go(d){
 }
 audio.addEventListener("play", syncPlay);
 audio.addEventListener("pause", () => { syncPlay(); saveState(); });
-audio.addEventListener("timeupdate", () => { progress(); if(Math.floor(audio.currentTime) % 5 === 0) saveState(); });
-audio.addEventListener("ended", () => { rep === 2 ? (audio.currentTime = 0, audio.play()) : go(1); });
+// 11-19 회장 A안: 잠금 중 곡이 '끝남'까지 가면 소리가 잠깐 쉬고, 아이폰 홈 화면 앱은 그 뒤 다음 곡을 소리 없이 틂 →
+// 화면이 꺼져 있으면 끝나기 0.5초 전에 미리 넘겨 소리가 쉬는 순간을 안 만듦(화면 켜져 있을 땐 원래대로 끝까지)
+let earlyAt = 0;
+audio.addEventListener("timeupdate", () => {
+  progress(); if(Math.floor(audio.currentTime) % 5 === 0) saveState();
+  const left = audio.duration - audio.currentTime;
+  if(!isFinite(left)) return;
+  if(left > 1) earlyAt = 0;
+  else if(document.hidden && !audio.paused && !earlyAt && left < .5){ earlyAt = Date.now(); rep === 2 ? (audio.currentTime = 0) : go(1); }
+});
+audio.addEventListener("ended", () => { if(Date.now() - earlyAt < 3000) return;  // 미리 넘겼는데 끝남이 겹쳐 온 것 — 두 곡 넘어가지 않게
+  rep === 2 ? (audio.currentTime = 0, audio.play()) : go(1); });
 audio.addEventListener("error", () => { if(audio.src) { urlsAt = 0; toast("곡을 불러오지 못했어요 — 다시 눌러 주세요"); } });
 // 표지 주소: 곡마다 한 번만 OneDrive에 물어봄(표지가 없으면 그림 주소가 깨져서 음표가 그대로 보임)
 const covers = {};
