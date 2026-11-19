@@ -346,6 +346,8 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const ls = {get(k, d){ try { return JSON.parse(localStorage.getItem(K + k)) ?? d; } catch { return d; } },
             set(k, v){ try { localStorage.setItem(K + k, JSON.stringify(v)); } catch {} },
             del(k){ try { localStorage.removeItem(K + k); } catch {} }};
+// 브라우저가 만든 오류 문구(영어 — 'Load failed' 등)는 화면에 그대로 내보내지 않음. 우리가 던진 오류(Error)의 글만 쓰고 나머지는 ko로(11-19 회장)
+const errMsg = (e, ko) => (e?.name === "Error" && e.message) || ko;
 function toast(msg){
   document.querySelector(".toast")?.remove();
   const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
@@ -509,7 +511,7 @@ async function syncRate(){
       if(!w.ok){ rateT = setTimeout(syncRate, 30000); if(!rateErr){ rateErr = 1; toast(`평가 저장 실패 (${w.status})`); } }  // 11-19: 올리기 실패를 무시해 👎가 폰에만 남던 것 — 30초 뒤 다시
     }
     const t = $("tree"); if(t && !q){ const k = t.scrollTop; t.innerHTML = treeHtml(); t.scrollTop = k; bindNewInner(); }
-  } catch(e){ if(!rateErr){ rateErr = 1; toast("평가 저장 실패 (" + e.message + ")"); } if(e.login) return; clearTimeout(rateT); rateT = setTimeout(syncRate, 30000); }  // 인터넷 끊김 등 — 다시
+  } catch(e){ if(!rateErr){ rateErr = 1; toast("평가 저장 실패 (" + errMsg(e, "인터넷 연결 확인") + ")"); } if(e.login) return; clearTimeout(rateT); rateT = setTimeout(syncRate, 30000); }  // 인터넷 끊김 등 — 다시
   finally { rateBusy = false; }
 }
 function setRate(s, r){
@@ -659,7 +661,7 @@ async function start(i, autoplay = true){
     if(e.login) return showGate(e.message);
     if(my !== startSeq) return;  // 빨리 넘기면 앞 곡 재생이 끊기며 나는 'The operation was aborted' — 알릴 일 아님(11-17)
     // 지금 곡에서 나는 AbortError = 소리 나기 전에 멈춘 것. 알리진 않되 아래 '다음 곡 준비'는 해야 함(11-19: 여기서 return해 그 곡 동안 다음 곡을 안 받았고, 그 전환이 잠금 중 무음이 됨)
-    if(e.name !== "AbortError"){ toast(e.name === "NotAllowedError" ? "재생 버튼을 한 번 더 눌러 주세요" : e.message || "재생하지 못했어요"); if(diagCur?.at === t0){ diagCur.er ??= e.name || "e"; diagSave(); } }
+    if(e.name !== "AbortError"){ toast(e.name === "NotAllowedError" ? "재생 버튼을 한 번 더 눌러 주세요" : errMsg(e, "곡을 불러오지 못했어요 — 다시 눌러 주세요")); if(diagCur?.at === t0){ diagCur.er ??= e.name || "e"; diagSave(); } }
   } finally { loading = false; syncPlay(); }
   mediaMeta(); saveState();
   if(my === startSeq) prefetchNext();
@@ -1107,7 +1109,7 @@ async function reload(){
   } catch {}
   busy = true; render();
   try { await loadTree(); }  // 다 읽었다는 알림 없음(11-18 회장 — 버튼 누른 뒤 알림은 안 띄움, 오류만)
-  catch(e){ if(e.login) return showGate(e.message); toast(e.message); }
+  catch(e){ if(e.login) return showGate(e.message); toast(errMsg(e, "목록을 불러오지 못했어요 — 인터넷 연결을 확인해 주세요")); }
   busy = false; render();
 }
 function bind(){
@@ -1269,7 +1271,7 @@ async function boot(){
   if(cached){ setTree(cached); }
   busy = true; render();
   try { await loadTree(); }
-  catch(e){ if(e.login) return showGate(e.message); toast(e.message); }
+  catch(e){ if(e.login) return showGate(e.message); toast(errMsg(e, "목록을 불러오지 못했어요 — 인터넷 연결을 확인해 주세요")); }
   busy = false;
   // 지난번 듣던 곡을 미니 플레이어에 다시 올려 둠(자동 재생은 안 함)
   const last = ls.get("last", null);
