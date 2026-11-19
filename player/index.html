@@ -529,7 +529,7 @@ let shufNext = -1;
 const preconn = new Set();
 async function prefetchNext(){
   if(!queue.length) return;
-  const cid = song()?.id;
+  const cid = song()?.id, my = ++preSeq;
   const nf = !shuf && nextFolder();
   const n = shuf && queue.length > 1 ? (shufNext = (() => { let k; do k = Math.floor(Math.random() * queue.length); while(k === cur); return k; })())
                                      : (cur + 1) % queue.length;
@@ -541,29 +541,34 @@ async function prefetchNext(){
     // 다음 곡 파일을 통째로 미리 받아 둠 → 곡이 바뀔 때 받을 것 없이 바로 재생(11-17 회장). 잠금 중에도 받고 씀.
     // 11-19 '순서대로' 1단계: 조건이 곡 길이(15분 이하)였는데 OneDrive가 길이를 안 줘서 852곡 전부 걸러져 한 번도 안 돌았음 → 파일 크기로(25MB 이하 — 보통 곡은 가장 큰 게 24MB, 모음집은 32MB부터라 안 받음).
     // 미리 받은 곡은 늘 하나. 받기는 지금 곡이 10초 나온 뒤에 시작하고(preWant → timeupdate), 곡을 넘기면 받던 것은 취소(LTE 데이터)
-    if(pre?.id === t.id || !(t.z ? t.z <= 25e6 : t.d > 0 && t.d <= 900)) return;
-    if(song()?.id !== cid || t.id === cid) return;  // 주소를 받는 사이에 곡이 바뀌었으면 그만(새 곡 쪽이 다시 부름). 다음 곡이 지금 곡이면(한 곡짜리 목록) 받을 것 없음
-    preWant = {id: t.id, u, for: cid};
-  } catch {}
+    if(my !== preSeq || t.id === cid) return;  // 주소를 받는 사이에 곡이 바뀌었거나 다시 불렸으면 그만(새 쪽이 맡음). 다음 곡이 지금 곡이면(한 곡짜리 목록) 받을 것 없음
+    if(!(t.z ? t.z <= 25e6 : t.d > 0 && t.d <= 900)){ preSt = "n"; return; }
+    if(pre?.id === t.id){ preSt = "r"; return; }
+    preWant = {id: t.id, u, for: cid}; preSt = "w";
+  } catch { if(my === preSeq){ preSt = "x"; preAt = Date.now(); } }  // 주소를 못 받음 → 15초 뒤 다시(timeupdate)
 }
 async function prefetchBlob(w){
+  preAbort?.abort();  // 받던 게 있으면 끊음(셔플을 바꿔 다음 곡이 달라졌을 때 — 늦게 끝난 옛 파일이 새 파일을 덮지 않게)
   if(pre){ URL.revokeObjectURL(pre.url); pre = null; }
-  const ac = preAbort = new AbortController();
+  const ac = preAbort = new AbortController(); preSt = "f";
   try {
     const r = await fetch(w.u, {signal: ac.signal});
-    if(!r.ok) return;
+    if(!r.ok){ delete urls[w.id]; throw 0; }  // 주소가 낡았을 수 있음 → 다음엔 새로 물어봄
     const b = await r.blob();
     if(ac.signal.aborted || song()?.id === w.id) return;  // 받는 사이에 곡이 바뀌었으면 버림
-    pre = {id: w.id, url: URL.createObjectURL(b)};
-  } catch {}
+    pre = {id: w.id, url: URL.createObjectURL(b)}; preSt = "r";
+  } catch { if(!ac.signal.aborted){ preSt = "x"; preAt = Date.now(); } }  // 인터넷 문제로 못 받음 → 15초 뒤 다시(timeupdate)
 }
 let pre = null, curBlob = null;  // 미리 받아 둔 다음 곡 {id, url}, 지금 틀고 있는 미리 받은 파일 주소
 let preWant = null, preAbort = null;  // 받으려고 기다리는 다음 곡 {id, u, for 지금 곡}, 받는 중인 요청
+// 11-19 구멍 메우기: 미리 받기 상태(기록의 n 칸·다시 받기용) "" 아직 · w 10초 기다림 · f 받는 중 · r 받아 둠 · x 실패 · n 큰 파일이라 안 받음 / 실패한 때 / 이 곡에서 다시 받은 횟수 / prefetchNext 호출 번호
+let preSt = "", preAt = 0, preTry = 0, preSeq = 0;
 
 /* 곡 전환 기록(11-19 '순서대로'): 잠금 중 다음 곡이 소리 없이 '재생 중'으로만 뜨는 일이 가끔만 생겨서,
    고친 게 들었는지를 느낌이 아니라 숫자로 보려고 아이폰에서만 전환마다 한 줄 남김 → OneDrive 앱/GWANG Player/진단_아이폰.json (집 PC에서 읽음).
    {at 넘긴 때, h 화면 꺼짐, b 미리 받은 파일 씀, w 왜(e 끝남·y 미리 넘김·u 손으로), s 단계(1 미리 받기·2 +무음 지킴이),
-    ms 소리가 나기까지(없으면 끝내 안 남), v 그 사이 앱을 열었음, x 소리 전에 또 넘김(몇 ms 만에), p 소리 전에 멈춤(몇 ms 만에)}
+    ms 소리가 나기까지(없으면 끝내 안 남), v 그 사이 앱을 열었음, x 소리 전에 또 넘김(몇 ms 만에), p 소리 전에 멈춤(몇 ms 만에),
+    n 미리 받은 파일을 못 쓴 까닭(b가 0일 때 — "-" 준비 전·w 10초 기다리던 중·f 받던 중·x 받기 실패·n 큰 파일·r 다른 곡을 받아 둠), er 재생 오류(m숫자 = 곡 파일 오류 코드, 그 밖은 오류 이름)}
    — h·v가 1이고 ms가 크면 '앱을 열 때까지 못 시작'. ms 없이 x·p가 몇 초 이상이면 소리 없이 걸려 있던 곡을 넘기거나 멈춘 것 */
 const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 let diagUse = IOS, diagName = "진단_아이폰.json", diag = ls.get("diag", []), diagCur = null, diagT = 0, why = "u", diagDirty = diag.length > 0;
@@ -631,7 +636,7 @@ let startSeq = 0;
 async function start(i, autoplay = true){
   saveState(); const my = ++startSeq, t0 = Date.now(), w = why; why = "u";
   cur = i; const s = song(); if(!s) return;
-  preWant = null; preAbort?.abort();  // 받으려던·받던 다음 곡은 그만(곡이 바뀜)
+  const pn = preSt; preWant = null; preAbort?.abort(); preSeq++; preSt = ""; preTry = 0;  // 받으려던·받던 다음 곡은 그만(곡이 바뀜). pn = 직전 곡의 미리 받기 상태(기록의 n 칸)
   if(autoplay){ soundAt = Date.now(); keepOn(); }  // await보다 앞(손가락 터치 안)
   loading = true;
   try {
@@ -643,7 +648,7 @@ async function start(i, autoplay = true){
     const old = curBlob;
     audio.src = u;
     posState();
-    if(autoplay) diagStart({at: t0, h: +document.hidden, b: +!!pb, w, s: keepUse ? 2 : 1});
+    if(autoplay) diagStart({at: t0, h: +document.hidden, b: +!!pb, w, s: keepUse ? 2 : 1, ...(pb ? {} : {n: pn || "-"})});
     curBlob = pb;
     if(old && old !== u) URL.revokeObjectURL(old);
     const p = autoplay ? audio.play() : null;  // 소리부터 출발시키고 화면은 그다음에(화면 그리기가 재생을 늦추지 않게)
@@ -652,9 +657,9 @@ async function start(i, autoplay = true){
   } catch(e){
     render();
     if(e.login) return showGate(e.message);
-    if(my !== startSeq || e.name === "AbortError") return;  // 빨리 넘기면 앞 곡 재생이 끊기며 나는 'The operation was aborted' — 알릴 일 아님(11-17)
-    if(e.name === "NotAllowedError") toast("재생 버튼을 한 번 더 눌러 주세요");
-    else toast(e.message || "재생하지 못했어요");
+    if(my !== startSeq) return;  // 빨리 넘기면 앞 곡 재생이 끊기며 나는 'The operation was aborted' — 알릴 일 아님(11-17)
+    // 지금 곡에서 나는 AbortError = 소리 나기 전에 멈춘 것. 알리진 않되 아래 '다음 곡 준비'는 해야 함(11-19: 여기서 return해 그 곡 동안 다음 곡을 안 받았고, 그 전환이 잠금 중 무음이 됨)
+    if(e.name !== "AbortError"){ toast(e.name === "NotAllowedError" ? "재생 버튼을 한 번 더 눌러 주세요" : e.message || "재생하지 못했어요"); if(diagCur?.at === t0){ diagCur.er ??= e.name || "e"; diagSave(); } }
   } finally { loading = false; syncPlay(); }
   mediaMeta(); saveState();
   if(my === startSeq) prefetchNext();
@@ -725,6 +730,7 @@ audio.addEventListener("timeupdate", () => {
   soundAt = Date.now(); if(soundAt - posAt > 10000) posState();
   if(diagCur && audio.currentTime >= 1) diagDone();
   if(preWant && audio.currentTime >= 10){ const w = preWant; preWant = null; if(w.for === song()?.id) prefetchBlob(w); }
+  else if(preSt === "x" && preTry < 3 && soundAt - preAt > 15000){ preTry++; preSt = ""; prefetchNext(); }  // 미리 받기 실패 → 15초 뒤 다시(곡마다 3번까지 — LTE 데이터)
   const left = audio.duration - audio.currentTime;
   if(!isFinite(left)) return;
   if(left > 1) earlyAt = 0;
@@ -732,7 +738,7 @@ audio.addEventListener("timeupdate", () => {
 });
 audio.addEventListener("ended", () => { if(Date.now() - earlyAt < 3000) return;  // 미리 넘겼는데 끝남이 겹쳐 온 것 — 두 곡 넘어가지 않게
   rep === 2 ? (audio.currentTime = 0, audio.play()) : (why = "e", go(1)); });
-audio.addEventListener("error", () => { if(audio.src) { urlsAt = 0; keepOff(); toast("곡을 불러오지 못했어요 — 다시 눌러 주세요"); } });
+audio.addEventListener("error", () => { if(audio.src) { urlsAt = 0; keepOff(); if(diagCur){ diagCur.er = "m" + (audio.error?.code || 0); diagSave(); } toast("곡을 불러오지 못했어요 — 다시 눌러 주세요"); } });
 // 표지 주소: 곡마다 한 번만 OneDrive에 물어봄(표지가 없으면 그림 주소가 깨져서 음표가 그대로 보임)
 const covers = {};
 async function coverOf(s){
@@ -1169,8 +1175,9 @@ function bind(){
     if(a === "mute"){ audio.muted = !audio.muted; const r = $("vol"); if(r){ const v = audio.muted ? 0 : Math.round(audio.volume * 100); r.value = v; r.style.setProperty("--v", v + "%"); } el.innerHTML = audio.muted ? I.mute : I.vol; return; }
     if(a === "next") return go(1);
     if(a === "prev") return go(-1);  // 언제 눌러도 이전 곡(3초 넘게 들으면 처음으로 가던 규칙은 뺌, 11-17 회장)
-    if(a === "shuf"){ shuf = !shuf; ls.set("shuf", shuf); return el.classList.toggle("on", shuf); }
-    if(a === "rep"){ rep = (rep + 1) % 3; ls.set("rep", rep); el.title = ["반복", "목록 반복", "한 곡 반복"][rep]; el.classList.toggle("one", rep === 2); return el.classList.toggle("on", rep > 0); }
+    // 셔플·반복을 바꾸면 '다음 곡'이 달라짐 → 미리 받을 곡도 다시 정함(11-19 구멍 메우기). 셔플 중엔 반복을 바꿔도 다음 곡이 그대로라 안 부름
+    if(a === "shuf"){ shuf = !shuf; ls.set("shuf", shuf); prefetchNext(); return el.classList.toggle("on", shuf); }
+    if(a === "rep"){ rep = (rep + 1) % 3; ls.set("rep", rep); if(!shuf) prefetchNext(); el.title = ["반복", "목록 반복", "한 곡 반복"][rep]; el.classList.toggle("one", rep === 2); return el.classList.toggle("on", rep > 0); }
     if(a === "open") return el._dragged ? undefined : openFull();  // 끌어 올린 뒤 따라오는 클릭은 무시
     if(a === "close") return closeFull();
     if(a === "more") return;  // 수면 타이머 메뉴는 아래 document 클릭에서
