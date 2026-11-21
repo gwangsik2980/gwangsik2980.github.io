@@ -948,6 +948,22 @@ function bindFchips(){
     if(row && !was) t.scrollTo({top: row.getBoundingClientRect().top - t.getBoundingClientRect().top + t.scrollTop - 4, behavior: "smooth"});
     else t.scrollTo({top: 0, behavior: "smooth"});
     c.scrollIntoView({inline: "nearest", block: "nearest", behavior: "smooth"}); };
+  // 11-22 회장 "웹에서는 띠가 좌우로 안 움직임"(스크롤 막대를 숨겨서 마우스로는 움직일 길이 없었음) → PC 마우스: 휠을 굴리면 옆으로 + 잡아끌기(신곡 칸과 같은 방식). 손가락·터치패드 옆 밀기는 원래 스크롤 그대로
+  let wTo = 0, wAt = 0;
+  b.onwheel = e => { if(e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || b.scrollWidth <= b.clientWidth) return;  // 확대(Ctrl)·옆으로 미는 휠은 브라우저에 맡김
+    e.preventDefault();
+    const d = e.deltaY * (e.deltaMode === 1 ? 33 : 1), now = Date.now();
+    if(Math.abs(d) < 40){ b.scrollLeft += d; wAt = 0; return; }  // 터치패드처럼 잘게 오는 휠은 그대로 따라감, 마우스 휠(한 칸씩)은 부드럽게
+    wTo = Math.max(0, Math.min(b.scrollWidth - b.clientWidth, (now - wAt < 400 ? wTo : b.scrollLeft) + d)); wAt = now;  // 빨리 굴리면 굴린 만큼 다 가게 목표 자리를 쌓음(다른 걸로 띠가 움직였으면 wAt = 0 → 지금 자리에서 다시)
+    b.scrollTo({left: wTo, behavior: "smooth"}); };
+  let x0 = null, s0 = 0, moved = false;
+  b.onpointerdown = e => { if(e.pointerType !== "mouse" || e.button || b.scrollWidth <= b.clientWidth) return; x0 = e.clientX; s0 = b.scrollLeft; moved = false; wAt = 0; };
+  b.onpointermove = e => { if(x0 === null) return; const dx = e.clientX - x0;
+    if(!moved && Math.abs(dx) > 6){ moved = true; b.setPointerCapture(e.pointerId); }
+    if(moved) b.scrollLeft = s0 - dx; };
+  b.onpointerup = b.onpointercancel = () => { if(x0 === null) return; x0 = null; if(!moved) return;
+    const eat = ev => { ev.stopPropagation(); ev.preventDefault(); };
+    b.addEventListener("click", eat, {capture: true, once: true}); setTimeout(() => b.removeEventListener("click", eat, true), 300); };  // 끈 뒤 손 뗀 곳 칩이 눌리지 않게
 }
 // 트리에서 폴더를 직접 열고 닫아도 칩 표시가 따라감
 document.addEventListener("click", () => setTimeout(() => document.querySelectorAll(".fchip").forEach(x => x.classList.toggle("on", open.has(x.dataset.fc)))), true);
