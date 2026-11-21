@@ -282,7 +282,8 @@ html.sa body::before{position:absolute;height:var(--appH)}
 .ngh .ttl{flex:1;font-size:16px;font-weight:700}
 .ngp{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
 .ngp::-webkit-scrollbar{display:none}
-.ngpage{flex:none;width:100%;box-sizing:border-box;scroll-snap-align:start;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 6px;align-content:start}
+/* 11-21 회장 "좌우로 넘길 때 깜빡임": 아이폰이 화면 밖 표지를 비웠다가 들어올 때 따로 풀어 한 장면 까맣게 비었음 → 장마다 따로 그려 두고(translateZ), 표지는 풀린 뒤 그림(decoding sync) */
+.ngpage{flex:none;width:100%;box-sizing:border-box;scroll-snap-align:start;transform:translateZ(0);display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 6px;align-content:start}
 .app.wide .ngpage{grid-template-columns:repeat(5,1fr)}
 .ng{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#1d1d1d;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mute);transition:transform .32s var(--spring),filter .32s var(--spring);-webkit-tap-highlight-color:transparent}
 .ng>svg{width:26px;height:26px}
@@ -987,7 +988,7 @@ function bindNew(){
 function bindNewInner(){
   const t = $("tree"); if(!t) return;
   t.querySelectorAll("[data-nc]").forEach(el => { if(el.querySelector("img")) return; const s = byId(el.dataset.nc); if(!s) return;
-    thumbsOf(s).then(th => { const u = th.medium?.url; if(!u || el.querySelector("img")) return; const im = new Image(); im.alt = ""; im.decoding = "async"; im.onerror = () => im.remove(); im.src = u; el.querySelector("svg")?.remove(); el.prepend(im); }); });
+    thumbsOf(s).then(th => { const u = th.medium?.url; if(!u || el.querySelector("img")) return; const im = new Image(); im.alt = ""; im.decoding = "sync"; im.onerror = () => im.remove(); im.src = u; el.querySelector("svg")?.remove(); el.prepend(im); }); });
   const P = t.querySelector(".ngp"), D = t.querySelectorAll(".ngdots i");
   if(P && D.length) P.onscroll = () => { const k = Math.round(P.scrollLeft / P.clientWidth); D.forEach((d, i) => d.classList.toggle("on", i === k)); };
   if(!P || D.length < 2) return;
