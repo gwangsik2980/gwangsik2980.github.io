@@ -92,13 +92,13 @@ html.sa .app.phone>.hd{padding-top:20px}  /* 홈 화면 앱은 아이폰이 상�
 
 /* 파형 진행 막대 */
 .totop{cursor:pointer;user-select:none}
-.totop{display:inline-flex;align-items:center;gap:11px;letter-spacing:0}  /* 11-21 회장 2안: 앱 아이콘 타일 + 굵은 GWANG · 흰→회색 PLAYER */
-.nicon{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;color:#f4f4f2;background:linear-gradient(165deg,#4a4a4a 0%,#2a2a2a 45%,#141414 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 0 0 1px rgba(255,255,255,.16),0 0 14px rgba(255,255,255,.07),0 6px 16px rgba(0,0,0,.55)}.nicon svg{width:19px;height:19px}  /* 11-21 회장: 검정 앱 아이콘 대신 그림처럼 유리 느낌 회색 판(무채색) */
-.nwm{display:inline-flex;align-items:baseline;gap:7px;font-family:var(--display);font-stretch:112%;font-weight:800;font-size:17px;letter-spacing:.05em;line-height:1;white-space:nowrap}
-.app.wide .nwm{font-size:20px;letter-spacing:.07em}
+.totop{display:inline-flex;align-items:center;gap:9px;letter-spacing:0}  /* 11-21 회장 2안: 앱 아이콘 타일 + 굵은 GWANG · 흰→회색 PLAYER */
+.nicon{width:28px;height:28px;border-radius:8px;flex:none;display:grid;place-items:center;color:#f4f4f2;background:linear-gradient(165deg,#4a4a4a 0%,#2a2a2a 45%,#141414 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 0 0 1px rgba(255,255,255,.16),0 0 14px rgba(255,255,255,.07),0 6px 16px rgba(0,0,0,.55)}.nicon svg{width:16px;height:16px}  /* 11-21 회장: 검정 앱 아이콘 대신 그림처럼 유리 느낌 회색 판(무채색) */
+.nwm{display:inline-flex;align-items:baseline;gap:6px;font-family:var(--display);font-stretch:112%;font-weight:800;font-size:14.5px;letter-spacing:.05em;line-height:1;white-space:nowrap}
+.app.wide .nwm{font-size:20px;letter-spacing:.07em;gap:7px}.app.wide .totop{gap:11px}.app.wide .nicon{width:34px;height:34px;border-radius:10px}.app.wide .nicon svg{width:19px;height:19px}  /* 11-21 회장 "폰에서 너무 커, 곡 수와 여백": 폰만 줄임 */
 .nwm .a{color:#f4f4f2}.nwm .d{color:#7a7a7a;font-weight:700}
 .nwm .b{background:linear-gradient(90deg,#fff 0%,#d4d4d4 35%,#8c8c8c 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hd .hcnt{font-size:14.5px;color:#9aa0a8;white-space:nowrap}
+.hd .hcnt{font-size:13.5px;color:#9aa0a8;white-space:nowrap}
 /* 재생바(11-17 회장 시안 1안): 시간 위, 얇은 흰 막대, 손대면 손잡이, 끄는 동안 이동할 시간 표시 */
 .times{display:flex;justify-content:space-between;margin-top:18px;color:rgba(242,242,240,.9);font-size:12.5px;font-variant-numeric:tabular-nums}
 .seek{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.2);margin-top:8px;cursor:pointer;touch-action:none;transition:height .2s var(--spring),margin .2s var(--spring)}
