@@ -93,7 +93,7 @@ html.sa .app.phone>.hd{padding-top:20px}  /* 홈 화면 앱은 아이폰이 상�
 /* 파형 진행 막대 */
 .totop{cursor:pointer;user-select:none}
 .totop{display:inline-flex;align-items:center;gap:11px;letter-spacing:0}  /* 11-21 회장 2안: 앱 아이콘 타일 + 굵은 GWANG · 흰→회색 PLAYER */
-.nicon{width:34px;height:34px;border-radius:10px;flex:none;box-shadow:0 0 0 1px rgba(255,255,255,.14),0 6px 16px rgba(0,0,0,.55)}
+.nicon{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;color:#f4f4f2;background:linear-gradient(165deg,#4a4a4a 0%,#2a2a2a 45%,#141414 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 0 0 1px rgba(255,255,255,.16),0 0 14px rgba(255,255,255,.07),0 6px 16px rgba(0,0,0,.55)}.nicon svg{width:19px;height:19px}  /* 11-21 회장: 검정 앱 아이콘 대신 그림처럼 유리 느낌 회색 판(무채색) */
 .nwm{display:inline-flex;align-items:baseline;gap:7px;font-family:var(--display);font-stretch:112%;font-weight:800;font-size:17px;letter-spacing:.05em;line-height:1;white-space:nowrap}
 .app.wide .nwm{font-size:20px;letter-spacing:.07em}
 .nwm .a{color:#f4f4f2}.nwm .d{color:#7a7a7a;font-weight:700}
@@ -1030,7 +1030,7 @@ function render(){
   if(!$("app")) return;
   const keep = $("tree")?.scrollTop || 0, wide = isWide();
   $("app").className = "app " + (wide ? "wide" : "phone");
-  $("app").innerHTML = `<div class="hd"><span class="lab totop" data-a="top" title="맨 위로"><img class="nicon" src="icon-192.png" alt=""><span class="nwm"><span class="a">GWANG</span><span class="d">·</span><span class="b">PLAYER</span></span></span><span class="hacts"><span class="meta hcnt">${ALL.length ? ALL.length + "곡" : ""}</span>
+  $("app").innerHTML = `<div class="hd"><span class="lab totop" data-a="top" title="맨 위로"><span class="nicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg></span><span class="nwm"><span class="a">GWANG</span><span class="d">·</span><span class="b">PLAYER</span></span></span><span class="hacts"><span class="meta hcnt">${ALL.length ? ALL.length + "곡" : ""}</span>
       <button class="ib${busy ? " spin" : ""}" data-a="reload" title="OneDrive에서 다시 읽기">${I.reload}</button><button class="ib" data-a="logout" title="로그아웃">${I.out}</button></span></div>
     <div class="body"><div class="list"><div class="search">${I.find}<input id="q" placeholder="검색어를 입력해 주세요" value="${esc(q)}" enterkeyhint="search"></div>${fchipsHtml()}
       <div class="scroll" id="tree">${treeHtml()}</div>${wide ? "" : miniBar()}</div>${wide ? fullScreen() : ""}</div>${wide ? "" : fullScreen()}`;
