@@ -142,9 +142,9 @@ html.sa .app.phone>.hd{padding-top:19px}  /* 홈 화면 앱: 아이콘 윗선이
 @keyframes swIn{from{opacity:0;transform:translateX(calc(var(--sx,1) * 48px))}}
 
 /* 폴더 나무 */
-.search{margin:0 16px 20px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:0 10px;background:var(--char)}
+.search{margin:0 16px 18px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:0 10px;background:var(--char)}
 .search svg{width:16px;height:16px;color:var(--mute);flex:none}
-.fchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 16px 17.5px;flex:none;overscroll-behavior-x:contain}  /* 11-23 회장: 띠 위·아래 여백 같게(검색칸 ~ 띠 = 띠 ~ '신곡' 글자). 10px → 22px: 미니 플레이어 위에 살짝 보이던 '연주곡' 줄과 오른쪽 재생 버튼까지 안 보일 만큼(20px로는 폰에서 버튼 윗부분이 보였음 — 2px씩 더) */
+.fchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 16px 15.5px;flex:none;overscroll-behavior-x:contain}  /* 11-23 회장: 띠 위·아래 여백 같게(검색칸 ~ 띠 = 띠 ~ '신곡' 글자). 10px → 20px: 미니 플레이어 위에 살짝 보이던 '연주곡' 줄이 안 보일 만큼(폰 402×874 기준 20px 내려감) */
 .fchips::-webkit-scrollbar{display:none}
 .fchip{flex:none;border:0;background:#232323;color:var(--text);font-family:inherit;font-size:13.5px;font-weight:500;line-height:1;padding:9px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;transition:transform .14s,background-color .14s;-webkit-tap-highlight-color:transparent}
 .fchip.on{background:var(--white);color:var(--ink);font-weight:600}
