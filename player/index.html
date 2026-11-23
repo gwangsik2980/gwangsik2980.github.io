@@ -215,6 +215,7 @@ html.sa .app.phone>.hd{padding-top:19px}  /* 홈 화면 앱: 아이콘 윗선이
 .app.phone .full.morph{overflow:hidden}
 .app.phone .full.morph .disc-wrap{will-change:transform}
 .app.phone .full.morph.grow .sleeve,.app.phone .full:not(.open) .sleeve{transform:none}.app.phone .full.morph.grow .sleeve::before,.app.phone .full:not(.open) .sleeve::before{opacity:0}.app.phone .full.morph.grow .sleeve,.app.phone .full.morph.grow .sleeve::before{transition-duration:.3s}
+.app.phone .full.morph .sleeve{border-radius:var(--sr,12px)}.app.phone .full.anim .sleeve{transition:box-shadow var(--ms) ease}  /* 오가는 동안 보이는 모서리 둥글기를 큰 표지 12px ↔ 미니 표지 8px로 이어 줌(11-23 회장 "미니플레이어 될 때 커버 모서리 네 곳 깎임" — 통째로 줄면 2px까지 각졌다가 도착 순간 8px로 바뀌었음) */
 .app.phone .full.morph.shut .sleeve::before{opacity:0;transition:opacity var(--ms,.3s) ease}  /* 내릴 땐 크기는 지금 그대로(멈춘 곡 86%) 줄어들며 밝기만 서서히 미니 표지와 같게 — 11-23 회장 "멈추고 내릴 땐 왜 커지고 내려가". 열 때(grow)만 꽉 찬 채로 커짐. 닫혀 있을 때도 꽉 찬 채로 둬서 열 때 첫 장면이 미니 표지와 똑같음. 11-23 회장 "큰↔미니 전환 신경써": 오가는 동안 표지는 늘 꽉 차고 밝게 — 미니 표지와 크기·밝기가 같아 양 끝에서 튀지 않음(멈춘 곡은 다 열린 뒤 천천히 작아짐) */
 .app.phone .full.anim{transition:background-color var(--ms) var(--cv,ease)}  /* 뒤 화면이 드러나는 빠르기 = 표지가 움직이는 빠르기(11-23 회장 사진: 내릴 때 목록이 먼저 다 보이고 표지만 늦게 떠 있었음) */
 .app.phone .full.anim .disc-wrap{transition:transform var(--ms) var(--cv,cubic-bezier(.32,.72,0,1))}  /* --cv: tween이 정함 — 버튼으로 내릴 땐 서서히(11-23 회장 "커버 그대로 서서히"), 끌다 놓으면 손가락 빠르기 이어서 */
@@ -1095,11 +1096,20 @@ function morphCtx(src){
   const T = dw.getBoundingClientRect(), L = dw.querySelector(".sleeve")?.getBoundingClientRect() || T;  // 보이는 표지(멈추면 86%)를 미니 표지에 맞춤
   return {f, dw, T, S, o: {x: L.left - T.left, y: L.top - T.top, w: L.width}};
 }
+function setSr(c, sc){  // sc = 지금 표지 배율. 보이는 둥글기를 미니 8px ~ 큰 12px 사이로(배율에 따라 곧게)
+  const k = c.S.width / c.o.w, p = Math.max(0, Math.min(1, (sc - k) / (1 - k)));
+  c.dw.style.setProperty("--sr", ((8 + 4 * p) / (sc * (c.o.w / c.T.width))).toFixed(2) + "px");
+}
+function srLoop(c, until){  // 저절로 가는 구간(CSS 전환)에는 장면마다 실제 배율을 읽어 둥글기를 맞춤 — 둥글기를 따로 전환하면 중간에 더 둥글어졌음
+  const step = () => { if(performance.now() > until) return; const m = getComputedStyle(c.dw).transform.match(/matrix\(([^,]+)/); if(m) setSr(c, +m[1]); requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
 function applyP(c, p){
   c.f.style.setProperty("--p", p.toFixed(3));
   c.f.style.setProperty("--o", Math.max(0, p * 2 - 1).toFixed(3));  // 글자·버튼은 뒤쪽 절반에서 나타남
   const q = 1 - p, k = c.S.width / c.o.w;
   c.dw.style.transform = `translate(${(c.S.left - c.T.left - c.o.x * k) * q}px,${(c.S.top - c.T.top - c.o.y * k) * q}px) scale(${k + (1 - k) * p})`;
+  setSr(c, k + (1 - k) * p);
 }
 // 저절로 가는 구간은 CSS 전환으로(브라우저가 그리기 전용으로 돌려 렉·끊김 없음, 11-18 회장), 손가락으로 끌 때만 applyP를 바로
 function tween(c, a, b, ms, done, cv){
@@ -1107,13 +1117,13 @@ function tween(c, a, b, ms, done, cv){
   c.f.classList.remove("anim"); applyP(c, a); void c.f.offsetWidth;  // 시작 모습을 먼저 확정
   c.f.style.setProperty("--ms", ms + "ms"); c.f.style.setProperty("--od", b > a ? Math.round(ms * .35) + "ms" : "0ms");  // 열 땐 글자가 조금 늦게
   c.f.style.setProperty("--cv", cv || (b > a ? "cubic-bezier(.32,.72,0,1)" : "cubic-bezier(.45,0,.25,1)"));  // 내릴 땐 서서히 출발·도착(11-23 회장)
-  c.f.classList.add("anim"); applyP(c, b);
+  c.f.classList.add("anim"); applyP(c, b); srLoop(c, performance.now() + ms + 30);
   anim = setTimeout(done, ms + 40);
 }
 function settle(c, open){
   if(open && playing()) c.dw.classList.add("spin-on");  // 재생 중이면 꽉 찬 채로 그대로(예전엔 한 장면 뒤 CD가 나옴 — CD는 11-23 뺌)
   full = open; c.f.classList.toggle("open", open); c.f.classList.remove("morph", "anim", "grow", "shut");
-  ["--p", "--o", "--ms", "--od", "--cv"].forEach(k => c.f.style.removeProperty(k)); c.dw.style.transform = ""; c.dw.classList.remove("tuck");
+  ["--p", "--o", "--ms", "--od", "--cv"].forEach(k => c.f.style.removeProperty(k)); c.dw.style.transform = ""; c.dw.style.removeProperty("--sr"); c.dw.classList.remove("tuck");
   document.querySelector(".mini")?.classList.remove("hide-art");
 }
 function tuck(dw){ if(!dw.classList.contains("spin-on")) return false; dw.classList.add("tuck"); dw.classList.remove("spin-on"); return true; }
