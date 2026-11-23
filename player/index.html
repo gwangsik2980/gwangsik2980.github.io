@@ -144,7 +144,7 @@ html.sa .app.phone>.hd{padding-top:19px}  /* 홈 화면 앱: 아이콘 윗선이
 /* 폴더 나무 */
 .search{margin:0 16px 8px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-hi);border-radius:var(--r-sm);padding:0 10px;background:var(--char)}
 .search svg{width:16px;height:16px;color:var(--mute);flex:none}
-.fchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 16px 10px;flex:none;overscroll-behavior-x:contain}
+.fchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 16px 5.5px;flex:none;overscroll-behavior-x:contain}  /* 11-23 회장: 띠 아래 ~ '신곡' 글자 위 여백 = 검색칸 ~ 띠 위 여백(10px) — 아래 .ngw·.ngh 위 여백도 같이 줄임 */
 .fchips::-webkit-scrollbar{display:none}
 .fchip{flex:none;border:0;background:#232323;color:var(--text);font-family:inherit;font-size:13.5px;font-weight:500;line-height:1;padding:9px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;transition:transform .14s,background-color .14s;-webkit-tap-highlight-color:transparent}
 .fchip.on{background:var(--white);color:var(--ink);font-weight:600}
@@ -288,8 +288,8 @@ html.sat body::before{position:absolute;height:var(--appH)}
 .ql .tt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .ql .tt .a{font-size:12.5px;color:var(--mute);font-weight:400}
 /* 신곡 표지 칸(11-18 회장, 유튜브 뮤직 '빠른 선곡'): 목록 맨 위 3칸, 9곡 넘으면 옆으로 넘김, 끝 칸 점 세 개 = 전체 보기 */
-.ngw{margin:4px 0 12px}
-.ngh{display:flex;align-items:center;gap:8px;padding:6px 6px 8px}
+.ngw{margin:0 0 12px}
+.ngh{display:flex;align-items:center;gap:8px;padding:0 6px 8px}
 .ngh .ttl{flex:1;font-size:16px;font-weight:700}
 .ngp{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
 .ngp::-webkit-scrollbar{display:none}
