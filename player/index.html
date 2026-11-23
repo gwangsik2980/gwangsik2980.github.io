@@ -120,7 +120,7 @@ html.sa .app.phone>.hd{padding-top:19px}  /* 홈 화면 앱: 아이콘 윗선이
 
 /* 레코드 */
 .disc-wrap{position:relative;width:min(100%,250px);aspect-ratio:1;margin:12px auto 22px;flex:none}
-.sleeve{position:absolute;inset:0;border-radius:12px;z-index:2;filter:brightness(.7);box-shadow:0 6px 16px rgba(0,0,0,.4);transition:transform .7s var(--spring),filter .7s ease,box-shadow .7s ease}  /* 11-23 회장 1안 '숨쉬는 표지': CD 대신 재생 중엔 그림자, 멈추면 어두워지기만(크기는 그대로 — 작아지는 건 미니로 갈 때만, 11-23 회장 "미니로 갈 때랑 멈추는 모션이 같다") */
+.sleeve{position:absolute;inset:0;border-radius:12px;z-index:2;transform:scale(.86);filter:brightness(.7);box-shadow:0 6px 16px rgba(0,0,0,.4);transition:transform .7s var(--spring),filter .7s ease,box-shadow .7s ease}  /* 11-23 회장 1안 '숨쉬는 표지': CD 대신 재생 중엔 그림자, 멈추면 작아지며 어두워짐(11-23 회장: 크기 그대로는 되돌림 — '숨쉬기' 유지) */
 .disc{display:none}
 .disc{position:absolute;inset:4%;transition:transform .9s var(--spring)}
 .rec{width:100%;height:100%;border-radius:50%;border:1px solid var(--line-hi);display:grid;place-items:center;
@@ -215,7 +215,7 @@ html.sa .app.phone>.hd{padding-top:19px}  /* 홈 화면 앱: 아이콘 윗선이
 .app.phone .full.morph .disc-wrap{will-change:transform}
 .app.phone .full.morph .sleeve,.app.phone .full:not(.open) .sleeve{transform:none;filter:none}.app.phone .full.morph .sleeve{transition-duration:.3s}  /* 닫혀 있을 때도 꽉 찬 채로 둬서 열 때 첫 장면이 미니 표지와 똑같음. 11-23 회장 "큰↔미니 전환 신경써": 오가는 동안 표지는 늘 꽉 차고 밝게 — 미니 표지와 크기·밝기가 같아 양 끝에서 튀지 않음(멈춘 곡은 다 열린 뒤 천천히 작아짐) */
 .app.phone .full.anim{transition:background-color var(--ms) ease}
-.app.phone .full.anim .disc-wrap{transition:transform var(--ms) cubic-bezier(.32,.72,0,1)}
+.app.phone .full.anim .disc-wrap{transition:transform var(--ms) var(--cv,cubic-bezier(.32,.72,0,1))}  /* --cv: tween이 정함 — 버튼으로 내릴 땐 서서히(11-23 회장 "커버 그대로 서서히"), 끌다 놓으면 손가락 빠르기 이어서 */
 .app.phone .full.anim .inner>:not(.disc-wrap):not(.smenu){transition:opacity calc(var(--ms) * .5) ease var(--od,0s)}
 .app.phone .full .disc-wrap{transform-origin:0 0}
 .disc-wrap.tuck .sleeve,.disc-wrap.tuck .disc{transition-duration:.26s}  /* 닫을 때 CD를 먼저 빨리 표지 속으로 */
@@ -1098,17 +1098,18 @@ function applyP(c, p){
   c.dw.style.transform = `translate(${(c.S.left - c.T.left) * q}px,${(c.S.top - c.T.top) * q}px) scale(${k + (1 - k) * p})`;
 }
 // 저절로 가는 구간은 CSS 전환으로(브라우저가 그리기 전용으로 돌려 렉·끊김 없음, 11-18 회장), 손가락으로 끌 때만 applyP를 바로
-function tween(c, a, b, ms, done){
+function tween(c, a, b, ms, done, cv){
   clearTimeout(anim); if(RM) ms = 1;
   c.f.classList.remove("anim"); applyP(c, a); void c.f.offsetWidth;  // 시작 모습을 먼저 확정
   c.f.style.setProperty("--ms", ms + "ms"); c.f.style.setProperty("--od", b > a ? Math.round(ms * .35) + "ms" : "0ms");  // 열 땐 글자가 조금 늦게
+  c.f.style.setProperty("--cv", cv || (b > a ? "cubic-bezier(.32,.72,0,1)" : "cubic-bezier(.45,0,.25,1)"));  // 내릴 땐 서서히 출발·도착(11-23 회장)
   c.f.classList.add("anim"); applyP(c, b);
   anim = setTimeout(done, ms + 40);
 }
 function settle(c, open){
   if(open && playing()) c.dw.classList.add("spin-on");  // 재생 중이면 꽉 찬 채로 그대로(예전엔 한 장면 뒤 CD가 나옴 — CD는 11-23 뺌)
   full = open; c.f.classList.toggle("open", open); c.f.classList.remove("morph", "anim");
-  ["--p", "--o", "--ms", "--od"].forEach(k => c.f.style.removeProperty(k)); c.dw.style.transform = ""; c.dw.classList.remove("tuck");
+  ["--p", "--o", "--ms", "--od", "--cv"].forEach(k => c.f.style.removeProperty(k)); c.dw.style.transform = ""; c.dw.classList.remove("tuck");
   document.querySelector(".mini")?.classList.remove("hide-art");
 }
 function tuck(dw){ if(!dw.classList.contains("spin-on")) return false; dw.classList.add("tuck"); dw.classList.remove("spin-on"); return true; }
@@ -1124,7 +1125,7 @@ function openFull(src, img){
 function closeFull(){
   const c = !isWide() && morphCtx(); if(!c) return setFull(false);
   startMorph(c);
-  const go = () => tween(c, 1, 0, 420, () => settle(c, false));
+  const go = () => tween(c, 1, 0, 520, () => settle(c, false));
   go();  // CD를 먼저 넣느라 0.24초 멈추던 단계는 뺌(11-23, CD 없음)
 }
 async function reload(){
@@ -1240,15 +1241,19 @@ function bind(){
   }
   const f = $("full");
   if(f && !isWide()){  // 큰 화면 끌어 내려 닫기
-    let sy = null, c = null, D = 1, p = 1;
-    f.onpointerdown = e => { f._drag = false; if(e.target.closest("button, .seek, .wheel, .smenu") || f.scrollTop > 0) return; sy = e.clientY; c = null; p = 1; if(!e.target.closest(".disc-wrap")) f.setPointerCapture(e.pointerId); };  // 표지 위면 표지가 옆 밀기를 받게 잡지 않음
+    let sy = null, c = null, D = 1, p = 1, vy = 0, ly = 0, lt = 0;  // vy: 손가락 빠르기(px/ms, 아래 +)
+    f.onpointerdown = e => { f._drag = false; if(e.target.closest("button, .seek, .wheel, .smenu") || f.scrollTop > 0) return; sy = ly = e.clientY; lt = e.timeStamp; vy = 0; c = null; p = 1; if(!e.target.closest(".disc-wrap")) f.setPointerCapture(e.pointerId); };  // 표지 위면 표지가 옆 밀기를 받게 잡지 않음
     const sw = () => document.querySelector(".disc-wrap")?._swiping;  // 표지를 옆으로 미는 중이면 내리기 안 함
     f.onpointermove = e => { if(sy === null) return; const dy = e.clientY - sy;
+      const dt = e.timeStamp - lt; if(dt > 0){ vy = vy * .4 + (e.clientY - ly) / dt * .6; ly = e.clientY; lt = e.timeStamp; }
       if(sw()){ if(c){ p = 1; applyP(c, 1); } return; }
       if(!c){ if(dy < 8) return; c = morphCtx(); if(!c) return sy = null; f._drag = true; startMorph(c); tuck(c.dw); D = Math.max(200, c.S.top - c.T.top); }
       p = Math.max(0, Math.min(1, 1 - dy / D)); applyP(c, p); };  // 끌어내린 만큼 표지가 미니 표지 쪽으로 작아짐
     f.onpointerup = f.onpointercancel = () => { if(sy === null) return; sy = null; if(!c) return; const k = c; c = null;
-      p < .8 ? tween(k, p, 0, 300, () => settle(k, false)) : tween(k, p, 1, 260, () => settle(k, true)); };
+      // 11-23 회장 "빨리 내릴 때도 따라오게": 빠르게 튕기면(0.5px/ms 넘게 아래로) 조금만 끌어도 닫히고, 남은 길을 손가락 빠르기로 이어 감(급히 서지 않게 처음은 직선에 가깝게)
+      const fast = vy > .5, close = fast || (p < .8 && vy > -.3);
+      if(close){ const left = p * D, ms = fast ? Math.max(160, Math.min(380, left / vy * 1.6)) : 300; tween(k, p, 0, ms, () => settle(k, false), fast ? "cubic-bezier(.25,.6,.35,1)" : "cubic-bezier(.32,.72,0,1)"); }
+      else tween(k, p, 1, 260, () => settle(k, true)); };
   }
 }
 
