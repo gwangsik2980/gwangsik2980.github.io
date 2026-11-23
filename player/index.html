@@ -213,6 +213,7 @@ html.sa .app.phone>.hd{padding-top:19px}  /* 홈 화면 앱: 아이콘 윗선이
 .app.phone .full .inner>:not(.disc-wrap):not(.smenu){opacity:var(--o,1)}
 .app.phone .full.morph{overflow:hidden}
 .app.phone .full.morph .disc-wrap{will-change:transform}
+.app.phone .full.morph .sleeve,.app.phone .full:not(.open) .sleeve{transform:none;filter:none}.app.phone .full.morph .sleeve{transition-duration:.3s}  /* 닫혀 있을 때도 꽉 찬 채로 둬서 열 때 첫 장면이 미니 표지와 똑같음. 11-23 회장 "큰↔미니 전환 신경써": 오가는 동안 표지는 늘 꽉 차고 밝게 — 미니 표지와 크기·밝기가 같아 양 끝에서 튀지 않음(멈춘 곡은 다 열린 뒤 천천히 작아짐) */
 .app.phone .full.anim{transition:background-color var(--ms) ease}
 .app.phone .full.anim .disc-wrap{transition:transform var(--ms) cubic-bezier(.32,.72,0,1)}
 .app.phone .full.anim .inner>:not(.disc-wrap):not(.smenu){transition:opacity calc(var(--ms) * .5) ease var(--od,0s)}
@@ -1105,10 +1106,10 @@ function tween(c, a, b, ms, done){
   anim = setTimeout(done, ms + 40);
 }
 function settle(c, open){
+  if(open && playing()) c.dw.classList.add("spin-on");  // 재생 중이면 꽉 찬 채로 그대로(예전엔 한 장면 뒤 CD가 나옴 — CD는 11-23 뺌)
   full = open; c.f.classList.toggle("open", open); c.f.classList.remove("morph", "anim");
   ["--p", "--o", "--ms", "--od"].forEach(k => c.f.style.removeProperty(k)); c.dw.style.transform = ""; c.dw.classList.remove("tuck");
   document.querySelector(".mini")?.classList.remove("hide-art");
-  if(open && playing()) requestAnimationFrame(() => c.dw.classList.add("spin-on"));  // 표지가 다 커진 뒤 CD가 나옴
 }
 function tuck(dw){ if(!dw.classList.contains("spin-on")) return false; dw.classList.add("tuck"); dw.classList.remove("spin-on"); return true; }
 function startMorph(c){ clearTimeout(anim); c.f.classList.remove("anim"); c.f.classList.add("open", "morph"); full = true; document.querySelector(".mini")?.classList.add("hide-art"); }
@@ -1124,7 +1125,7 @@ function closeFull(){
   const c = !isWide() && morphCtx(); if(!c) return setFull(false);
   startMorph(c);
   const go = () => tween(c, 1, 0, 420, () => settle(c, false));
-  tuck(c.dw) ? setTimeout(go, 240) : go();
+  go();  // CD를 먼저 넣느라 0.24초 멈추던 단계는 뺌(11-23, CD 없음)
 }
 async function reload(){
   // 11-18 회장(B안): 올라간 Player가 지금 것과 다르면 앱째로 새로고침, 같으면 목록만(음악 안 끊김)
