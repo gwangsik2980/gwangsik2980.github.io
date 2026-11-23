@@ -213,7 +213,8 @@ html.sa .app.phone>.hd{padding-top:19px}  /* 홈 화면 앱: 아이콘 윗선이
 .app.phone .full .inner>:not(.disc-wrap):not(.smenu){opacity:var(--o,1)}
 .app.phone .full.morph{overflow:hidden}
 .app.phone .full.morph .disc-wrap{will-change:transform}
-.app.phone .full.morph .sleeve,.app.phone .full:not(.open) .sleeve{transform:none;filter:none}.app.phone .full.morph .sleeve{transition-duration:.3s}  /* 닫혀 있을 때도 꽉 찬 채로 둬서 열 때 첫 장면이 미니 표지와 똑같음. 11-23 회장 "큰↔미니 전환 신경써": 오가는 동안 표지는 늘 꽉 차고 밝게 — 미니 표지와 크기·밝기가 같아 양 끝에서 튀지 않음(멈춘 곡은 다 열린 뒤 천천히 작아짐) */
+.app.phone .full.morph.grow .sleeve,.app.phone .full:not(.open) .sleeve{transform:none;filter:none}.app.phone .full.morph.grow .sleeve{transition-duration:.3s}
+.app.phone .full.morph.shut .sleeve{filter:none;transition:filter var(--ms,.3s) ease}  /* 내릴 땐 크기는 지금 그대로(멈춘 곡 86%) 줄어들며 밝기만 서서히 미니 표지와 같게 — 11-23 회장 "멈추고 내릴 땐 왜 커지고 내려가". 열 때(grow)만 꽉 찬 채로 커짐. 닫혀 있을 때도 꽉 찬 채로 둬서 열 때 첫 장면이 미니 표지와 똑같음. 11-23 회장 "큰↔미니 전환 신경써": 오가는 동안 표지는 늘 꽉 차고 밝게 — 미니 표지와 크기·밝기가 같아 양 끝에서 튀지 않음(멈춘 곡은 다 열린 뒤 천천히 작아짐) */
 .app.phone .full.anim{transition:background-color var(--ms) ease}
 .app.phone .full.anim .disc-wrap{transition:transform var(--ms) var(--cv,cubic-bezier(.32,.72,0,1))}  /* --cv: tween이 정함 — 버튼으로 내릴 땐 서서히(11-23 회장 "커버 그대로 서서히"), 끌다 놓으면 손가락 빠르기 이어서 */
 .app.phone .full.anim .inner>:not(.disc-wrap):not(.smenu){transition:opacity calc(var(--ms) * .5) ease var(--od,0s)}
@@ -1089,13 +1090,15 @@ function morphCtx(src){
   const f = $("full"), dw = f?.querySelector(".disc-wrap"); if(!dw) return null;
   dw.style.transform = "";
   const S = src || document.querySelector(".mini .art")?.getBoundingClientRect();
-  return S ? {f, dw, T: dw.getBoundingClientRect(), S} : null;
+  if(!S) return null;
+  const T = dw.getBoundingClientRect(), L = dw.querySelector(".sleeve")?.getBoundingClientRect() || T;  // 보이는 표지(멈추면 86%)를 미니 표지에 맞춤
+  return {f, dw, T, S, o: {x: L.left - T.left, y: L.top - T.top, w: L.width}};
 }
 function applyP(c, p){
   c.f.style.setProperty("--p", p.toFixed(3));
   c.f.style.setProperty("--o", Math.max(0, p * 2 - 1).toFixed(3));  // 글자·버튼은 뒤쪽 절반에서 나타남
-  const q = 1 - p, k = c.S.width / c.T.width;
-  c.dw.style.transform = `translate(${(c.S.left - c.T.left) * q}px,${(c.S.top - c.T.top) * q}px) scale(${k + (1 - k) * p})`;
+  const q = 1 - p, k = c.S.width / c.o.w;
+  c.dw.style.transform = `translate(${(c.S.left - c.T.left - c.o.x * k) * q}px,${(c.S.top - c.T.top - c.o.y * k) * q}px) scale(${k + (1 - k) * p})`;
 }
 // 저절로 가는 구간은 CSS 전환으로(브라우저가 그리기 전용으로 돌려 렉·끊김 없음, 11-18 회장), 손가락으로 끌 때만 applyP를 바로
 function tween(c, a, b, ms, done, cv){
@@ -1108,19 +1111,19 @@ function tween(c, a, b, ms, done, cv){
 }
 function settle(c, open){
   if(open && playing()) c.dw.classList.add("spin-on");  // 재생 중이면 꽉 찬 채로 그대로(예전엔 한 장면 뒤 CD가 나옴 — CD는 11-23 뺌)
-  full = open; c.f.classList.toggle("open", open); c.f.classList.remove("morph", "anim");
+  full = open; c.f.classList.toggle("open", open); c.f.classList.remove("morph", "anim", "grow", "shut");
   ["--p", "--o", "--ms", "--od", "--cv"].forEach(k => c.f.style.removeProperty(k)); c.dw.style.transform = ""; c.dw.classList.remove("tuck");
   document.querySelector(".mini")?.classList.remove("hide-art");
 }
 function tuck(dw){ if(!dw.classList.contains("spin-on")) return false; dw.classList.add("tuck"); dw.classList.remove("spin-on"); return true; }
-function startMorph(c){ clearTimeout(anim); c.f.classList.remove("anim"); c.f.classList.add("open", "morph"); full = true; document.querySelector(".mini")?.classList.add("hide-art"); }
+function startMorph(c, grow){ clearTimeout(anim); c.f.classList.remove("anim", "grow", "shut"); c.f.classList.add("open", "morph", grow ? "grow" : "shut"); full = true; document.querySelector(".mini")?.classList.add("hide-art"); }
 function openFull(src, img){
   if(isWide()) return setFull(true);
   const c = morphCtx(src); if(!c) return setFull(true);
   c.dw.classList.remove("spin-on");
   const sl = c.dw.querySelector(".sleeve");  // 신곡 칸에서 열 때 큰 표지가 아직 없으면 칸 표지를 먼저 씀
   if(img && sl && !sl.querySelector("img")){ const i = new Image(); i.alt = ""; i.src = img; sl.append(i); sl.classList.add("has"); }
-  startMorph(c); applyP(c, 0); tween(c, 0, 1, 460, () => settle(c, true));
+  startMorph(c, true); applyP(c, 0); tween(c, 0, 1, 460, () => settle(c, true));
 }
 function closeFull(){
   const c = !isWide() && morphCtx(); if(!c) return setFull(false);
@@ -1231,7 +1234,7 @@ function bind(){
       m.addEventListener("pointerdown", e => { if(e.target.closest("button")) return; sy = e.clientY; sx = e.clientX; c = null; p = 0; });
       m.addEventListener("pointermove", e => { if(sy === null || m._swiping) return; const dy = sy - e.clientY;
         if(!c){ if(dy < 10 || dy < Math.abs(e.clientX - sx)) return; c = morphCtx(); if(!c) return sy = null;
-          m._dragged = true; try { m.setPointerCapture(e.pointerId); } catch {} c.dw.classList.remove("spin-on"); startMorph(c); D = Math.max(200, c.S.top - c.T.top); }
+          m._dragged = true; try { m.setPointerCapture(e.pointerId); } catch {} c.dw.classList.remove("spin-on"); startMorph(c, true); D = Math.max(200, c.S.top - c.T.top); }
         p = Math.max(0, Math.min(1, dy / D)); applyP(c, p); });
       const up = () => { if(sy === null) return; sy = null; if(!c) return; const k = c; c = null;
         p > .2 ? tween(k, p, 1, 320, () => settle(k, true)) : tween(k, p, 0, 220, () => settle(k, false)); setTimeout(() => m._dragged = false, 60); };
@@ -1247,7 +1250,7 @@ function bind(){
     f.onpointermove = e => { if(sy === null) return; const dy = e.clientY - sy;
       const dt = e.timeStamp - lt; if(dt > 0){ vy = vy * .4 + (e.clientY - ly) / dt * .6; ly = e.clientY; lt = e.timeStamp; }
       if(sw()){ if(c){ p = 1; applyP(c, 1); } return; }
-      if(!c){ if(dy < 8) return; c = morphCtx(); if(!c) return sy = null; f._drag = true; startMorph(c); tuck(c.dw); D = Math.max(200, c.S.top - c.T.top); }
+      if(!c){ if(dy < 8) return; c = morphCtx(); if(!c) return sy = null; f._drag = true; startMorph(c); D = Math.max(200, c.S.top - c.T.top); }
       p = Math.max(0, Math.min(1, 1 - dy / D)); applyP(c, p); };  // 끌어내린 만큼 표지가 미니 표지 쪽으로 작아짐
     f.onpointerup = f.onpointercancel = () => { if(sy === null) return; sy = null; if(!c) return; const k = c; c = null;
       // 11-23 회장 "빨리 내릴 때도 따라오게": 빠르게 튕기면(0.5px/ms 넘게 아래로) 조금만 끌어도 닫히고, 남은 길을 손가락 빠르기로 이어 감(급히 서지 않게 처음은 직선에 가깝게)
