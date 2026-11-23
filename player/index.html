@@ -211,8 +211,8 @@ html.sa .app.phone>.hd{padding-top:19px}  /* 홈 화면 앱: 아이콘 윗선이
 /* 열고 닫기(11-18 회장, 유튜브 뮤직처럼): 표지 하나가 미니 표지 ↔ 큰 표지 사이를 커졌다 작아졌다(JS가 --p·--o·표지 transform), 나머지는 흐려졌다 나타남 */
 .app.phone .full .inner>:not(.disc-wrap):not(.smenu){opacity:var(--o,1)}
 .app.phone .full.morph{overflow:hidden}
-.app.phone .full.morph .disc-wrap{will-change:transform;z-index:1}  /* 오가는 표지는 흐려지는 글자·버튼보다 위(11-23 회장 영상: 닫힐 때 표지가 제목·재생 버튼 밑으로 지나감) */
-.app.phone .full.anim{transition:background-color var(--ms) var(--bgc,ease)}  /* --bgc: 닫을 땐 열 때를 거꾸로 돌린 빠르기(tween) */
+.app.phone .full.morph .disc-wrap{will-change:transform}
+.app.phone .full.anim{transition:background-color var(--ms) ease}
 .app.phone .full.anim .disc-wrap{transition:transform var(--ms) cubic-bezier(.32,.72,0,1)}
 .app.phone .full.anim .inner>:not(.disc-wrap):not(.smenu){transition:opacity calc(var(--ms) * .5) ease var(--od,0s)}
 .app.phone .full .disc-wrap{transform-origin:0 0}
@@ -1100,14 +1100,12 @@ function tween(c, a, b, ms, done){
   clearTimeout(anim); if(RM) ms = 1;
   c.f.classList.remove("anim"); applyP(c, a); void c.f.offsetWidth;  // 시작 모습을 먼저 확정
   c.f.style.setProperty("--ms", ms + "ms"); c.f.style.setProperty("--od", b > a ? Math.round(ms * .35) + "ms" : "0ms");  // 열 땐 글자가 조금 늦게
-  // 닫을 땐 뒤 목록이 늦게 드러나게(열 때 ease를 거꾸로): 예전엔 목록·미니 플레이어가 먼저 다 보여서, 아직 덜 내려온 표지가 미니 플레이어 밖에 떠 있고 큰 화면 글자가 목록과 겹쳐 보였음(11-23 회장 영상)
-  c.f.style.setProperty("--bgc", b > a ? "ease" : "cubic-bezier(.75,0,.75,.9)");
   c.f.classList.add("anim"); applyP(c, b);
   anim = setTimeout(done, ms + 40);
 }
 function settle(c, open){
   full = open; c.f.classList.toggle("open", open); c.f.classList.remove("morph", "anim");
-  ["--p", "--o", "--ms", "--od", "--bgc"].forEach(k => c.f.style.removeProperty(k)); c.dw.style.transform = ""; c.dw.classList.remove("tuck");
+  ["--p", "--o", "--ms", "--od"].forEach(k => c.f.style.removeProperty(k)); c.dw.style.transform = ""; c.dw.classList.remove("tuck");
   document.querySelector(".mini")?.classList.remove("hide-art");
   if(open && playing()) requestAnimationFrame(() => c.dw.classList.add("spin-on"));  // 표지가 다 커진 뒤 CD가 나옴
 }
