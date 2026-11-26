@@ -155,6 +155,9 @@ html.sa .app.phone>.hd{padding-top:19px}  /* 홈 화면 앱: 아이콘 윗선이
 .row{display:flex;align-items:center;gap:8px;padding:6px 6px 6px calc(6px + var(--d,0) * 16px);border-radius:var(--r-sm);min-height:42px;cursor:pointer;user-select:none}
 @media(hover:hover){.row:hover{background:rgba(255,255,255,.04)}} /* 폰은 스크롤 중 손가락 닿은 줄이 남아 보여서 마우스만 */
 .row .ttl{flex:1;min-width:0}
+.row.song .ttl{flex:0 1 auto}.row.song .sp{flex:1}  /* 제목 바로 오른쪽에 최근 신곡 점이 붙게 */
+.nd{flex:none;width:6px;height:6px;border-radius:50%;background:var(--white);margin-left:6px;display:inline-block}  /* 최근 신곡 묶음 흰 점(11-26) */
+.row .nd{margin-left:-2px}.ql .tt .tl{display:flex;align-items:center;min-width:0}.ql .tt .tl .ttl{flex:0 1 auto}
 .chev{flex:none;width:14px;color:var(--mute);font-size:16px;line-height:1;text-align:center;transition:transform .35s var(--spring)}
 .node.open>.row .chev{transform:rotate(90deg)}
 .fic{flex:none;width:17px;height:17px;color:var(--sub)}
@@ -302,7 +305,7 @@ html.sat body::before{position:absolute;height:var(--appH)}
 .ng>svg{width:26px;height:26px}
 .ng img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .ng:not(.more)::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 52%,rgba(0,0,0,.78))}
-.ng .nt{position:absolute;left:8px;right:8px;bottom:7px;z-index:1;color:#fff;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.ng .nt{position:absolute;left:8px;right:8px;bottom:7px;z-index:1;color:#fff;font-size:12.5px;font-weight:600;white-space:nowrap;text-align:left;display:flex;align-items:center}.ng .ntx{min-width:0;overflow:hidden;text-overflow:ellipsis}.ng .nt .nd{margin-left:5px}
 .ng .eq{position:absolute;top:8px;right:8px;z-index:1;display:flex}
 .ngw.paused .eq i{animation-play-state:paused}
 .ng.now{outline:1.5px solid var(--white);outline-offset:-1.5px}
@@ -469,7 +472,7 @@ async function readFolder(url, path, depth){
     const p = path ? path + "/" + f.name : f.name;
     return readFolder(`/me/drive/items/${f.id}/children?$top=999`, p, depth + 1).then(n => ({...n, name: f.name, path: p}));
   })) : [];
-  return {kids, songs: files.map(f => ({id: f.id, t: f.name.replace(/\.mp3$/i, ""), d: Math.round((f.audio?.duration || 0) / 1000), z: f.size || 0, path}))};  // z 파일 크기 — OneDrive가 이 곡들 길이(d)를 안 줘서 늘 0(11-19)
+  return {kids, songs: files.map(f => ({id: f.id, t: f.name.replace(/\.mp3$/i, ""), d: Math.round((f.audio?.duration || 0) / 1000), z: f.size || 0, c: Date.parse(f.createdDateTime) || 0, path}))};  // z 파일 크기 — OneDrive가 이 곡들 길이(d)를 안 줘서 늘 0(11-19)
 }
 const enc = p => p.split("/").map(encodeURIComponent).join("/");
 async function loadTree(){
@@ -483,7 +486,14 @@ function setTree(t){
   const walk = n => { n.kids.forEach(walk); };  // 순서: 폴더 안 곡 → 하위 폴더
   const flat = n => [...n.songs, ...n.kids.flatMap(flat)];
   ALL = flat(ROOT); walk(ROOT);
+  // 최근 신곡 묶음(11-26 회장 "최근 묶음 기준… 글자 오른쪽에 흰 점"): 매일 05:00 예약 받기로 올라온 곡 중 가장 최근 묶음.
+  // OneDrive에 올라온 시각(c)이 한국 시각 04:30~07:30인 곡 중 가장 늦은 시각에서 90분 안 — 다음 날 새 묶음이 오면 바뀜, 일요일에 분류 폴더로 옮겨도 시각은 그대로라 점이 남음
+  const am = c => { const d = new Date(c + 9 * 36e5), h = d.getUTCHours() + d.getUTCMinutes() / 60; return h >= 4.5 && h < 7.5; };
+  const last = Math.max(0, ...ALL.filter(x => x.c && am(x.c)).map(x => x.c));
+  FRESH = new Set(last ? ALL.filter(x => x.c && am(x.c) && last - x.c < 90 * 6e4).map(x => x.id) : []);
 }
+let FRESH = new Set();
+const dot = s => FRESH.has(s.id) ? `<i class="nd" title="최근 신곡"></i>` : "";
 const allSongs = n => [...n.songs, ...n.kids.flatMap(allSongs)];
 const find = (p, n = ROOT) => { if(p === LIKES) return likeNode(); if(p === CHECK) return checkNode(); if((n.path || "") === p) return n; for(const k of n.kids){ const f = find(p, k); if(f) return f; } };
 const byId = id => ALL.find(s => s.id === id);
@@ -834,7 +844,7 @@ function setNode(node, on, anim){
 function songRow(s, d, showPath){
   const on = song() === s || (song() && song().id === s.id);
   return `<div class="row song${on ? " on" : ""}${shown ? "" : " paused"}${rOf(s.id) === -1 ? " bad" : ""}" style="--d:${d}" data-song="${esc(s.id)}">
-    <span class="ttl" title="${esc(s.t)}">${esc(s.t)}${showPath ? `<div class="meta ttl">${esc(crumbOf(s.path))}</div>` : ""}</span>
+    <span class="ttl" title="${esc(s.t)}">${esc(s.t)}${showPath ? `<div class="meta ttl">${esc(crumbOf(s.path))}</div>` : ""}</span>${dot(s)}<span class="sp"></span>
     <span class="eq"><i></i><i></i><i></i></span><span class="meta">${s.d ? fmt(s.d) : ""}</span></div>`;
 }
 function treeHtml(){
@@ -922,7 +932,7 @@ let pressI = null;
 function qlistHtml(){
   const eq = `<span class="eq"><i></i><i></i><i></i></span>`;
   return queue.map((x, i) => { const now = i === cur, [t, a] = artistOf(x.t);
-    return `<div class="ql two${now ? " now" : ""}${rOf(x.id) === -1 ? " bad" : ""}" data-i="${i}"><span class="th" data-c="${i}">${I.note}${now ? eq : ""}</span><span class="tt"><span class="ttl">${esc(t)}</span><span class="a ttl">${esc(a)}</span></span><span class="meta">${x.d ? fmt(x.d) : ""}</span></div>`; }).join("");
+    return `<div class="ql two${now ? " now" : ""}${rOf(x.id) === -1 ? " bad" : ""}" data-i="${i}"><span class="th" data-c="${i}">${I.note}${now ? eq : ""}</span><span class="tt"><span class="tl"><span class="ttl">${esc(t)}</span>${dot(x)}</span><span class="a ttl">${esc(a)}</span></span><span class="meta">${x.d ? fmt(x.d) : ""}</span></div>`; }).join("");
 }
 function bindList(){
   const L = $("qlist"); if(!L) return;
@@ -997,7 +1007,7 @@ function newGridHtml(){
   for(let i = 0; i < items.length; i += per) pages.push(items.slice(i, i + per));
   const tile = s => { if(!s) return `<div class="ng more${newOpen ? " open" : ""}" data-ngmore role="button" aria-label="${newOpen ? "신곡 목록 접기" : "신곡 전체 보기"}" title="${newOpen ? "접기" : "전체 보기"}"><span class="dots"><i></i><i></i><i></i></span></div>`;
     const now = song()?.id === s.id, u = covAll[s.id]?.medium?.url;
-    return `<div class="ng${now ? " now" : ""}" data-song="${esc(s.id)}" data-nc="${esc(s.id)}">${u ? `<img alt="" src="${esc(u)}">` : I.note}${now ? `<span class="eq"><i></i><i></i><i></i></span>` : ""}<span class="nt">${esc(artistOf(s.t)[0])}</span></div>`; };
+    return `<div class="ng${now ? " now" : ""}" data-song="${esc(s.id)}" data-nc="${esc(s.id)}">${u ? `<img alt="" src="${esc(u)}">` : I.note}${now ? `<span class="eq"><i></i><i></i><i></i></span>` : ""}<span class="nt"><span class="ntx">${esc(artistOf(s.t)[0])}</span>${dot(s)}</span></div>`; };
   return `<div class="ngw${shown ? "" : " paused"}"><div class="ngh"><span class="ttl">신곡</span><span class="cnt">${songs.length}</span>${ppBtn("xs", `data-pf="${esc(nf.path)}" title="신곡 전체 재생"`, shown && shownQ === nf.path)}</div>
     <div class="ngp">${pages.map(pg => `<div class="ngpage">${pg.map(tile).join("")}</div>`).join("")}</div>
     ${pages.length > 1 ? `<div class="ngdots">${pages.map((_, i) => `<i${i ? "" : ' class="on"'}></i>`).join("")}</div>` : ""}
